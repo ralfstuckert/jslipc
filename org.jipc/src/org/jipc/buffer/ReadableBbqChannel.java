@@ -25,6 +25,9 @@ public class ReadableBbqChannel extends
 			dst.put(date);
 			++count;
 		}
+		if (count == 0 && queue.isClosed()) {
+			return -1; // end of stream
+		}
 		return count;
 	}
 	
@@ -44,6 +47,11 @@ public class ReadableBbqChannel extends
 				sleep();
 			}
 			return date.intValue();
+		}
+		
+		@Override
+		public int read(byte[] b, int off, int len) throws IOException {
+			return ReadableBbqChannel.this.read(ByteBuffer.wrap(b, off, len));
 		}
 	}
 

@@ -20,7 +20,7 @@ public abstract class AbstractBbqChannel implements Channel {
 
 	@Override
 	public boolean isOpen() {
-		return queue.isInitialized() ?  !queue.isClosed() : !closed;
+		return !closed;
 	}
 
 	@Override

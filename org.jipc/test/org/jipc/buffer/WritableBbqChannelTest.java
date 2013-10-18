@@ -9,6 +9,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.InterruptedIOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
 import java.nio.channels.ClosedChannelException;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -180,6 +181,7 @@ public class WritableBbqChannelTest {
 				try {
 					os.write((byte)17);
 				} catch (Exception e) {
+					e.printStackTrace();
 					caught.set(e);
 				}
 			}
