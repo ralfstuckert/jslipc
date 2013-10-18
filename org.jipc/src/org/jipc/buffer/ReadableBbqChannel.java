@@ -51,7 +51,14 @@ public class ReadableBbqChannel extends
 		
 		@Override
 		public int read(byte[] b, int off, int len) throws IOException {
-			return ReadableBbqChannel.this.read(ByteBuffer.wrap(b, off, len));
+			int bytesRead = 0;
+			while ((bytesRead = ReadableBbqChannel.this.read(ByteBuffer.wrap(b, off, len))) == 0 ) {
+				if (queue.isClosed()) {
+					return -1;
+				}
+				sleep();
+			}
+			return bytesRead;
 		}
 	}
 

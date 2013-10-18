@@ -329,5 +329,51 @@ public class ReadableBbqChannelTest {
 		assertEquals(null, reader.readLine());
 	}
 
+	@SuppressWarnings("resource")
+	@Test(timeout = 5000)
+	public void testReadFromReaderMayBlock() throws Exception {
+		ByteBufferQueue queue = TestUtil.createByteBufferQueue(SIZE);
+		ReadableBbqChannel channel = new ReadableBbqChannel(
+				queue);
+		queue.init();
+		
+		String text = "hello\n";
+		for (char character : text.toCharArray()) {
+			assertTrue(queue.offer((byte) character));
+		}
+		
+		final BufferedReader reader = new BufferedReader(new InputStreamReader(channel.newInputStream()));
+		assertEquals("hello", reader.readLine());
+
+		final AtomicReference<Exception> caught = new AtomicReference<Exception>();
+		final AtomicReference<String> lineRead = new AtomicReference<String>();
+		Thread thread = new Thread() {
+			public void run() {
+				try {
+					lineRead.set( reader.readLine());
+				} catch (Exception e) {
+					e.printStackTrace();
+					caught.set(e);
+				}
+			}
+		};
+		thread.start();
+		thread.join(1000);
+		assertNull("caught exception " + caught.get(), caught.get());
+		assertNull("read line " + lineRead.get(), lineRead.get());
+		assertTrue(thread.isAlive());
+
+		text = "how are you?\n";
+		for (char character : text.toCharArray()) {
+			assertTrue(queue.offer((byte) character));
+		}
+		
+		// now the queue is no longer empty
+		thread.join(1000);
+		assertNull("caught exception " + caught.get(), caught.get());
+		assertEquals("how are you?", lineRead.get());
+		assertFalse(thread.isAlive());
+	}
+
 
 }
