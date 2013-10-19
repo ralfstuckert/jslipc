@@ -4,11 +4,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.InterruptibleChannel;
-import java.nio.channels.ReadableByteChannel;
 
-public class ReadableBbqChannel extends
-		AbstractBbqChannel implements ReadableByteChannel,
-		InterruptibleChannel {
+import org.jipc.JipcChannelInputStream;
+import org.jipc.ReadableJipcByteChannel;
+
+public class ReadableBbqChannel extends AbstractBbqChannel implements
+		ReadableJipcByteChannel, InterruptibleChannel {
 
 	public ReadableBbqChannel(final ByteBufferQueue queue) {
 		super(queue);
@@ -30,36 +31,9 @@ public class ReadableBbqChannel extends
 		}
 		return count;
 	}
-	
-	public InputStream newInputStream() {
-		return new ReadableBbqChannelInputStream();
-	}
-	
-	private class ReadableBbqChannelInputStream extends InputStream {
 
-		@Override
-		public int read() throws IOException {
-			Byte date = null;
-			while ((date = queue.poll()) == null) {
-				if (queue.isClosed()) {
-					return -1;
-				}
-				sleep();
-			}
-			return date.intValue();
-		}
-		
-		@Override
-		public int read(byte[] b, int off, int len) throws IOException {
-			int bytesRead = 0;
-			while ((bytesRead = ReadableBbqChannel.this.read(ByteBuffer.wrap(b, off, len))) == 0 ) {
-				if (queue.isClosed()) {
-					return -1;
-				}
-				sleep();
-			}
-			return bytesRead;
-		}
+	public InputStream newInputStream() {
+		return new JipcChannelInputStream(this);
 	}
 
 }

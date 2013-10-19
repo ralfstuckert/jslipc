@@ -9,12 +9,9 @@ import static org.junit.Assert.assertTrue;
 import java.io.InterruptedIOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
-import java.nio.channels.Channels;
 import java.nio.channels.ClosedChannelException;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.jipc.buffer.ByteBufferQueue;
-import org.jipc.buffer.WritableBbqChannel;
 import org.junit.Test;
 
 public class WritableBbqChannelTest {
@@ -54,6 +51,20 @@ public class WritableBbqChannelTest {
 		assertFalse(queue.isClosed());
 		channel.close();
 		assertTrue(queue.isClosed());
+	}
+
+	public void testIsClosedByPeer() throws Exception {
+		final ByteBufferQueue queue = TestUtil.createByteBufferQueue(SIZE);
+		WritableBbqChannel channel = new WritableBbqChannel(
+				queue);
+		queue.init();
+
+		assertFalse(channel.isClosedByPeer());
+		queue.close();
+		assertTrue(channel.isClosedByPeer());
+		
+		channel.close();
+		assertFalse(channel.isClosedByPeer());
 	}
 
 	@SuppressWarnings("resource")

@@ -4,10 +4,11 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.InterruptibleChannel;
-import java.nio.channels.ReadableByteChannel;
+
+import org.jipc.ReadableJipcByteChannel;
 
 public class ReadableFileIpcChannel extends AbstractFileIpcChannel implements
-		ReadableByteChannel, InterruptibleChannel {
+		ReadableJipcByteChannel, InterruptibleChannel {
 
 
 	public ReadableFileIpcChannel(File file) throws IOException {
@@ -23,5 +24,7 @@ public class ReadableFileIpcChannel extends AbstractFileIpcChannel implements
 		}
 		return count;
 	}
+	
+
 
 }

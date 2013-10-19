@@ -56,6 +56,21 @@ public class ReadableBbqChannelTest {
 		assertTrue(queue.isClosed());
 	}
 
+	@Test
+	public void testIsClosedByPeer() throws Exception {
+		final ByteBufferQueue queue = TestUtil.createByteBufferQueue(SIZE);
+		ReadableBbqChannel channel = new ReadableBbqChannel(
+				queue);
+		queue.init();
+
+		assertFalse(channel.isClosedByPeer());
+		queue.close();
+		assertTrue(channel.isClosedByPeer());
+		
+		channel.close();
+		assertFalse(channel.isClosedByPeer());
+	}
+
 	@SuppressWarnings("resource")
 	@Test
 	public void testRead() throws Exception {

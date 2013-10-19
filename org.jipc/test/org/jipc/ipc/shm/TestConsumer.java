@@ -2,7 +2,6 @@ package org.jipc.ipc.shm;
 
 import java.io.File;
 
-import org.jipc.ipc.shm.MemoryMappedFilePipe;
 import org.jipc.ipc.shm.MemoryMappedFilePipe.Role;
 
 public class TestConsumer {

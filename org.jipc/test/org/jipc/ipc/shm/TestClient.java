@@ -8,8 +8,6 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.jipc.ipc.shm.MemoryMappedFilePipe;
-
 public class TestClient {
 
 	private final static boolean LOG_TO_CONSOLE = false;

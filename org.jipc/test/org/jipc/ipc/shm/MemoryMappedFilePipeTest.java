@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 
-import org.jipc.ipc.shm.MemoryMappedFilePipe;
 import org.jipc.ipc.shm.MemoryMappedFilePipe.Role;
 import org.junit.Before;
 import org.junit.Test;

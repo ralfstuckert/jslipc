@@ -6,10 +6,10 @@ import java.io.RandomAccessFile;
 import java.nio.channels.Channel;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.FileChannel;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 
-public abstract class AbstractFileIpcChannel implements Channel {
+import org.jipc.JipcChannel;
+
+public abstract class AbstractFileIpcChannel implements Channel, JipcChannel {
 
 	protected FileChannel fileChannel;
 	protected RandomAccessFile file;
@@ -26,12 +26,17 @@ public abstract class AbstractFileIpcChannel implements Channel {
 		return fileChannel;
 	}
 
+	@Override
+	public boolean isClosedByPeer() {
+		return isOpen() && hasCloseMarker();
+	}
+
 	protected void checkClosed() throws ClosedChannelException {
 		if (!isOpen()) {
 			throw new ClosedChannelException();
 		}
 	}
-
+	
 	@Override
 	public void close() throws IOException {
 		if (!isOpen()) {
