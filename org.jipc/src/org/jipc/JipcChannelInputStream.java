@@ -13,6 +13,9 @@ public class JipcChannelInputStream extends InputStream {
 	private ByteBuffer oneByteBuffer = ByteBuffer.wrap(new byte[1]);
 
 	public JipcChannelInputStream(ReadableJipcByteChannel channel) {
+		if (channel == null) {
+			throw new IllegalArgumentException("parameter channel must not be null");
+		}
 		this.channel = channel;
 	}
 
