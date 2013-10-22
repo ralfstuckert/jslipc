@@ -50,7 +50,7 @@ public abstract class AbstractFileIpcChannel implements Channel, JipcChannel {
 		return closeMarker;
 	}
 	
-	protected boolean hasCloseMarker() {
+	private boolean hasCloseMarker() {
 		return getCloseMarker().exists();
 	}
 

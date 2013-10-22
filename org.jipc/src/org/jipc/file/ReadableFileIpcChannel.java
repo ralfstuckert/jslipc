@@ -19,7 +19,7 @@ public class ReadableFileIpcChannel extends AbstractFileIpcChannel implements
 	public int read(ByteBuffer dst) throws IOException {
 		checkClosed();
 		int count = getFileChannel().read(dst);
-		if (count == -1 && !hasCloseMarker()) {
+		if (count == -1 && !isClosedByPeer()) {
 			return 0;
 		}
 		return count;
