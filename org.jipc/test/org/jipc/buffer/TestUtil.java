@@ -2,6 +2,7 @@ package org.jipc.buffer;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -52,6 +53,18 @@ public class TestUtil {
 		writer.close();
 	}
 
+	public static String readFile(final File file)
+			throws IOException {
+		StringBuilder bob = new StringBuilder();
+		FileReader reader = new FileReader(file);
+		int data = 0;
+		while ((data = reader.read()) != -1) {
+			bob.append((char)data);
+		}
+		reader.close();
+		return bob.toString();
+	}
+
 	
 	public static void assertEquals(final CharSequence expected, final ByteBuffer buffer) {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -59,5 +72,9 @@ public class TestUtil {
 			baos.write(buffer.get(index));
 		}
 		Assert.assertEquals( expected, new String(baos.toByteArray()));
+	}
+	
+	public static void assertEquals(final CharSequence expected, final File file) throws IOException {
+		Assert.assertEquals( expected, readFile(file));
 	}
 }
