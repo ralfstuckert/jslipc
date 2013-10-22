@@ -2,7 +2,7 @@ package org.jipc.ipc.shm;
 
 import java.io.File;
 
-import org.jipc.ipc.shm.MemoryMappedFilePipe.Role;
+import org.jipc.JipcRole;
 
 public class TestConsumer {
 	public static void main(String[] args) throws Exception {
@@ -15,7 +15,7 @@ public class TestConsumer {
 	
 	public static String consume(File file) throws Exception {
 		MemoryMappedFilePipe pipe = new MemoryMappedFilePipe(file, 30,
-				Role.Client);
+				JipcRole.Client);
 		TestClient client = new TestClient(pipe);
 //		client.sleep();
 		String received = client.read();

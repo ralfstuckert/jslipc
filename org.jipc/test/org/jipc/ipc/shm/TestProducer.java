@@ -2,7 +2,7 @@ package org.jipc.ipc.shm;
 
 import java.io.File;
 
-import org.jipc.ipc.shm.MemoryMappedFilePipe.Role;
+import org.jipc.JipcRole;
 
 public class TestProducer {
 	
@@ -14,7 +14,7 @@ public class TestProducer {
 			file = new File(args[0]);
 		}
 		MemoryMappedFilePipe pipe = new MemoryMappedFilePipe(file, 30,
-				Role.Server);
+				JipcRole.Server);
 		TestClient client = new TestClient(pipe);
 //		client.sleep();
 		client.write(HELLO);

@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 
-import org.jipc.ipc.shm.MemoryMappedFilePipe.Role;
+import org.jipc.JipcRole;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -30,26 +30,26 @@ public class MemoryMappedFilePipeTest {
 	@Test
 	public void testMemoryMappedFilePipeFile() throws Exception {
 		MemoryMappedFilePipe pipe = new MemoryMappedFilePipe(createFile(),
-				Role.Client);
-		checkQueueBounds(pipe, 4096, Role.Client);
+				JipcRole.Client);
+		checkQueueBounds(pipe, 4096, JipcRole.Client);
 
-		pipe = new MemoryMappedFilePipe(createFile(), Role.Server);
-		checkQueueBounds(pipe, 4096, Role.Server);
+		pipe = new MemoryMappedFilePipe(createFile(), JipcRole.Server);
+		checkQueueBounds(pipe, 4096, JipcRole.Server);
 	}
 
 	@Test
 	public void testMemoryMappedFilePipeFileInt() throws Exception {
 		MemoryMappedFilePipe pipe = new MemoryMappedFilePipe(createFile(),
-				1789, Role.Client);
-		checkQueueBounds(pipe, 1789, Role.Client);
+				1789, JipcRole.Client);
+		checkQueueBounds(pipe, 1789, JipcRole.Client);
 
-		pipe = new MemoryMappedFilePipe(createFile(), 1789, Role.Server);
-		checkQueueBounds(pipe, 1789, Role.Server);
+		pipe = new MemoryMappedFilePipe(createFile(), 1789, JipcRole.Server);
+		checkQueueBounds(pipe, 1789, JipcRole.Server);
 	}
 
-	private void checkQueueBounds(MemoryMappedFilePipe pipe, int size, Role role) {
+	private void checkQueueBounds(MemoryMappedFilePipe pipe, int size, JipcRole role) {
 		int bufferSize = size / 2;
-		if (role == Role.Client) {
+		if (role == JipcRole.Client) {
 			assertNotNull(pipe.getInQueue());
 			assertNotNull(pipe.getOutQueue());
 			assertEquals(bufferSize, pipe.getInQueue().getStartIndex());
@@ -68,12 +68,12 @@ public class MemoryMappedFilePipeTest {
 
 	@Test
 	public void testWhoLocksInitializes() throws Exception {
-		checkWhoLocksInitializes(Role.Client);
-		checkWhoLocksInitializes(Role.Server);
+		checkWhoLocksInitializes(JipcRole.Client);
+		checkWhoLocksInitializes(JipcRole.Server);
 	}
 
 	@SuppressWarnings("resource")
-	protected void checkWhoLocksInitializes(Role role) throws IOException,
+	protected void checkWhoLocksInitializes(JipcRole role) throws IOException,
 			FileNotFoundException {
 		File file = File.createTempFile("test", ".mapped");
 		file.deleteOnExit();
@@ -93,18 +93,18 @@ public class MemoryMappedFilePipeTest {
 	@Test
 	public void testSource() throws Exception {
 		MemoryMappedFilePipe pipe = new MemoryMappedFilePipe(createFile(),
-				1789, Role.Client);
+				1789, JipcRole.Client);
 		assertNotNull(pipe.source());
-		pipe = new MemoryMappedFilePipe(createFile(), 1789, Role.Server);
+		pipe = new MemoryMappedFilePipe(createFile(), 1789, JipcRole.Server);
 		assertNotNull(pipe.source());
 	}
 
 	@Test
 	public void testSink() throws Exception {
 		MemoryMappedFilePipe pipe = new MemoryMappedFilePipe(createFile(),
-				1789, Role.Client);
+				1789, JipcRole.Client);
 		assertNotNull(pipe.sink());
-		pipe = new MemoryMappedFilePipe(createFile(), 1789, Role.Server);
+		pipe = new MemoryMappedFilePipe(createFile(), 1789, JipcRole.Server);
 		assertNotNull(pipe.sink());
 	}
 
