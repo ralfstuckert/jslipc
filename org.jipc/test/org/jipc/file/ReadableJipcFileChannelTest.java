@@ -13,7 +13,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ReadableFileIpcChannelTest {
+public class ReadableJipcFileChannelTest {
 
 	final static int SIZE = 100;
 
@@ -39,13 +39,13 @@ public class ReadableFileIpcChannelTest {
 	@SuppressWarnings("resource")
 	@Test(expected = NullPointerException.class)
 	public void testReadableFileIpcChannel() throws Exception {
-		new ReadableFileIpcChannel(null);
+		new ReadableJipcFileChannel(null);
 	}
 
 	@SuppressWarnings("resource")
 	@Test
 	public void testRead() throws Exception {
-		ReadableFileIpcChannel channel = new ReadableFileIpcChannel(file);
+		ReadableJipcFileChannel channel = new ReadableJipcFileChannel(file);
 		assertEquals(0, channel.read(buffer));
 
 		TestUtil.writeToFile(file, "herbert");
@@ -64,7 +64,7 @@ public class ReadableFileIpcChannelTest {
 	@SuppressWarnings("resource")
 	@Test
 	public void testEndOfStream() throws Exception {
-		ReadableFileIpcChannel channel = new ReadableFileIpcChannel(file);
+		ReadableJipcFileChannel channel = new ReadableJipcFileChannel(file);
 		assertEquals(0, channel.read(buffer));
 
 		TestUtil.writeToFile(file, "herbert");
@@ -86,7 +86,7 @@ public class ReadableFileIpcChannelTest {
 
 	@Test(expected = ClosedChannelException.class)
 	public void testCheckClosed() throws Exception {
-		ReadableFileIpcChannel channel = new ReadableFileIpcChannel(file);
+		ReadableJipcFileChannel channel = new ReadableJipcFileChannel(file);
 		channel.close();
 		channel.read(buffer);
 	}
@@ -94,14 +94,14 @@ public class ReadableFileIpcChannelTest {
 	@Test
 	public void testClose() throws Exception {
 		assertFalse(closedMarker.exists());
-		ReadableFileIpcChannel channel = new ReadableFileIpcChannel(file);
+		ReadableJipcFileChannel channel = new ReadableJipcFileChannel(file);
 		channel.close();
 		assertTrue(closedMarker.exists());
 	}
 
 	@Test
 	public void testIsOpen() throws Exception {
-		ReadableFileIpcChannel channel = new ReadableFileIpcChannel(file);
+		ReadableJipcFileChannel channel = new ReadableJipcFileChannel(file);
 		assertEquals(true, channel.isOpen());
 
 		channel.close();

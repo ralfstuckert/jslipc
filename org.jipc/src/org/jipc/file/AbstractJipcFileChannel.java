@@ -9,14 +9,14 @@ import java.nio.channels.FileChannel;
 
 import org.jipc.JipcChannel;
 
-public abstract class AbstractFileIpcChannel implements Channel, JipcChannel {
+public abstract class AbstractJipcFileChannel implements Channel, JipcChannel {
 
 	protected FileChannel fileChannel;
 	protected RandomAccessFile file;
 	private File closeMarker;
 	private boolean closed;
 
-	public AbstractFileIpcChannel(File file, String mode) throws IOException {
+	public AbstractJipcFileChannel(File file, String mode) throws IOException {
 		this.file = new RandomAccessFile(file, mode);
 		this.closeMarker = new File(file.getAbsolutePath() + ".closed");
 		fileChannel = this.file.getChannel();

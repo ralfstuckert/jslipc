@@ -7,11 +7,11 @@ import java.nio.channels.InterruptibleChannel;
 
 import org.jipc.ReadableJipcByteChannel;
 
-public class ReadableFileIpcChannel extends AbstractFileIpcChannel implements
+public class ReadableJipcFileChannel extends AbstractJipcFileChannel implements
 		ReadableJipcByteChannel, InterruptibleChannel {
 
 
-	public ReadableFileIpcChannel(File file) throws IOException {
+	public ReadableJipcFileChannel(File file) throws IOException {
 		super(file, "r");
 	}
 

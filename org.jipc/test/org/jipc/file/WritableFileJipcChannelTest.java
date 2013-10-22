@@ -13,7 +13,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class WritableFileIpcChannelTest {
+public class WritableFileJipcChannelTest {
 
 	final static int SIZE = 100;
 
@@ -39,13 +39,13 @@ public class WritableFileIpcChannelTest {
 	@SuppressWarnings("resource")
 	@Test(expected = NullPointerException.class)
 	public void testWritableFileIpcChannel() throws Exception {
-		new WritableFileIpcChannel(null);
+		new WritableJipcFileChannel(null);
 	}
 
 	@SuppressWarnings("resource")
 	@Test
 	public void testWrite() throws Exception {
-		WritableFileIpcChannel channel = new WritableFileIpcChannel(file);
+		WritableJipcFileChannel channel = new WritableJipcFileChannel(file);
 
 		assertEquals(7, channel.write(toBuffer("herbert")));
 		TestUtil.assertEquals("herbert", file);
@@ -60,7 +60,7 @@ public class WritableFileIpcChannelTest {
 	@SuppressWarnings("resource")
 	@Test
 	public void testEndOfStream() throws Exception {
-		WritableFileIpcChannel channel = new WritableFileIpcChannel(file);
+		WritableJipcFileChannel channel = new WritableJipcFileChannel(file);
 
 		assertEquals(7, channel.write(toBuffer("herbert")));
 		TestUtil.assertEquals("herbert", file);
@@ -72,7 +72,7 @@ public class WritableFileIpcChannelTest {
 
 	@Test(expected = ClosedChannelException.class)
 	public void testCheckClosed() throws Exception {
-		WritableFileIpcChannel channel = new WritableFileIpcChannel(file);
+		WritableJipcFileChannel channel = new WritableJipcFileChannel(file);
 		channel.close();
 		channel.write(buffer);
 	}
@@ -80,14 +80,14 @@ public class WritableFileIpcChannelTest {
 	@Test
 	public void testClose() throws Exception {
 		assertFalse(closedMarker.exists());
-		WritableFileIpcChannel channel = new WritableFileIpcChannel(file);
+		WritableJipcFileChannel channel = new WritableJipcFileChannel(file);
 		channel.close();
 		assertTrue(closedMarker.exists());
 	}
 
 	@Test
 	public void testIsOpen() throws Exception {
-		WritableFileIpcChannel channel = new WritableFileIpcChannel(file);
+		WritableJipcFileChannel channel = new WritableJipcFileChannel(file);
 		assertEquals(true, channel.isOpen());
 
 		channel.close();

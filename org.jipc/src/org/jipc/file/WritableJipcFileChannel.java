@@ -7,10 +7,10 @@ import java.nio.channels.InterruptibleChannel;
 
 import org.jipc.WritableJipcByteChannel;
 
-public class WritableFileIpcChannel extends AbstractFileIpcChannel implements
+public class WritableJipcFileChannel extends AbstractJipcFileChannel implements
 		WritableJipcByteChannel, InterruptibleChannel {
 
-	public WritableFileIpcChannel(File file) throws IOException {
+	public WritableJipcFileChannel(File file) throws IOException {
 		super(file, "rw");
 	}
 
