@@ -8,7 +8,7 @@ import java.io.File;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 
-import org.jipc.buffer.TestUtil;
+import org.jipc.TestUtil;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

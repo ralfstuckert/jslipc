@@ -1,4 +1,4 @@
-package org.jipc.buffer;
+package org.jipc;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -7,6 +7,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
+import org.jipc.buffer.ByteBufferQueue;
 import org.junit.Assert;
 
 /**
