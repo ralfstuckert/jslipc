@@ -1,0 +1,7 @@
+- Thread safety
+- Pipes/Channels should be enabled to delete underlying files on close (if it is closed by peer)
+- javadoc
+- clean up hierarchy
+- analogy to server socket with abstraction of underlying protocol (pipe)
+- interface pipe
+
