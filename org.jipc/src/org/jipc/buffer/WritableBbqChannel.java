@@ -3,10 +3,12 @@ package org.jipc.buffer;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
-import java.nio.channels.WritableByteChannel;
+
+import org.jipc.JipcChannelOutputStream;
+import org.jipc.WritableJipcByteChannel;
 
 public class WritableBbqChannel extends AbstractBbqChannel implements
-		WritableByteChannel {
+		WritableJipcByteChannel {
 
 	public WritableBbqChannel(final ByteBufferQueue queue) {
 		super(queue);
@@ -26,17 +28,7 @@ public class WritableBbqChannel extends AbstractBbqChannel implements
 	}
 
 	public OutputStream newOutputStream() {
-		return new WritableBbqChannelOutputStream();
-	}
-
-	private class WritableBbqChannelOutputStream extends OutputStream {
-
-		@Override
-		public void write(int b) throws IOException {
-			while (!queue.offer((byte) b)) {
-				sleep();
-			}
-		}
+		return new JipcChannelOutputStream(this);
 	}
 
 }
