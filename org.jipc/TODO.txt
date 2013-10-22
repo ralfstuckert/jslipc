@@ -3,5 +3,6 @@
 - javadoc
 - clean up hierarchy
 - analogy to server socket with abstraction of underlying protocol (pipe)
-- interface pipe
+- FilePipe
+
 
