@@ -247,7 +247,6 @@ public class JipcChannelOutputStreamTest {
 		doAnswer(new Answer<Integer>() {
 			public Integer answer(InvocationOnMock invocation) {
 				ByteBuffer buffer = (ByteBuffer) invocation.getArguments()[0];
-				buffer.flip();
 				assertEquals(1, buffer.remaining());
 				assertEquals((byte) date, buffer.get());
 				return 1;
