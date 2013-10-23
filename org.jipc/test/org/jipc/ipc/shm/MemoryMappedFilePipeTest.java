@@ -11,7 +11,9 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 
+import org.jipc.JipcPipe;
 import org.jipc.JipcRole;
+import org.jipc.ipc.AbstractTestProducer;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -114,10 +116,12 @@ public class MemoryMappedFilePipeTest {
 		Process producer = Runtime.getRuntime().exec(
 				new String[] { System.getProperty("java.home") + "/bin/java",
 						"-cp", System.getProperty("java.class.path"),
-						TestProducer.class.getName(), file.getAbsolutePath() });
+						MMPipeTestProducer.class.getName(), file.getAbsolutePath() });
 		Thread.sleep(1000);
-		String reply = TestConsumer.consume(file);
-		String expectedReply = TestConsumer.createReply(TestProducer.HELLO);
+		MMPipeTestConsumer consumer = new MMPipeTestConsumer();
+		JipcPipe pipe = consumer.createPipe(file);
+		String reply = consumer.consume(pipe);
+		String expectedReply = consumer.createReply(AbstractTestProducer.HELLO);
 		assertEquals(expectedReply, reply);
 		producer.waitFor();
 	}

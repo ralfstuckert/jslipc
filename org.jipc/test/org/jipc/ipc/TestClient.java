@@ -1,4 +1,4 @@
-package org.jipc.ipc.shm;
+package org.jipc.ipc;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -8,6 +8,10 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.jipc.JipcChannelInputStream;
+import org.jipc.JipcChannelOutputStream;
+import org.jipc.JipcPipe;
+
 public class TestClient {
 
 	private final static boolean LOG_TO_CONSOLE = false;
@@ -15,9 +19,9 @@ public class TestClient {
 	private OutputStream out;
 	private InputStream in;
 
-	public TestClient(MemoryMappedFilePipe pipe) {
-		out = pipe.sink().newOutputStream();
-		in = pipe.source().newInputStream();
+	public TestClient(JipcPipe pipe) throws IOException {
+		out = new JipcChannelOutputStream(pipe.sink());
+		in = new JipcChannelInputStream(pipe.source());
 	}
 
 	public void sleep() {
