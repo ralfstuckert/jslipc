@@ -15,8 +15,8 @@ public class FilePipe implements JipcPipe {
 	private ReadableJipcFileChannel source;
 	private WritableJipcFileChannel sink;
 
-	public FilePipe(final File dir, final JipcRole role) {
-		
+	public FilePipe(final File directory, final JipcRole role) throws IOException {
+		this(getSourceFile(directory, role), getSinkFile(directory, role));
 	}
 
 	public FilePipe(final File source, final File sink) {
@@ -45,5 +45,41 @@ public class FilePipe implements JipcPipe {
 		}
 		return sink;
 	}
+	
+	protected final static String CLIENT_TO_SERVER_NAME = "clientToServer.channel";
+	protected final static String SERVER_TO_CLIENT_NAME = "serverToClient.channel";
 
+	
+	protected static File getSourceFile(final File directory, final JipcRole role) throws IOException {
+		return getChannelFile(directory, role, JipcRole.Client);
+	}
+	
+	protected static File getSinkFile(final File directory, final JipcRole role) throws IOException {
+		return getChannelFile(directory, role, JipcRole.Server);
+	}
+
+	private static File getChannelFile(final File directory,
+			final JipcRole role, JipcRole serverToClientRole)
+			throws IOException {
+		if (directory == null) {
+			throw new IllegalArgumentException("parameter 'directory' must not be null");
+		}
+		if (!directory.exists()) {
+			throw new IllegalArgumentException("directory '" + directory.getAbsolutePath()+ "' does not exist");
+		}
+		if (!directory.isDirectory()) {
+			throw new IllegalArgumentException("file '" + directory.getAbsolutePath()+ "' is not a directory");
+		}
+		if (role == null) {
+			throw new IllegalArgumentException("parameter 'role' must not be null");
+		}
+		
+		String name = CLIENT_TO_SERVER_NAME;
+		if (role == serverToClientRole) {
+			name = SERVER_TO_CLIENT_NAME;
+		}
+		File file = new File(directory, name);
+		file.createNewFile();
+		return file;
+	}
 }
