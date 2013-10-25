@@ -27,8 +27,15 @@ public abstract class AbstractJipcFileChannel implements Channel, JipcChannel {
 	}
 
 	@Override
-	public boolean isClosedByPeer() {
-		return isOpen() && hasCloseMarker();
+	public JipcChannelState getState() {
+		
+		if (!isOpen()) {
+			return JipcChannelState.Closed;
+		}
+		if (hasCloseMarker()) {
+			return JipcChannelState.ClosedByPeer;
+		}
+		return JipcChannelState.Open;
 	}
 
 	protected void checkClosed() throws ClosedChannelException {

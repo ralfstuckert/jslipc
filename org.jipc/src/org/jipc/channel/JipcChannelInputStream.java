@@ -5,6 +5,8 @@ import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.nio.ByteBuffer;
 
+import org.jipc.channel.JipcChannel.JipcChannelState;
+
 public class JipcChannelInputStream extends InputStream {
 
 	private static final int SLEEP_TIME = 100;
@@ -41,7 +43,7 @@ public class JipcChannelInputStream extends InputStream {
 			InterruptedIOException {
 		int bytesRead = 0;
 		while ((bytesRead = channel.read(buffer)) == 0) {
-			if (channel.isClosedByPeer()) {
+			if (channel.getState() == JipcChannelState.ClosedByPeer) {
 				return -1;
 			}
 			sleep();

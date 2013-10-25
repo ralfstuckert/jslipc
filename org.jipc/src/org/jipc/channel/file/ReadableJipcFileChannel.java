@@ -19,7 +19,7 @@ public class ReadableJipcFileChannel extends AbstractJipcFileChannel implements
 	public int read(ByteBuffer dst) throws IOException {
 		checkClosed();
 		int count = getFileChannel().read(dst);
-		if (count == -1 && !isClosedByPeer()) {
+		if (count == -1 && getState() != JipcChannelState.ClosedByPeer) {
 			return 0;
 		}
 		return count;

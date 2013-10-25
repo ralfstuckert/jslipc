@@ -15,6 +15,7 @@ import java.io.InterruptedIOException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.jipc.channel.JipcChannel.JipcChannelState;
 import org.jipc.channel.JipcChannelInputStream;
 import org.jipc.channel.ReadableJipcByteChannel;
 import org.junit.After;
@@ -62,7 +63,7 @@ public class JipcChannelInputStreamTest {
 	@Test
 	public void testReadEndOfStream() throws Exception {
 		JipcChannelInputStream is = new JipcChannelInputStream(channelMock);
-		when(channelMock.isClosedByPeer()).thenReturn(true);
+		when(channelMock.getState()).thenReturn(JipcChannelState.ClosedByPeer);
 		mockReadByte(17);
 		assertEquals((byte) 17, is.read());
 		mockReadByte(67);
@@ -148,14 +149,14 @@ public class JipcChannelInputStreamTest {
 	@Test
 	public void testReadByteArrayEndOfStream() throws Exception {
 		JipcChannelInputStream is = new JipcChannelInputStream(channelMock);
-		when(channelMock.isClosedByPeer()).thenReturn(true);
+		when(channelMock.getState()).thenReturn(JipcChannelState.ClosedByPeer);
 		byte[] buf = new byte[10];
 		mockReadBytes(17, 12);
 		assertEquals(2, is.read(buf, 1, 5));
 		assertEquals((byte) 17, buf[1]);
 		assertEquals((byte) 12, buf[2]);
 
-		when(channelMock.isClosedByPeer()).thenReturn(true);
+		when(channelMock.getState()).thenReturn(JipcChannelState.ClosedByPeer);
 		doReturn(-1).when(channelMock).read(any(ByteBuffer.class));
 		assertEquals(-1, is.read(buf, 1, 5));
 	}

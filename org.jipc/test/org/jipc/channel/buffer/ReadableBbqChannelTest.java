@@ -16,8 +16,7 @@ import java.nio.channels.ClosedChannelException;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.jipc.TestUtil;
-import org.jipc.channel.buffer.ByteBufferQueue;
-import org.jipc.channel.buffer.ReadableBbqChannel;
+import org.jipc.channel.JipcChannel.JipcChannelState;
 import org.junit.Test;
 
 public class ReadableBbqChannelTest {
@@ -60,18 +59,18 @@ public class ReadableBbqChannelTest {
 	}
 
 	@Test
-	public void testIsClosedByPeer() throws Exception {
+	public void testGetState() throws Exception {
 		final ByteBufferQueue queue = TestUtil.createByteBufferQueue(SIZE);
 		ReadableBbqChannel channel = new ReadableBbqChannel(
 				queue);
 		queue.init();
 
-		assertFalse(channel.isClosedByPeer());
+		assertEquals(JipcChannelState.Open, channel.getState());
 		queue.close();
-		assertTrue(channel.isClosedByPeer());
+		assertEquals(JipcChannelState.ClosedByPeer, channel.getState());
 		
 		channel.close();
-		assertFalse(channel.isClosedByPeer());
+		assertEquals(JipcChannelState.Closed, channel.getState());
 	}
 
 	@SuppressWarnings("resource")

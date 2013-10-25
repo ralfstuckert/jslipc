@@ -21,6 +21,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.jipc.channel.JipcChannelOutputStream;
 import org.jipc.channel.WritableJipcByteChannel;
+import org.jipc.channel.JipcChannel.JipcChannelState;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -71,7 +72,7 @@ public class JipcChannelOutputStreamTest {
 	@Test
 	public void testWriteEndOfStream() throws Exception {
 		JipcChannelOutputStream os = new JipcChannelOutputStream(channelMock);
-		when(channelMock.isClosedByPeer()).thenReturn(true);
+		when(channelMock.getState()).thenReturn(JipcChannelState.ClosedByPeer);
 		mockWriteByte(17);
 		os.write(17);
 		verifyWriteCalled();
@@ -81,7 +82,7 @@ public class JipcChannelOutputStreamTest {
 		verifyWriteCalled();
 
 		doReturn(0).when(channelMock).write(any(ByteBuffer.class));
-		when(channelMock.isClosedByPeer()).thenReturn(true);
+		when(channelMock.getState()).thenReturn(JipcChannelState.ClosedByPeer);
 		try {
 			os.write((byte) 78);
 			fail("expected exception");
@@ -169,7 +170,7 @@ public class JipcChannelOutputStreamTest {
 	@Test
 	public void testWriteByteArrayEndOfStream() throws Exception {
 		JipcChannelOutputStream os = new JipcChannelOutputStream(channelMock);
-		when(channelMock.isClosedByPeer()).thenReturn(true);
+		when(channelMock.getState()).thenReturn(JipcChannelState.ClosedByPeer);
 
 		mockWriteBytes(17, 12, 56);
 		byte[] buf = createByteArray(10, 1, 17, 12, 56);
@@ -177,7 +178,7 @@ public class JipcChannelOutputStreamTest {
 		verifyWriteCalled();
 
 		doReturn(0).when(channelMock).write(any(ByteBuffer.class));
-		when(channelMock.isClosedByPeer()).thenReturn(true);
+		when(channelMock.getState()).thenReturn(JipcChannelState.ClosedByPeer);
 		try {
 			os.write(buf, 1, 3);
 			fail("expected exception");

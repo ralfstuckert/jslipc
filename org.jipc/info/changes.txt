@@ -8,6 +8,8 @@ News:
 - new file based pipe (FilePipe)
 - interface JipcPipe
 - clean up and refactoring
+- replaced JipcChannel.isClosedByPeer() by getState() which returns either
+  Open, ClosedByPeer or Closed. Thus, semantics are more accurate.
 
 To Adapt:
 ---------

@@ -34,8 +34,14 @@ public abstract class AbstractBbqChannel implements JipcChannel, InterruptibleCh
 	}
 
 	@Override
-	public boolean isClosedByPeer() {
-		return isOpen() && queue.isInitialized() && queue.isClosed();
+	public JipcChannelState getState() {
+		if (!isOpen()) {
+			return JipcChannelState.Closed;
+		}
+		if (queue.isInitialized() && queue.isClosed()) {
+			return JipcChannelState.ClosedByPeer;
+		}
+		return JipcChannelState.Open;
 	}
 
 

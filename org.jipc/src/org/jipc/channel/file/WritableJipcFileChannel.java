@@ -17,7 +17,7 @@ public class WritableJipcFileChannel extends AbstractJipcFileChannel implements
 	@Override
 	public int write(ByteBuffer src) throws IOException {
 		checkClosed();
-		if (isClosedByPeer()) {
+		if (getState() == JipcChannelState.ClosedByPeer) {
 			return 0;
 		}
 		return getFileChannel().write(src);
