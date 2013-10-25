@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.UUID;
 
-import org.jipc.buffer.ByteBufferQueue;
+import org.jipc.channel.buffer.ByteBufferQueue;
 import org.junit.Assert;
 
 /**

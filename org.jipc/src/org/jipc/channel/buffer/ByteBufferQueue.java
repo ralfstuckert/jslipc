@@ -1,4 +1,4 @@
-package org.jipc.buffer;
+package org.jipc.channel.buffer;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;

@@ -5,13 +5,14 @@ import java.io.IOException;
 
 import org.jipc.JipcPipe;
 import org.jipc.JipcRole;
-import org.jipc.ipc.AbstractTestProducer;
+import org.jipc.ipc.AbstractTestConsumer;
 
-public class MMPipeTestProducer extends AbstractTestProducer {
+public class SMPipeTestConsumer extends AbstractTestConsumer {
 
 	public static void main(String[] args) throws Exception {
 		init(args);
 	}
+	
 	
 	@Override
 	protected JipcPipe createPipe(String[] args) throws IOException {
@@ -19,8 +20,11 @@ public class MMPipeTestProducer extends AbstractTestProducer {
 		if (args.length > 0) {
 			file = new File(args[0]);
 		}
-		return new MemoryMappedFilePipe(file, 30,
-				JipcRole.Server);
+		return createPipe(file);
+	}
+
+	public JipcPipe createPipe(File file) throws IOException {
+		return new SharedMemoryPipe(file, 30, JipcRole.Client);
 	}
 
 }

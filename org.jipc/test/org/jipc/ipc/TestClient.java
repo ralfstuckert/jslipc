@@ -8,9 +8,9 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.jipc.JipcChannelInputStream;
-import org.jipc.JipcChannelOutputStream;
 import org.jipc.JipcPipe;
+import org.jipc.channel.JipcChannelInputStream;
+import org.jipc.channel.JipcChannelOutputStream;
 
 public class TestClient {
 

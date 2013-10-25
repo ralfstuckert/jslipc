@@ -1,4 +1,4 @@
-package org.jipc;
+package org.jipc.channel;
 
 import java.nio.channels.WritableByteChannel;
 

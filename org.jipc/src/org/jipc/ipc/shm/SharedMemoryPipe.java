@@ -11,11 +11,11 @@ import java.nio.channels.OverlappingFileLockException;
 
 import org.jipc.JipcPipe;
 import org.jipc.JipcRole;
-import org.jipc.buffer.ByteBufferQueue;
-import org.jipc.buffer.ReadableBbqChannel;
-import org.jipc.buffer.WritableBbqChannel;
+import org.jipc.channel.buffer.ByteBufferQueue;
+import org.jipc.channel.buffer.ReadableBbqChannel;
+import org.jipc.channel.buffer.WritableBbqChannel;
 
-public class MemoryMappedFilePipe implements JipcPipe {
+public class SharedMemoryPipe implements JipcPipe {
 
 
 	private static final int DEFAULT_SIZE = 4096;
@@ -26,11 +26,11 @@ public class MemoryMappedFilePipe implements JipcPipe {
 	private WritableBbqChannel sink;
 	private FileLock lock;
 
-	public MemoryMappedFilePipe(final File file, JipcRole role) throws IOException {
+	public SharedMemoryPipe(final File file, JipcRole role) throws IOException {
 		this(file, DEFAULT_SIZE, role);
 	}
 
-	public MemoryMappedFilePipe(final File file, final int fileSize, JipcRole role)
+	public SharedMemoryPipe(final File file, final int fileSize, JipcRole role)
 			throws IOException {
 		mappedFile = new RandomAccessFile(file, "rw");
 		FileChannel fileChannel = mappedFile.getChannel();

@@ -1,11 +1,11 @@
-package org.jipc.file;
+package org.jipc.channel.file;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.InterruptibleChannel;
 
-import org.jipc.ReadableJipcByteChannel;
+import org.jipc.channel.ReadableJipcByteChannel;
 
 public class ReadableJipcFileChannel extends AbstractJipcFileChannel implements
 		ReadableJipcByteChannel, InterruptibleChannel {

@@ -1,11 +1,11 @@
-package org.jipc.buffer;
+package org.jipc.channel.buffer;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
-import org.jipc.JipcChannelOutputStream;
-import org.jipc.WritableJipcByteChannel;
+import org.jipc.channel.JipcChannelOutputStream;
+import org.jipc.channel.WritableJipcByteChannel;
 
 public class WritableBbqChannel extends AbstractBbqChannel implements
 		WritableJipcByteChannel {

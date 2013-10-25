@@ -1,4 +1,4 @@
-package org.jipc.file;
+package org.jipc.channel.file;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -9,6 +9,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 
 import org.jipc.TestUtil;
+import org.jipc.channel.file.WritableJipcFileChannel;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

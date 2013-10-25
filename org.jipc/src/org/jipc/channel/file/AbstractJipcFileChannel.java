@@ -1,4 +1,4 @@
-package org.jipc.file;
+package org.jipc.channel.file;
 
 import java.io.File;
 import java.io.IOException;
@@ -7,7 +7,7 @@ import java.nio.channels.Channel;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.FileChannel;
 
-import org.jipc.JipcChannel;
+import org.jipc.channel.JipcChannel;
 
 public abstract class AbstractJipcFileChannel implements Channel, JipcChannel {
 

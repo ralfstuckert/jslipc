@@ -1,11 +1,11 @@
-package org.jipc.buffer;
+package org.jipc.channel.buffer;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.InterruptibleChannel;
 
-import org.jipc.JipcChannel;
+import org.jipc.channel.JipcChannel;
 
 public abstract class AbstractBbqChannel implements JipcChannel, InterruptibleChannel {
 	private static final int SLEEP_TIME = 100;

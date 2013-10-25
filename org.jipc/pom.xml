@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.jipc</groupId>
 	<artifactId>jipc</artifactId>
-	<version>0.0.2-SNAPSHOT</version>
+	<version>0.0.3-SNAPSHOT</version>
 	<!-- packaging>bundle</packaging -->
 	<properties>
 		<distribution.dir>${project.build.directory}/dist</distribution.dir>
@@ -116,9 +116,8 @@
 								</copy>
 
 								<copy todir="${distribution.dir}">
-									<fileset dir="${basedir}">
-										<include name="LICENSE" />
-										<include name="NOTICE" />
+									<fileset dir="${basedir}/info">
+										<include name="**/*" />
 									</fileset>
 								</copy>
 

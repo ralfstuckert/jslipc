@@ -1,0 +1,16 @@
+Jipc Java inter process communication library
+
+Version 0.0.3
+=============
+
+News:
+-----
+- new file based pipe (FilePipe)
+- interface JipcPipe
+- clean up and refactoring
+
+To Adapt:
+---------
+- renamed MemoryMappedFilePipe to SharedMemoryPipe
+- reorganized package hierarchy
+

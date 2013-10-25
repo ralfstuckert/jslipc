@@ -1,4 +1,4 @@
-package org.jipc;
+package org.jipc.channel;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -15,6 +15,8 @@ import java.io.InterruptedIOException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.jipc.channel.JipcChannelInputStream;
+import org.jipc.channel.ReadableJipcByteChannel;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

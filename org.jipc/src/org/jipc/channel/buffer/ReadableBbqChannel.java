@@ -1,12 +1,12 @@
-package org.jipc.buffer;
+package org.jipc.channel.buffer;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.InterruptibleChannel;
 
-import org.jipc.JipcChannelInputStream;
-import org.jipc.ReadableJipcByteChannel;
+import org.jipc.channel.JipcChannelInputStream;
+import org.jipc.channel.ReadableJipcByteChannel;
 
 public class ReadableBbqChannel extends AbstractBbqChannel implements
 		ReadableJipcByteChannel, InterruptibleChannel {

@@ -1,4 +1,4 @@
-package org.jipc.buffer;
+package org.jipc.channel.buffer;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -16,6 +16,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.jipc.TestUtil;
+import org.jipc.channel.buffer.ByteBufferQueue;
 import org.junit.Test;
 import org.junit.experimental.theories.DataPoints;
 import org.junit.experimental.theories.Theories;

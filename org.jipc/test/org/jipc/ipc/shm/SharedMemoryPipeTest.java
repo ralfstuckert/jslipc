@@ -17,7 +17,7 @@ import org.jipc.ipc.AbstractTestProducer;
 import org.junit.Before;
 import org.junit.Test;
 
-public class MemoryMappedFilePipeTest {
+public class SharedMemoryPipeTest {
 
 	@Before
 	public void setUp() throws Exception {
@@ -30,26 +30,26 @@ public class MemoryMappedFilePipeTest {
 	}
 
 	@Test
-	public void testMemoryMappedFilePipeFile() throws Exception {
-		MemoryMappedFilePipe pipe = new MemoryMappedFilePipe(createFile(),
+	public void testSharedMemoryPipeFile() throws Exception {
+		SharedMemoryPipe pipe = new SharedMemoryPipe(createFile(),
 				JipcRole.Client);
 		checkQueueBounds(pipe, 4096, JipcRole.Client);
 
-		pipe = new MemoryMappedFilePipe(createFile(), JipcRole.Server);
+		pipe = new SharedMemoryPipe(createFile(), JipcRole.Server);
 		checkQueueBounds(pipe, 4096, JipcRole.Server);
 	}
 
 	@Test
-	public void testMemoryMappedFilePipeFileInt() throws Exception {
-		MemoryMappedFilePipe pipe = new MemoryMappedFilePipe(createFile(),
+	public void testSharedMemoryPipeFileInt() throws Exception {
+		SharedMemoryPipe pipe = new SharedMemoryPipe(createFile(),
 				1789, JipcRole.Client);
 		checkQueueBounds(pipe, 1789, JipcRole.Client);
 
-		pipe = new MemoryMappedFilePipe(createFile(), 1789, JipcRole.Server);
+		pipe = new SharedMemoryPipe(createFile(), 1789, JipcRole.Server);
 		checkQueueBounds(pipe, 1789, JipcRole.Server);
 	}
 
-	private void checkQueueBounds(MemoryMappedFilePipe pipe, int size, JipcRole role) {
+	private void checkQueueBounds(SharedMemoryPipe pipe, int size, JipcRole role) {
 		int bufferSize = size / 2;
 		if (role == JipcRole.Client) {
 			assertNotNull(pipe.getInQueue());
@@ -79,7 +79,7 @@ public class MemoryMappedFilePipeTest {
 			FileNotFoundException {
 		File file = File.createTempFile("test", ".mapped");
 		file.deleteOnExit();
-		MemoryMappedFilePipe pipe = new MemoryMappedFilePipe(file, 1789, role);
+		SharedMemoryPipe pipe = new SharedMemoryPipe(file, 1789, role);
 		assertTrue(pipe.getInQueue().isInitialized());
 		assertTrue(pipe.getOutQueue().isInitialized());
 
@@ -87,26 +87,26 @@ public class MemoryMappedFilePipeTest {
 		file.deleteOnExit();
 		FileChannel channel = new RandomAccessFile(file, "rw").getChannel();
 		channel.lock();
-		pipe = new MemoryMappedFilePipe(file, 1789, role);
+		pipe = new SharedMemoryPipe(file, 1789, role);
 		assertFalse(pipe.getInQueue().isInitialized());
 		assertFalse(pipe.getOutQueue().isInitialized());
 	}
 
 	@Test
 	public void testSource() throws Exception {
-		MemoryMappedFilePipe pipe = new MemoryMappedFilePipe(createFile(),
+		SharedMemoryPipe pipe = new SharedMemoryPipe(createFile(),
 				1789, JipcRole.Client);
 		assertNotNull(pipe.source());
-		pipe = new MemoryMappedFilePipe(createFile(), 1789, JipcRole.Server);
+		pipe = new SharedMemoryPipe(createFile(), 1789, JipcRole.Server);
 		assertNotNull(pipe.source());
 	}
 
 	@Test
 	public void testSink() throws Exception {
-		MemoryMappedFilePipe pipe = new MemoryMappedFilePipe(createFile(),
+		SharedMemoryPipe pipe = new SharedMemoryPipe(createFile(),
 				1789, JipcRole.Client);
 		assertNotNull(pipe.sink());
-		pipe = new MemoryMappedFilePipe(createFile(), 1789, JipcRole.Server);
+		pipe = new SharedMemoryPipe(createFile(), 1789, JipcRole.Server);
 		assertNotNull(pipe.sink());
 	}
 
@@ -116,9 +116,9 @@ public class MemoryMappedFilePipeTest {
 		Process producer = Runtime.getRuntime().exec(
 				new String[] { System.getProperty("java.home") + "/bin/java",
 						"-cp", System.getProperty("java.class.path"),
-						MMPipeTestProducer.class.getName(), file.getAbsolutePath() });
+						SMPipeTestProducer.class.getName(), file.getAbsolutePath() });
 		Thread.sleep(1000);
-		MMPipeTestConsumer consumer = new MMPipeTestConsumer();
+		SMPipeTestConsumer consumer = new SMPipeTestConsumer();
 		JipcPipe pipe = consumer.createPipe(file);
 		String reply = consumer.consume(pipe);
 		String expectedReply = consumer.createReply(AbstractTestProducer.HELLO);

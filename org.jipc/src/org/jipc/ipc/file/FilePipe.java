@@ -5,8 +5,8 @@ import java.io.IOException;
 
 import org.jipc.JipcPipe;
 import org.jipc.JipcRole;
-import org.jipc.file.ReadableJipcFileChannel;
-import org.jipc.file.WritableJipcFileChannel;
+import org.jipc.channel.file.ReadableJipcFileChannel;
+import org.jipc.channel.file.WritableJipcFileChannel;
 
 public class FilePipe implements JipcPipe {
 	
