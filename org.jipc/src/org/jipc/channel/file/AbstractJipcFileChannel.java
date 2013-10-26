@@ -3,23 +3,31 @@ package org.jipc.channel.file;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.nio.channels.Channel;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.FileChannel;
 
+import org.jipc.JipcBinman;
 import org.jipc.channel.JipcChannel;
 
-public abstract class AbstractJipcFileChannel implements Channel, JipcChannel {
+public abstract class AbstractJipcFileChannel implements JipcChannel, JipcBinman  {
 
 	protected FileChannel fileChannel;
-	protected RandomAccessFile file;
+	private RandomAccessFile randomAccessFile;
 	private File closeMarker;
 	private boolean closed;
+	private boolean deleteFilesOnClose;
+	private File file;
 
 	public AbstractJipcFileChannel(File file, String mode) throws IOException {
-		this.file = new RandomAccessFile(file, mode);
+		this.file = file;
+		this.randomAccessFile = new RandomAccessFile(file, mode);
 		this.closeMarker = new File(file.getAbsolutePath() + ".closed");
-		fileChannel = this.file.getChannel();
+		fileChannel = this.randomAccessFile.getChannel();
+	}
+
+	@Override
+	public void cleanUpOnClose() {
+		deleteFilesOnClose = true;
 	}
 
 	protected FileChannel getFileChannel() {
@@ -28,7 +36,7 @@ public abstract class AbstractJipcFileChannel implements Channel, JipcChannel {
 
 	@Override
 	public JipcChannelState getState() {
-		
+
 		if (!isOpen()) {
 			return JipcChannelState.Closed;
 		}
@@ -43,20 +51,29 @@ public abstract class AbstractJipcFileChannel implements Channel, JipcChannel {
 			throw new ClosedChannelException();
 		}
 	}
-	
+
 	@Override
 	public void close() throws IOException {
 		if (!isOpen()) {
 			return;
 		}
 		this.closed = true;
-		getCloseMarker().createNewFile();
+		
+		boolean closedByPeer = !getCloseMarker().createNewFile();
+		if (closedByPeer) {
+			fileChannel.close();
+			randomAccessFile.close();
+			if (deleteFilesOnClose) {
+				file.delete();
+				getCloseMarker().delete();
+			}
+		}
 	}
 
 	private File getCloseMarker() {
 		return closeMarker;
 	}
-	
+
 	private boolean hasCloseMarker() {
 		return getCloseMarker().exists();
 	}

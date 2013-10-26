@@ -56,4 +56,21 @@ public abstract class AbstractJipcFileChannelTest {
 	}
 
 
+	@Test
+	public void testDeleteFilesOnCloseStillUsedByPeer() throws Exception {
+		AbstractJipcFileChannel channel = createChannel(file);
+		channel.cleanUpOnClose();
+		channel.close();
+		assertTrue(file.exists());
+	}
+
+	@Test
+	public void testDeleteFilesOnClose() throws Exception {
+		AbstractJipcFileChannel channel = createChannel(file);
+		channel.cleanUpOnClose();
+		assertTrue(closedMarker.createNewFile());
+		channel.close();
+		assertFalse(file.exists());
+		assertFalse(closedMarker.exists());
+	}
 }

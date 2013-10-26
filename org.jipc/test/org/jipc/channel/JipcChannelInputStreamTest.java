@@ -16,8 +16,6 @@ import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.jipc.channel.JipcChannel.JipcChannelState;
-import org.jipc.channel.JipcChannelInputStream;
-import org.jipc.channel.ReadableJipcByteChannel;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

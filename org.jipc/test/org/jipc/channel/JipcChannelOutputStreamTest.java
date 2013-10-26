@@ -19,8 +19,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.jipc.channel.JipcChannelOutputStream;
-import org.jipc.channel.WritableJipcByteChannel;
 import org.jipc.channel.JipcChannel.JipcChannelState;
 import org.junit.After;
 import org.junit.Before;
