@@ -16,12 +16,15 @@ import java.nio.channels.ClosedChannelException;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.jipc.TestUtil;
-import org.jipc.channel.JipcChannel.JipcChannelState;
 import org.junit.Test;
 
-public class ReadableBbqChannelTest {
+public class ReadableBbqChannelTest extends AbstractBbqChannelTest {
 
-	final static int SIZE = 100;
+	@Override
+	protected ReadableBbqChannel createAbstractBbqChannel(ByteBufferQueue queue)
+			throws Exception {
+		return new ReadableBbqChannel(queue);
+	}
 
 	@SuppressWarnings("resource")
 	@Test(expected = IllegalArgumentException.class)
@@ -33,44 +36,6 @@ public class ReadableBbqChannelTest {
 	@SuppressWarnings("resource")
 	public void testReadableByteBufferQueueChannel() {
 		new ReadableBbqChannel(TestUtil.createByteBufferQueue(SIZE));
-	}
-
-	@Test
-	public void testIsOpen() throws Exception {
-		final ByteBufferQueue queue = TestUtil.createByteBufferQueue(SIZE);
-		ReadableBbqChannel channel = new ReadableBbqChannel(
-				queue);
-		queue.init();
-		assertTrue(channel.isOpen());
-		channel.close();
-		assertFalse(channel.isOpen());
-	}
-
-	@Test
-	public void testClose() throws Exception {
-		final ByteBufferQueue queue = TestUtil.createByteBufferQueue(SIZE);
-		ReadableBbqChannel channel = new ReadableBbqChannel(
-				queue);
-		queue.init();
-
-		assertFalse(queue.isClosed());
-		channel.close();
-		assertTrue(queue.isClosed());
-	}
-
-	@Test
-	public void testGetState() throws Exception {
-		final ByteBufferQueue queue = TestUtil.createByteBufferQueue(SIZE);
-		ReadableBbqChannel channel = new ReadableBbqChannel(
-				queue);
-		queue.init();
-
-		assertEquals(JipcChannelState.Open, channel.getState());
-		queue.close();
-		assertEquals(JipcChannelState.ClosedByPeer, channel.getState());
-		
-		channel.close();
-		assertEquals(JipcChannelState.Closed, channel.getState());
 	}
 
 	@SuppressWarnings("resource")

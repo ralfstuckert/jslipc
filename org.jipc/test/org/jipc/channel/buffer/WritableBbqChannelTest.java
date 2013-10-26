@@ -13,15 +13,16 @@ import java.nio.channels.ClosedChannelException;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.jipc.TestUtil;
-import org.jipc.channel.JipcChannel.JipcChannelState;
-import org.jipc.channel.buffer.ByteBufferQueue;
-import org.jipc.channel.buffer.WritableBbqChannel;
 import org.junit.Test;
 
-public class WritableBbqChannelTest {
+public class WritableBbqChannelTest extends AbstractBbqChannelTest {
 
-	final static int SIZE = 100;
-
+	@Override
+	protected WritableBbqChannel createAbstractBbqChannel(ByteBufferQueue queue)
+			throws Exception {
+		return new WritableBbqChannel(queue);
+	}
+	
 	@SuppressWarnings("resource")
 	@Test(expected = IllegalArgumentException.class)
 	public void testWritableBbqChannelWithNull() {
@@ -32,43 +33,6 @@ public class WritableBbqChannelTest {
 	@SuppressWarnings("resource")
 	public void testWritableBbqChannel() {
 		new WritableBbqChannel(TestUtil.createByteBufferQueue(SIZE));
-	}
-
-	@Test
-	public void testIsOpen() throws Exception {
-		final ByteBufferQueue queue = TestUtil.createByteBufferQueue(SIZE);
-		WritableBbqChannel channel = new WritableBbqChannel(
-				queue);
-		queue.init();
-		assertTrue(channel.isOpen());
-		channel.close();
-		assertFalse(channel.isOpen());
-	}
-
-	@Test
-	public void testClose() throws Exception {
-		final ByteBufferQueue queue = TestUtil.createByteBufferQueue(SIZE);
-		WritableBbqChannel channel = new WritableBbqChannel(
-				queue);
-		queue.init();
-
-		assertFalse(queue.isClosed());
-		channel.close();
-		assertTrue(queue.isClosed());
-	}
-
-	public void testIsClosedByPeer() throws Exception {
-		final ByteBufferQueue queue = TestUtil.createByteBufferQueue(SIZE);
-		WritableBbqChannel channel = new WritableBbqChannel(
-				queue);
-		queue.init();
-
-		assertEquals(JipcChannelState.Open, channel.getState());
-		queue.close();
-		assertEquals(JipcChannelState.ClosedByPeer, channel.getState());
-		
-		channel.close();
-		assertEquals(JipcChannelState.Closed, channel.getState());
 	}
 
 	@SuppressWarnings("resource")
