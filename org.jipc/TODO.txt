@@ -1,5 +1,3 @@
-- Thread safety
-- Pipes/Channels should be enabled to delete underlying files on close (if it is closed by peer)
+- Thread safety?
 - javadoc
 - analogy to server socket with abstraction of underlying protocol (pipe)
-- boolean isClosedByPeer() -> JipcChannelState getState()  (open,closedByPeer,closed)		
