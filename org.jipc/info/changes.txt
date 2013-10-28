@@ -1,5 +1,19 @@
 Jipc Java inter process communication library
 
+Version 0.0.4
+=============
+
+News:
+-----
+
+Fixes:
+---------
+- #1: Pipes/Channels should be enabled to clean up all resources on close
+
+To Adapt:
+---------
+
+
 Version 0.0.3
 =============
 
