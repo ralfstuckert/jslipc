@@ -7,6 +7,9 @@ import java.nio.channels.InterruptibleChannel;
 
 import org.jipc.channel.JipcChannel;
 
+/**
+ * Common base class for {@link ByteBufferQueue} based channels.
+ */
 public abstract class AbstractBbqChannel implements JipcChannel, InterruptibleChannel {
 	private static final int SLEEP_TIME = 100;
 	protected volatile ByteBufferQueue queue;

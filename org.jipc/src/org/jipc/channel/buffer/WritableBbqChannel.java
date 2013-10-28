@@ -7,6 +7,10 @@ import java.nio.ByteBuffer;
 import org.jipc.channel.JipcChannelOutputStream;
 import org.jipc.channel.WritableJipcByteChannel;
 
+/**
+ * A {@link WritableBbqChannel} implementation that writes the data to an underlying
+ * {@link ByteBufferQueue}.
+ */
 public class WritableBbqChannel extends AbstractBbqChannel implements
 		WritableJipcByteChannel {
 

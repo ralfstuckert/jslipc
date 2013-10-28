@@ -8,6 +8,10 @@ import java.nio.channels.InterruptibleChannel;
 import org.jipc.channel.JipcChannelInputStream;
 import org.jipc.channel.ReadableJipcByteChannel;
 
+/**
+ * A {@link ReadableJipcByteChannel} implementation that reads the data from an underlying
+ * {@link ByteBufferQueue}.
+ */
 public class ReadableBbqChannel extends AbstractBbqChannel implements
 		ReadableJipcByteChannel, InterruptibleChannel {
 

@@ -5,6 +5,10 @@ import java.nio.ByteBuffer;
 import java.util.AbstractQueue;
 import java.util.Iterator;
 
+/**
+ * A queue implementation that uses (a part of) a buffer for storing the queue elements and pointers.
+ * It is dedicated to be used with shared memory.
+ */
 public class ByteBufferQueue extends AbstractQueue<Byte> {
 
 	protected static final byte TRUE = (byte) 0x01;

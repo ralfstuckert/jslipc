@@ -8,6 +8,9 @@ import java.nio.channels.ClosedChannelException;
 
 import org.jipc.channel.JipcChannel.JipcChannelState;
 
+/**
+ * This class wraps a {@link WritableJipcByteChannel} in order to provide a blocking OutputStream.
+ */
 public class JipcChannelOutputStream extends OutputStream {
 
 	private static final int SLEEP_TIME = 100;
@@ -15,6 +18,10 @@ public class JipcChannelOutputStream extends OutputStream {
 	private WritableJipcByteChannel channel;
 	private ByteBuffer oneByteBuffer = ByteBuffer.wrap(new byte[1]);
 
+	/**
+	 * Creates a JipcChannelOutputStream based on the underlying channel.
+	 * @param channel
+	 */
 	public JipcChannelOutputStream(final WritableJipcByteChannel channel) {
 		if (channel == null) {
 			throw new IllegalArgumentException(

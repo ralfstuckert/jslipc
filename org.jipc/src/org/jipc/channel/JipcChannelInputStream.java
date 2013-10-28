@@ -7,6 +7,9 @@ import java.nio.ByteBuffer;
 
 import org.jipc.channel.JipcChannel.JipcChannelState;
 
+/**
+ * This class wraps a {@link ReadableJipcByteChannel} in order to provide a blocking InputStream.
+ */
 public class JipcChannelInputStream extends InputStream {
 
 	private static final int SLEEP_TIME = 100;
@@ -14,6 +17,10 @@ public class JipcChannelInputStream extends InputStream {
 	private ReadableJipcByteChannel channel;
 	private ByteBuffer oneByteBuffer = ByteBuffer.wrap(new byte[1]);
 
+	/**
+	 * Creates a JipcChannelInputStream based on the underlying channel.
+	 * @param channel
+	 */
 	public JipcChannelInputStream(ReadableJipcByteChannel channel) {
 		if (channel == null) {
 			throw new IllegalArgumentException("parameter channel must not be null");

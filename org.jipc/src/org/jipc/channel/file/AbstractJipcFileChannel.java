@@ -9,6 +9,9 @@ import java.nio.channels.FileChannel;
 import org.jipc.JipcBinman;
 import org.jipc.channel.JipcChannel;
 
+/**
+ * Common base class for file based {@link JipcChannel}s.
+ */
 public abstract class AbstractJipcFileChannel implements JipcChannel, JipcBinman  {
 
 	protected FileChannel fileChannel;

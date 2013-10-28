@@ -3,13 +3,18 @@ package org.jipc.channel.buffer;
 import java.lang.reflect.Method;
 import java.nio.MappedByteBuffer;
 
+/**
+ * Utility class for handling buffers.
+ */
 public final class BufferUtil {
 	private BufferUtil() {
 		// utility classes should have private constructor.
 	}
 
 	/**
-	 * Tries to call sun.misc.Cleaner.clean() in order to free mapped buffer.
+	 * Due to a weakness in the implementation in mapped byte buffers on windows, the underlying
+	 * file cannot be deleted even if all channels/files are closed. As a workaround, this method
+	 * tries to call sun.misc.Cleaner.clean() in order to free mapped buffer.
 	 * 
 	 * @param buffer
 	 * @throws Exception
