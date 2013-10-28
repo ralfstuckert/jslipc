@@ -49,6 +49,56 @@ public class SharedMemoryPipeTest {
 		checkQueueBounds(pipe, 1789, JipcRole.Server);
 	}
 
+	@Test
+	public void testClose() throws Exception {
+		SharedMemoryPipe pipe = new SharedMemoryPipe(createFile(),
+				1789, JipcRole.Client);
+		assertNotNull(pipe.source());
+		assertNotNull(pipe.sink());
+
+		pipe.close();
+		assertFalse(pipe.source().isOpen());
+		assertFalse(pipe.sink().isOpen());
+	}
+	
+	@Test
+	public void testCleanUpOnCloseStillUsedByPeer() throws Exception {
+		File file = createFile();
+		SharedMemoryPipe pipe = new SharedMemoryPipe(file,
+				1789, JipcRole.Client);
+		assertNotNull(pipe.source());
+		assertNotNull(pipe.sink());
+
+		pipe.cleanUpOnClose();
+		pipe.close();
+		assertTrue(file.exists());
+	}
+
+
+	@Test
+	public void testCleanUpOnClose() throws Exception {
+		File file = createFile();
+		SharedMemoryPipe pipe = new SharedMemoryPipe(file,
+				1789, JipcRole.Client);
+		SharedMemoryPipe peer = new SharedMemoryPipe(file,
+				1789, JipcRole.Server);
+		assertNotNull(peer.source());
+		assertNotNull(peer.sink());
+		assertNotNull(pipe.source());
+		assertNotNull(pipe.sink());
+
+		pipe.cleanUpOnClose();
+
+		peer.close();
+		assertFalse(peer.source().isOpen());
+		assertFalse(peer.sink().isOpen());
+
+		pipe.close();
+		assertFalse(file.exists());
+	}
+
+
+
 	private void checkQueueBounds(SharedMemoryPipe pipe, int size, JipcRole role) {
 		int bufferSize = size / 2;
 		if (role == JipcRole.Client) {
@@ -92,6 +142,7 @@ public class SharedMemoryPipeTest {
 		assertFalse(pipe.getOutQueue().isInitialized());
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void testSource() throws Exception {
 		SharedMemoryPipe pipe = new SharedMemoryPipe(createFile(),
@@ -101,6 +152,7 @@ public class SharedMemoryPipeTest {
 		assertNotNull(pipe.source());
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void testSink() throws Exception {
 		SharedMemoryPipe pipe = new SharedMemoryPipe(createFile(),

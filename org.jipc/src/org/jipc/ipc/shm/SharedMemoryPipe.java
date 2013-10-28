@@ -9,22 +9,27 @@ import java.nio.channels.FileChannel.MapMode;
 import java.nio.channels.FileLock;
 import java.nio.channels.OverlappingFileLockException;
 
+import org.jipc.JipcBinman;
 import org.jipc.JipcPipe;
 import org.jipc.JipcRole;
+import org.jipc.channel.JipcChannel.JipcChannelState;
+import org.jipc.channel.buffer.BufferUtil;
 import org.jipc.channel.buffer.ByteBufferQueue;
 import org.jipc.channel.buffer.ReadableBbqChannel;
 import org.jipc.channel.buffer.WritableBbqChannel;
 
-public class SharedMemoryPipe implements JipcPipe {
-
+public class SharedMemoryPipe implements JipcPipe, JipcBinman {
 
 	private static final int DEFAULT_SIZE = 4096;
+	private File file;
 	private RandomAccessFile mappedFile;
 	private ByteBufferQueue inQueue;
 	private ByteBufferQueue outQueue;
 	private ReadableBbqChannel source;
 	private WritableBbqChannel sink;
 	private FileLock lock;
+	private boolean cleanUpOnClose;
+	private MappedByteBuffer buffer;
 
 	public SharedMemoryPipe(final File file, JipcRole role) throws IOException {
 		this(file, DEFAULT_SIZE, role);
@@ -32,6 +37,7 @@ public class SharedMemoryPipe implements JipcPipe {
 
 	public SharedMemoryPipe(final File file, final int fileSize, JipcRole role)
 			throws IOException {
+		this.file = file;
 		mappedFile = new RandomAccessFile(file, "rw");
 		FileChannel fileChannel = mappedFile.getChannel();
 		try {
@@ -39,10 +45,40 @@ public class SharedMemoryPipe implements JipcPipe {
 		} catch (OverlappingFileLockException e) {
 			// already locked
 		}
-		MappedByteBuffer buffer = fileChannel.map(MapMode.READ_WRITE, 0,
-				fileSize);
+		buffer = fileChannel.map(MapMode.READ_WRITE, 0, fileSize);
 		inQueue = createQueue(buffer, fileSize, role, true);
 		outQueue = createQueue(buffer, fileSize, role, false);
+	}
+
+	@Override
+	public void cleanUpOnClose() {
+		cleanUpOnClose = true;
+	}
+
+	@Override
+	public void close() throws IOException {
+		boolean sourceClosedByPeer = false;
+		boolean sinkClosedByPeer = false;
+		if (source != null) {
+			sourceClosedByPeer = source.getState() == JipcChannelState.ClosedByPeer;
+			source.close();
+		}
+		if (sink != null) {
+			sinkClosedByPeer = sink.getState() == JipcChannelState.ClosedByPeer;
+			sink.close();
+		}
+		if (lock != null) {
+			lock.release();
+			lock = null;
+		}
+		if (mappedFile != null) {
+			mappedFile.close();
+		}
+		BufferUtil.releaseBufferSilently(buffer);
+		
+		if (cleanUpOnClose && sourceClosedByPeer && sinkClosedByPeer) {
+			file.delete();
+		}
 	}
 
 	protected ByteBufferQueue createQueue(final MappedByteBuffer buffer,
