@@ -18,6 +18,20 @@ import org.jipc.channel.buffer.ByteBufferQueue;
 import org.jipc.channel.buffer.ReadableBbqChannel;
 import org.jipc.channel.buffer.WritableBbqChannel;
 
+/**
+ * This pipe uses shared memory to create in-memory buffers which are used to
+ * set up two {@link ByteBufferQueue}s as a backend for two (uni-directional)
+ * channels. Which buffer/channel is used for reading or writing depends on the
+ * given {@link JipcRole role}, so the role is needed to distinguish the two
+ * endpoints, but do not have any further semantics. Means: there is no special
+ * server or client. <br/>
+ * <br/>
+ * Be aware that the buffers are limited to the given size and thus are
+ * implemented as ring-buffers. So, you can not write if the buffer is full, or
+ * read if the buffer is empty. If you are using streams on top of the channel,
+ * they will block in this situation. The content of the shared memory is never
+ * forced to write back to disk, so the buffer is volatile.
+ */
 public class SharedMemoryPipe implements JipcPipe, JipcBinman {
 
 	private static final int DEFAULT_SIZE = 4096;
@@ -31,11 +45,34 @@ public class SharedMemoryPipe implements JipcPipe, JipcBinman {
 	private boolean cleanUpOnClose;
 	private MappedByteBuffer buffer;
 
+	/**
+	 * Creates a pipe with the given parameter in shared memory. The given file
+	 * is mapped into memory (to create shared memory), where a default size of
+	 * 4k of shared memory is allocated. The role itself does not have any
+	 * special semantics, means: it makes no difference whether you are
+	 * {@link JipcRole#Server server or {@link JipcRole#Client client}. It is
+	 * just needed to distinguish the endpoints of the pipe, so one end should
+	 * have the role client, the other server.
+	 */
 	public SharedMemoryPipe(final File file, JipcRole role) throws IOException {
 		this(file, DEFAULT_SIZE, role);
 	}
 
-	public SharedMemoryPipe(final File file, final int fileSize, JipcRole role)
+	/**
+	 * Creates a pipe with the given parameter in shared memory. The given file
+	 * is mapped into memory (to create shared memory), where the size indicates
+	 * the amount of shared memory to allocate. The role itself does not have
+	 * any special semantics, means: it makes no difference whether you are
+	 * {@link JipcRole#Server server or {@link JipcRole#Client client}. It is
+	 * just needed to distinguish the endpoints of the pipe, so one end should
+	 * have the role client, the other server.
+	 * 
+	 * @param file
+	 * @param size
+	 * @param role
+	 * @throws IOException
+	 */
+	public SharedMemoryPipe(final File file, final int size, JipcRole role)
 			throws IOException {
 		this.file = file;
 		mappedFile = new RandomAccessFile(file, "rw");
@@ -45,9 +82,9 @@ public class SharedMemoryPipe implements JipcPipe, JipcBinman {
 		} catch (OverlappingFileLockException e) {
 			// already locked
 		}
-		buffer = fileChannel.map(MapMode.READ_WRITE, 0, fileSize);
-		inQueue = createQueue(buffer, fileSize, role, true);
-		outQueue = createQueue(buffer, fileSize, role, false);
+		buffer = fileChannel.map(MapMode.READ_WRITE, 0, size);
+		inQueue = createQueue(buffer, size, role, true);
+		outQueue = createQueue(buffer, size, role, false);
 	}
 
 	@Override
@@ -75,7 +112,7 @@ public class SharedMemoryPipe implements JipcPipe, JipcBinman {
 			mappedFile.close();
 		}
 		BufferUtil.releaseBufferSilently(buffer);
-		
+
 		if (cleanUpOnClose && sourceClosedByPeer && sinkClosedByPeer) {
 			file.delete();
 		}

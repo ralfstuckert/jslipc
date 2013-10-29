@@ -10,17 +10,23 @@ import org.jipc.channel.file.ReadableJipcFileChannel;
 import org.jipc.channel.file.WritableJipcFileChannel;
 
 /**
- * The FilePipe uses a {@link ReadableJipcFileChannel} and {@link WritableJipcFileChannel} to set up a pipe 
- * based on two files. You may either provide {@link #FilePipe(File, File) both files} or a 
- * {@link #FilePipe(File, JipcRole) directory and the role} of <em>this</em> end of the pipe.
- * This implementation provides a {@link JipcBinman#cleanUpOnClose()} method, which will delete
- * the files on {@link #close()}.
+ * The FilePipe uses a {@link ReadableJipcFileChannel} and
+ * {@link WritableJipcFileChannel} to set up a pipe based on two files. You may
+ * either provide {@link #FilePipe(File, File) both files} or a
+ * {@link #FilePipe(File, JipcRole) directory and the role} of <em>this</em> end
+ * of the pipe. This implementation provides a
+ * {@link JipcBinman#cleanUpOnClose()} method, which will delete the files on
+ * {@link #close()}.<br/>
+ * <br/>
+ * A FilePipe is bound only by the underlying OS' maximum file size and therefore
+ * a write will not block until any limit is reached. But be aware that the underlying 
+ * files always grow (by writes) and do not shrink (by reads).
  */
 public class FilePipe implements JipcPipe, JipcBinman {
 
 	public final static String CLIENT_TO_SERVER_NAME = "clientToServer.channel";
 	public final static String SERVER_TO_CLIENT_NAME = "serverToClient.channel";
-	
+
 	private File sourceFile;
 	private File sinkFile;
 	private ReadableJipcFileChannel source;
@@ -28,14 +34,33 @@ public class FilePipe implements JipcPipe, JipcBinman {
 	private boolean cleanUpOnClose;
 
 	/**
-	 * This is an alternative to {@link #FilePipe(File, File)} where you do not pass the two files,
-	 * but a directory hosting two files <code>clientToServer.channel</code> and <code>serverToClient.channel</code>.
-	 * The files are created if they do not yet exist. Which one is used for source or sink depends on the role:
+	 * This is an alternative to {@link #FilePipe(File, File)} where you do not
+	 * pass the two files, but a directory hosting two files
+	 * <code>clientToServer.channel</code> and
+	 * <code>serverToClient.channel</code>. The files are created if they do not
+	 * yet exist. Which one is used for source or sink depends on the role:
 	 * <table border="1">
-	 * <tr><th>role</th><th>source</th><th>sink</th></tr>
-	 * <tr><td>client</td><td>serverToClient.channel</td><td>clientToServer.channel</td></tr>
-	 * <tr><td>server</td><td>clientToServer.channel</td><td>serverToClient.channel</td></tr>
+	 * <tr>
+	 * <th>role</th>
+	 * <th>source</th>
+	 * <th>sink</th>
+	 * </tr>
+	 * <tr>
+	 * <td>client</td>
+	 * <td>serverToClient.channel</td>
+	 * <td>clientToServer.channel</td>
+	 * </tr>
+	 * <tr>
+	 * <td>server</td>
+	 * <td>clientToServer.channel</td>
+	 * <td>serverToClient.channel</td>
+	 * </tr>
 	 * </table>
+	 * The role itself does not have any special semantics, means: it makes no difference whether
+	 * you are {@link JipcRole#Server server or {@link JipcRole#Client client}. It is just needed
+	 * to distinguish the endpoints of the pipe, so one end should have the role client, the other
+	 * server.
+	 * 
 	 * @param directory
 	 * @param role
 	 * @throws IOException
@@ -46,10 +71,13 @@ public class FilePipe implements JipcPipe, JipcBinman {
 	}
 
 	/**
-	 * Creates a pipe with a {@link ReadableJipcFileChannel} and {@link WritableJipcFileChannel} based 
-	 * on the given files.
-	 * @param source the file to create the {@link ReadableJipcFileChannel} from.
-	 * @param sink the file to create the {@link WritableJipcFileChannel} from.
+	 * Creates a pipe with a {@link ReadableJipcFileChannel} and
+	 * {@link WritableJipcFileChannel} based on the given files.
+	 * 
+	 * @param source
+	 *            the file to create the {@link ReadableJipcFileChannel} from.
+	 * @param sink
+	 *            the file to create the {@link WritableJipcFileChannel} from.
 	 */
 	public FilePipe(final File source, final File sink) {
 		if (source == null) {
@@ -107,7 +135,6 @@ public class FilePipe implements JipcPipe, JipcBinman {
 		}
 		return sink;
 	}
-
 
 	protected static File getSourceFile(final File directory,
 			final JipcRole role) throws IOException {
