@@ -50,7 +50,7 @@ public class SharedMemoryPipe implements JipcPipe, JipcBinman {
 	 * is mapped into memory (to create shared memory), where a default size of
 	 * 4k of shared memory is allocated. The role itself does not have any
 	 * special semantics, means: it makes no difference whether you are
-	 * {@link JipcRole#Server server or {@link JipcRole#Client client}. It is
+	 * {@link JipcRole#Server server} or {@link JipcRole#Client client}. It is
 	 * just needed to distinguish the endpoints of the pipe, so one end should
 	 * have the role client, the other server.
 	 */
@@ -63,7 +63,7 @@ public class SharedMemoryPipe implements JipcPipe, JipcBinman {
 	 * is mapped into memory (to create shared memory), where the size indicates
 	 * the amount of shared memory to allocate. The role itself does not have
 	 * any special semantics, means: it makes no difference whether you are
-	 * {@link JipcRole#Server server or {@link JipcRole#Client client}. It is
+	 * {@link JipcRole#Server server} or {@link JipcRole#Client client}. It is
 	 * just needed to distinguish the endpoints of the pipe, so one end should
 	 * have the role client, the other server.
 	 * 

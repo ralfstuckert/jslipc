@@ -57,7 +57,7 @@ public class FilePipe implements JipcPipe, JipcBinman {
 	 * </tr>
 	 * </table>
 	 * The role itself does not have any special semantics, means: it makes no difference whether
-	 * you are {@link JipcRole#Server server or {@link JipcRole#Client client}. It is just needed
+	 * you are {@link JipcRole#Server server} or {@link JipcRole#Client client}. It is just needed
 	 * to distinguish the endpoints of the pipe, so one end should have the role client, the other
 	 * server.
 	 * 
