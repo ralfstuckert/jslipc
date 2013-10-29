@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.jipc</groupId>
 	<artifactId>jipc</artifactId>
-	<version>0.0.4-SNAPSHOT</version>
+	<version>0.0.5-SNAPSHOT</version>
 	<!-- packaging>bundle</packaging -->
 	<properties>
 		<distribution.dir>${project.build.directory}/dist</distribution.dir>
@@ -21,7 +21,7 @@
 			<version>1.9.5</version>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
+		<!-- dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
 			<version>1.7.5</version>
@@ -31,7 +31,7 @@
 			<artifactId>slf4j-simple</artifactId>
 			<version>1.7.5</version>
 			<scope>test</scope>
-		</dependency>
+		</dependency -->
 	</dependencies>
 	<build>
 		<sourceDirectory>src</sourceDirectory>
@@ -43,6 +43,12 @@
 				<configuration>
 					<source>1.6</source>
 					<target>1.6</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-install-plugin</artifactId>
+				<configuration>
+					<createChecksum>true</createChecksum>
 				</configuration>
 			</plugin>
 			<plugin>
