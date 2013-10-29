@@ -24,7 +24,7 @@ public class SMPipeTestConsumer extends AbstractTestConsumer {
 	}
 
 	public JipcPipe createPipe(File file) throws IOException {
-		return new SharedMemoryPipe(file, 30, JipcRole.Client);
+		return new SharedMemoryPipe(file, 30, JipcRole.Yang);
 	}
 
 }

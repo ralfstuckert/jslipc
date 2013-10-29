@@ -23,8 +23,7 @@ import org.jipc.channel.buffer.WritableBbqChannel;
  * set up two {@link ByteBufferQueue}s as a backend for two (uni-directional)
  * channels. Which buffer/channel is used for reading or writing depends on the
  * given {@link JipcRole role}, so the role is needed to distinguish the two
- * endpoints, but do not have any further semantics. Means: there is no special
- * server or client. <br/>
+ * endpoints, but do not have any further semantics. <br/>
  * <br/>
  * Be aware that the buffers are limited to the given size and thus are
  * implemented as ring-buffers. So, you can not write if the buffer is full, or
@@ -50,9 +49,9 @@ public class SharedMemoryPipe implements JipcPipe, JipcBinman {
 	 * is mapped into memory (to create shared memory), where a default size of
 	 * 4k of shared memory is allocated. The role itself does not have any
 	 * special semantics, means: it makes no difference whether you are
-	 * {@link JipcRole#Server server} or {@link JipcRole#Client client}. It is
+	 * {@link JipcRole#Yin server} or {@link JipcRole#Yang yang}. It is
 	 * just needed to distinguish the endpoints of the pipe, so one end should
-	 * have the role client, the other server.
+	 * have the role yin, the other yang.
 	 */
 	public SharedMemoryPipe(final File file, JipcRole role) throws IOException {
 		this(file, DEFAULT_SIZE, role);
@@ -63,9 +62,9 @@ public class SharedMemoryPipe implements JipcPipe, JipcBinman {
 	 * is mapped into memory (to create shared memory), where the size indicates
 	 * the amount of shared memory to allocate. The role itself does not have
 	 * any special semantics, means: it makes no difference whether you are
-	 * {@link JipcRole#Server server} or {@link JipcRole#Client client}. It is
+	 * {@link JipcRole#Yin server} or {@link JipcRole#Yang yang}. It is
 	 * just needed to distinguish the endpoints of the pipe, so one end should
-	 * have the role client, the other server.
+	 * have the role yin, the other yang.
 	 * 
 	 * @param file
 	 * @param size
@@ -124,7 +123,7 @@ public class SharedMemoryPipe implements JipcPipe, JipcBinman {
 		int queueSize = fileSize / 2;
 		boolean out = !in;
 		ByteBufferQueue queue = null;
-		if (role == JipcRole.Server && in || role == JipcRole.Client && out) {
+		if (role == JipcRole.Yin && in || role == JipcRole.Yang && out) {
 			queue = new ByteBufferQueue(buffer, 0, queueSize);
 		} else {
 			queue = new ByteBufferQueue(buffer, queueSize, queueSize);

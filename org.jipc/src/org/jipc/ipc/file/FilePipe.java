@@ -24,8 +24,8 @@ import org.jipc.channel.file.WritableJipcFileChannel;
  */
 public class FilePipe implements JipcPipe, JipcBinman {
 
-	public final static String CLIENT_TO_SERVER_NAME = "clientToServer.channel";
-	public final static String SERVER_TO_CLIENT_NAME = "serverToClient.channel";
+	public final static String YANG_TO_YIN_NAME = "yangToYin.channel";
+	public final static String YIN_TO_YANG_NAME = "yinToYang.channel";
 
 	private File sourceFile;
 	private File sinkFile;
@@ -36,8 +36,8 @@ public class FilePipe implements JipcPipe, JipcBinman {
 	/**
 	 * This is an alternative to {@link #FilePipe(File, File)} where you do not
 	 * pass the two files, but a directory hosting two files
-	 * <code>clientToServer.channel</code> and
-	 * <code>serverToClient.channel</code>. The files are created if they do not
+	 * <code>yangToYin.channel</code> and
+	 * <code>yinToYang.channel</code>. The files are created if they do not
 	 * yet exist. Which one is used for source or sink depends on the role:
 	 * <table border="1">
 	 * <tr>
@@ -46,20 +46,20 @@ public class FilePipe implements JipcPipe, JipcBinman {
 	 * <th>sink</th>
 	 * </tr>
 	 * <tr>
-	 * <td>client</td>
-	 * <td>serverToClient.channel</td>
-	 * <td>clientToServer.channel</td>
+	 * <td>yang</td>
+	 * <td>yinToYang.channel</td>
+	 * <td>yangToYin.channel</td>
 	 * </tr>
 	 * <tr>
-	 * <td>server</td>
-	 * <td>clientToServer.channel</td>
-	 * <td>serverToClient.channel</td>
+	 * <td>yin</td>
+	 * <td>yangToYin.channel</td>
+	 * <td>yinToYang.channel</td>
 	 * </tr>
 	 * </table>
 	 * The role itself does not have any special semantics, means: it makes no difference whether
-	 * you are {@link JipcRole#Server server} or {@link JipcRole#Client client}. It is just needed
-	 * to distinguish the endpoints of the pipe, so one end should have the role client, the other
-	 * server.
+	 * you are {@link JipcRole#Yin yin} or {@link JipcRole#Yang yang}. It is just needed
+	 * to distinguish the endpoints of the pipe, so one end should have the role yin, the other
+	 * yang.
 	 * 
 	 * @param directory
 	 * @param role
@@ -138,16 +138,16 @@ public class FilePipe implements JipcPipe, JipcBinman {
 
 	protected static File getSourceFile(final File directory,
 			final JipcRole role) throws IOException {
-		return getChannelFile(directory, role, JipcRole.Client);
+		return getChannelFile(directory, role, JipcRole.Yang);
 	}
 
 	protected static File getSinkFile(final File directory, final JipcRole role)
 			throws IOException {
-		return getChannelFile(directory, role, JipcRole.Server);
+		return getChannelFile(directory, role, JipcRole.Yin);
 	}
 
 	private static File getChannelFile(final File directory,
-			final JipcRole role, JipcRole serverToClientRole)
+			final JipcRole role, JipcRole yinToYangRole)
 			throws IOException {
 		if (directory == null) {
 			throw new IllegalArgumentException(
@@ -166,9 +166,9 @@ public class FilePipe implements JipcPipe, JipcBinman {
 					"parameter 'role' must not be null");
 		}
 
-		String name = CLIENT_TO_SERVER_NAME;
-		if (role == serverToClientRole) {
-			name = SERVER_TO_CLIENT_NAME;
+		String name = YANG_TO_YIN_NAME;
+		if (role == yinToYangRole) {
+			name = YIN_TO_YANG_NAME;
 		}
 		File file = new File(directory, name);
 		file.createNewFile();

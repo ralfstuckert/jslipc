@@ -32,27 +32,27 @@ public class SharedMemoryPipeTest {
 	@Test
 	public void testSharedMemoryPipeFile() throws Exception {
 		SharedMemoryPipe pipe = new SharedMemoryPipe(createFile(),
-				JipcRole.Client);
-		checkQueueBounds(pipe, 4096, JipcRole.Client);
+				JipcRole.Yang);
+		checkQueueBounds(pipe, 4096, JipcRole.Yang);
 
-		pipe = new SharedMemoryPipe(createFile(), JipcRole.Server);
-		checkQueueBounds(pipe, 4096, JipcRole.Server);
+		pipe = new SharedMemoryPipe(createFile(), JipcRole.Yin);
+		checkQueueBounds(pipe, 4096, JipcRole.Yin);
 	}
 
 	@Test
 	public void testSharedMemoryPipeFileInt() throws Exception {
 		SharedMemoryPipe pipe = new SharedMemoryPipe(createFile(),
-				1789, JipcRole.Client);
-		checkQueueBounds(pipe, 1789, JipcRole.Client);
+				1789, JipcRole.Yang);
+		checkQueueBounds(pipe, 1789, JipcRole.Yang);
 
-		pipe = new SharedMemoryPipe(createFile(), 1789, JipcRole.Server);
-		checkQueueBounds(pipe, 1789, JipcRole.Server);
+		pipe = new SharedMemoryPipe(createFile(), 1789, JipcRole.Yin);
+		checkQueueBounds(pipe, 1789, JipcRole.Yin);
 	}
 
 	@Test
 	public void testClose() throws Exception {
 		SharedMemoryPipe pipe = new SharedMemoryPipe(createFile(),
-				1789, JipcRole.Client);
+				1789, JipcRole.Yang);
 		assertNotNull(pipe.source());
 		assertNotNull(pipe.sink());
 
@@ -65,7 +65,7 @@ public class SharedMemoryPipeTest {
 	public void testCleanUpOnCloseStillUsedByPeer() throws Exception {
 		File file = createFile();
 		SharedMemoryPipe pipe = new SharedMemoryPipe(file,
-				1789, JipcRole.Client);
+				1789, JipcRole.Yang);
 		assertNotNull(pipe.source());
 		assertNotNull(pipe.sink());
 
@@ -79,9 +79,9 @@ public class SharedMemoryPipeTest {
 	public void testCleanUpOnClose() throws Exception {
 		File file = createFile();
 		SharedMemoryPipe pipe = new SharedMemoryPipe(file,
-				1789, JipcRole.Client);
+				1789, JipcRole.Yang);
 		SharedMemoryPipe peer = new SharedMemoryPipe(file,
-				1789, JipcRole.Server);
+				1789, JipcRole.Yin);
 		assertNotNull(peer.source());
 		assertNotNull(peer.sink());
 		assertNotNull(pipe.source());
@@ -101,7 +101,7 @@ public class SharedMemoryPipeTest {
 
 	private void checkQueueBounds(SharedMemoryPipe pipe, int size, JipcRole role) {
 		int bufferSize = size / 2;
-		if (role == JipcRole.Client) {
+		if (role == JipcRole.Yang) {
 			assertNotNull(pipe.getInQueue());
 			assertNotNull(pipe.getOutQueue());
 			assertEquals(bufferSize, pipe.getInQueue().getStartIndex());
@@ -120,8 +120,8 @@ public class SharedMemoryPipeTest {
 
 	@Test
 	public void testWhoLocksInitializes() throws Exception {
-		checkWhoLocksInitializes(JipcRole.Client);
-		checkWhoLocksInitializes(JipcRole.Server);
+		checkWhoLocksInitializes(JipcRole.Yang);
+		checkWhoLocksInitializes(JipcRole.Yin);
 	}
 
 	@SuppressWarnings("resource")
@@ -146,9 +146,9 @@ public class SharedMemoryPipeTest {
 	@Test
 	public void testSource() throws Exception {
 		SharedMemoryPipe pipe = new SharedMemoryPipe(createFile(),
-				1789, JipcRole.Client);
+				1789, JipcRole.Yang);
 		assertNotNull(pipe.source());
-		pipe = new SharedMemoryPipe(createFile(), 1789, JipcRole.Server);
+		pipe = new SharedMemoryPipe(createFile(), 1789, JipcRole.Yin);
 		assertNotNull(pipe.source());
 	}
 
@@ -156,9 +156,9 @@ public class SharedMemoryPipeTest {
 	@Test
 	public void testSink() throws Exception {
 		SharedMemoryPipe pipe = new SharedMemoryPipe(createFile(),
-				1789, JipcRole.Client);
+				1789, JipcRole.Yang);
 		assertNotNull(pipe.sink());
-		pipe = new SharedMemoryPipe(createFile(), 1789, JipcRole.Server);
+		pipe = new SharedMemoryPipe(createFile(), 1789, JipcRole.Yin);
 		assertNotNull(pipe.sink());
 	}
 

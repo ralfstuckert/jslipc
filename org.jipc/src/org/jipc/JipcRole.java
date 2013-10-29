@@ -1,10 +1,10 @@
 package org.jipc;
 
 /**
- * Defines the roles {@link #Client} and {@link #Server}
+ * Defines the roles {@link #Yang} and {@link #Yin}
  */
 public enum JipcRole {
 
-	Server, Client;
+	Yin, Yang;
 }
 

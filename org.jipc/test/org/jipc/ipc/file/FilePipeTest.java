@@ -33,20 +33,20 @@ public class FilePipeTest {
 
 	@Test
 	public void testGetSourceFile() throws Exception {
-		File source = FilePipe.getSourceFile(directory, JipcRole.Client);
-		checkChannelFile(source, FilePipe.SERVER_TO_CLIENT_NAME);
+		File source = FilePipe.getSourceFile(directory, JipcRole.Yang);
+		checkChannelFile(source, FilePipe.YIN_TO_YANG_NAME);
 
-		source = FilePipe.getSourceFile(directory, JipcRole.Server);
-		checkChannelFile(source, FilePipe.CLIENT_TO_SERVER_NAME);
+		source = FilePipe.getSourceFile(directory, JipcRole.Yin);
+		checkChannelFile(source, FilePipe.YANG_TO_YIN_NAME);
 	}
 
 	@Test
 	public void testGetSinkFile() throws Exception {
-		File source = FilePipe.getSinkFile(directory, JipcRole.Server);
-		checkChannelFile(source, FilePipe.SERVER_TO_CLIENT_NAME);
+		File source = FilePipe.getSinkFile(directory, JipcRole.Yin);
+		checkChannelFile(source, FilePipe.YIN_TO_YANG_NAME);
 
-		source = FilePipe.getSinkFile(directory, JipcRole.Client);
-		checkChannelFile(source, FilePipe.CLIENT_TO_SERVER_NAME);
+		source = FilePipe.getSinkFile(directory, JipcRole.Yang);
+		checkChannelFile(source, FilePipe.YANG_TO_YIN_NAME);
 	}
 
 	protected void checkChannelFile(File file, String expectedName) {
@@ -58,20 +58,20 @@ public class FilePipeTest {
 	@SuppressWarnings("resource")
 	@Test
 	public void testFilePipeFileJipcRole() throws Exception {
-		new FilePipe(directory, JipcRole.Client);
-		new FilePipe(directory, JipcRole.Server);
+		new FilePipe(directory, JipcRole.Yang);
+		new FilePipe(directory, JipcRole.Yin);
 	}
 
 	@SuppressWarnings("resource")
 	@Test(expected = IllegalArgumentException.class)
 	public void testFilePipeFileNullJipcRole() throws Exception {
-		new FilePipe(null, JipcRole.Client);
+		new FilePipe(null, JipcRole.Yang);
 	}
 
 	@SuppressWarnings("resource")
 	@Test(expected = IllegalArgumentException.class)
 	public void testFilePipeFileNotDirectoryJipcRole() throws Exception {
-		new FilePipe(source, JipcRole.Client);
+		new FilePipe(source, JipcRole.Yang);
 	}
 
 	@SuppressWarnings("resource")
@@ -104,7 +104,7 @@ public class FilePipeTest {
 		FilePipe pipe = new FilePipe(source, sink);
 		assertNotNull(pipe.source());
 
-		pipe = new FilePipe(directory, JipcRole.Client);
+		pipe = new FilePipe(directory, JipcRole.Yang);
 		assertNotNull(pipe.source());
 	}
 
@@ -114,7 +114,7 @@ public class FilePipeTest {
 		FilePipe pipe = new FilePipe(source, sink);
 		assertNotNull(pipe.sink());
 
-		pipe = new FilePipe(directory, JipcRole.Client);
+		pipe = new FilePipe(directory, JipcRole.Yang);
 		assertNotNull(pipe.sink());
 	}
 
@@ -124,7 +124,7 @@ public class FilePipeTest {
 		FilePipe pipe = new FilePipe(source, sink);
 		assertNotNull(pipe.sink());
 
-		pipe = new FilePipe(directory, JipcRole.Client);
+		pipe = new FilePipe(directory, JipcRole.Yang);
 		assertTrue(pipe.source().isOpen());
 		assertTrue(pipe.sink().isOpen());
 
@@ -200,7 +200,7 @@ public class FilePipeTest {
 				new String[] { System.getProperty("java.home") + "/bin/java",
 						"-cp", System.getProperty("java.class.path"),
 						FilePipeTestProducer.class.getName(),
-						directory.getAbsolutePath(), "-" + JipcRole.Server });
+						directory.getAbsolutePath(), "-" + JipcRole.Yin });
 
 		// int date = 0;
 		// while ((date = producer.getErrorStream().read()) != -1) {
@@ -209,7 +209,7 @@ public class FilePipeTest {
 
 		Thread.sleep(1000);
 		FilePipeTestConsumer consumer = new FilePipeTestConsumer();
-		JipcPipe pipe = new FilePipe(directory, JipcRole.Client);
+		JipcPipe pipe = new FilePipe(directory, JipcRole.Yang);
 
 		String reply = consumer.consume(pipe);
 		String expectedReply = consumer.createReply(AbstractTestProducer.HELLO);

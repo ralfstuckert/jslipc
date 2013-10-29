@@ -9,6 +9,7 @@ News:
 Fixes:
 ---------
 - #1: Pipes/Channels should be enabled to clean up all resources on close
+- #5: JipcRole Client and Server are confusing
 
 To Adapt:
 ---------

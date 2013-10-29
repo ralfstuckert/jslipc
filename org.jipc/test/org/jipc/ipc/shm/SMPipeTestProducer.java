@@ -20,7 +20,7 @@ public class SMPipeTestProducer extends AbstractTestProducer {
 			file = new File(args[0]);
 		}
 		return new SharedMemoryPipe(file, 30,
-				JipcRole.Server);
+				JipcRole.Yin);
 	}
 
 }
