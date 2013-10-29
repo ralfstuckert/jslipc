@@ -15,10 +15,21 @@
 			<version>4.11</version>
 			<scope>test</scope>
 		</dependency>
-		<dependency> 
+		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-all</artifactId>
 			<version>1.9.5</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.7.5</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-simple</artifactId>
+			<version>1.7.5</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
@@ -134,7 +145,7 @@
 			</plugin>
 
 		</plugins>
-		
+
 		<!-- needed to workaround m2e problem with the bundle plugin: -->
 		<!-- "plugin execution not covered by lifecycle configuration" -->
 		<pluginManagement>
@@ -174,14 +185,14 @@
 			</plugins>
 		</pluginManagement>
 	</build>
-    <licenses>
-        <license>
-            <name>The MIT License</name>
-            <url>http://code.google.com/p/jipc/wiki/License</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
-    <scm>
-        <url>http://code.google.com/p/jipc/source/browse</url>
-    </scm>
+	<licenses>
+		<license>
+			<name>The MIT License</name>
+			<url>http://code.google.com/p/jipc/wiki/License</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+	<scm>
+		<url>http://code.google.com/p/jipc/source/browse</url>
+	</scm>
 </project>
