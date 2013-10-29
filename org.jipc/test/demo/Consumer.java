@@ -14,7 +14,6 @@ import org.jipc.channel.JipcChannelOutputStream;
 import org.jipc.ipc.file.FilePipe;
 
 public class Consumer {
-
 	public static void main(String[] args) throws Exception {
 		// set up pipe
 		File directory = new File("./pipe");
