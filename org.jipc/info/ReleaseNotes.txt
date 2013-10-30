@@ -1,18 +1,23 @@
 Jipc Java inter process communication library
 
-Version 0.0.4
+
+Version 0.0.5
 =============
 
-News:
------
+Fixes:
+---------
+Fix issue 2: Documentation / Examples
+Fix issue 6: JipcBinman implementations should use File.deleteOnExit()
+
+
+Version 0.0.4
+=============
 
 Fixes:
 ---------
 - #1: Pipes/Channels should be enabled to clean up all resources on close
 - #5: JipcRole Client and Server are confusing
 
-To Adapt:
----------
 
 
 Version 0.0.3
