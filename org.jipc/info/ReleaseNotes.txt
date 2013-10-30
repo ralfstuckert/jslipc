@@ -6,8 +6,10 @@ Version 0.0.5
 
 Fixes:
 ---------
-Fix issue 2: Documentation / Examples
-Fix issue 6: JipcBinman implementations should use File.deleteOnExit()
+- #2: Documentation / Examples
+- #3: Provide release notes
+- #6: JipcBinman implementations should use File.deleteOnExit()
+- #7: Provide SHA1 checksum for download
 
 
 Version 0.0.4
