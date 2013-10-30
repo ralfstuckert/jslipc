@@ -138,6 +138,12 @@
 									</fileset>
 								</copy>
 
+								<copy todir="${distribution.dir}/examples">
+									<fileset dir="${basedir}/examples">
+										<include name="**/*" />
+									</fileset>
+								</copy>
+
 								<zip
 									destfile="${project.build.directory}/${project.artifactId}-${project.version}.zip"
 									basedir="${distribution.dir}" includes="**/*" />
