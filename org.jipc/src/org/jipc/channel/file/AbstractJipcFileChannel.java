@@ -68,7 +68,9 @@ public abstract class AbstractJipcFileChannel implements JipcChannel, JipcBinman
 			randomAccessFile.close();
 			if (deleteFilesOnClose) {
 				file.delete();
+				file.deleteOnExit();
 				getCloseMarker().delete();
+				getCloseMarker().deleteOnExit();
 			}
 		}
 	}

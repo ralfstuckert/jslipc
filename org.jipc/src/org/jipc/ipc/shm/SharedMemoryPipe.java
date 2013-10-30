@@ -114,6 +114,7 @@ public class SharedMemoryPipe implements JipcPipe, JipcBinman {
 
 		if (cleanUpOnClose && sourceClosedByPeer && sinkClosedByPeer) {
 			file.delete();
+			file.deleteOnExit();
 		}
 	}
 
