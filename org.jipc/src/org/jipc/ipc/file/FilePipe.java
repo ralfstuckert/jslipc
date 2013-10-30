@@ -124,6 +124,7 @@ public class FilePipe implements JipcPipe, JipcBinman {
 	public ReadableJipcFileChannel source() throws IOException {
 		if (source == null) {
 			source = new ReadableJipcFileChannel(sourceFile);
+			checkCleanUpOnClose();
 		}
 		return source;
 	}
@@ -132,6 +133,7 @@ public class FilePipe implements JipcPipe, JipcBinman {
 	public WritableJipcFileChannel sink() throws IOException {
 		if (sink == null) {
 			sink = new WritableJipcFileChannel(sinkFile);
+			checkCleanUpOnClose();
 		}
 		return sink;
 	}
