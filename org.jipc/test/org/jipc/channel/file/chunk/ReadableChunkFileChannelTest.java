@@ -136,6 +136,9 @@ public class ReadableChunkFileChannelTest extends AbstractChunkFileChannelTest {
 		TestUtil.assertEquals("herbertkarl", buffer);
 
 		buffer.clear();
+		assertEquals(0, channel.read(buffer));
+		
+		// closed by peer
 		closedMarker.createNewFile();
 		assertEquals(-1, channel.read(buffer));
 	}
