@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 
 import org.jipc.TestUtil;
@@ -21,7 +22,7 @@ public class ReadableChunkFileChannelTest extends AbstractChunkFileChannelTest {
 	protected ReadableChunkFileChannel createChannel(File directory) {
 		return new ReadableChunkFileChannel(directory);
 	}
-	
+
 	@SuppressWarnings("resource")
 	@Test
 	public void testGetNextChunk() throws Exception {
@@ -65,16 +66,40 @@ public class ReadableChunkFileChannelTest extends AbstractChunkFileChannelTest {
 		createChunkFile(1, "karl");
 		createChunkFile(2, "fritz");
 
-		assertEquals(7, channel.read(buffer));
-		TestUtil.assertEquals("herbert", buffer);
+		assertEquals(16, channel.read(buffer));
+		TestUtil.assertEquals("herbertkarlfritz", buffer);
 
 		buffer.clear();
-		assertEquals(4, channel.read(buffer));
-		TestUtil.assertEquals("karl", buffer);
+		assertEquals(0, channel.read(buffer));
+	}
 
-		buffer.clear();
-		assertEquals(5, channel.read(buffer));
-		TestUtil.assertEquals("fritz", buffer);
+	@SuppressWarnings("resource")
+	@Test
+	public void testReadChunkPartially() throws Exception {
+		ReadableChunkFileChannel channel = new ReadableChunkFileChannel(
+				directory);
+		ByteBuffer smallBuffer = TestUtil.createByteBuffer(5);
+
+		assertEquals(0, channel.read(smallBuffer));
+
+		createChunkFile(0, "herbert");
+		createChunkFile(1, "karl");
+		createChunkFile(2, "fritz");
+
+		assertEquals(5, channel.read(smallBuffer));
+		TestUtil.assertEquals("herbe", smallBuffer);
+
+		smallBuffer.clear();
+		assertEquals(5, channel.read(smallBuffer));
+		TestUtil.assertEquals("rtkar", smallBuffer);
+
+		smallBuffer.clear();
+		assertEquals(5, channel.read(smallBuffer));
+		TestUtil.assertEquals("lfrit", smallBuffer);
+
+		smallBuffer.clear();
+		assertEquals(1, channel.read(smallBuffer));
+		TestUtil.assertEquals("z", smallBuffer);
 	}
 
 	@SuppressWarnings("resource")
@@ -82,21 +107,18 @@ public class ReadableChunkFileChannelTest extends AbstractChunkFileChannelTest {
 	public void testReadDeletesReadChunks() throws Exception {
 		ReadableChunkFileChannel channel = new ReadableChunkFileChannel(
 				directory);
-		assertEquals(0, channel.read(buffer));
+		ByteBuffer smallBuffer = TestUtil.createByteBuffer(15);
+		assertEquals(0, channel.read(smallBuffer));
 
 		File chunk0 = createChunkFile(0, "herbert");
-		createChunkFile(1, "karl");
+		File chunk1 = createChunkFile(1, "karl");
 		File chunk2 = createChunkFile(2, "fritz");
 
-		assertEquals(7, channel.read(buffer));
-		TestUtil.assertEquals("herbert", buffer);
-
-		buffer.clear();
-		assertEquals(4, channel.read(buffer));
-		TestUtil.assertEquals("karl", buffer);
+		assertEquals(15, channel.read(smallBuffer));
+		TestUtil.assertEquals("herbertkarlfrit", smallBuffer);
 
 		assertFalse(chunk0.exists());
-		// assertFalse(chunk1.exists()); // will be deleted on next read
+		assertFalse(chunk1.exists()); 
 		assertTrue(chunk2.exists());
 	}
 
@@ -110,13 +132,10 @@ public class ReadableChunkFileChannelTest extends AbstractChunkFileChannelTest {
 		createChunkFile(0, "herbert");
 		createChunkFile(1, "karl");
 
-		assertEquals(7, channel.read(buffer));
-		TestUtil.assertEquals("herbert", buffer);
-		buffer.clear();
-		assertEquals(4, channel.read(buffer));
-		TestUtil.assertEquals("karl", buffer);
+		assertEquals(11, channel.read(buffer));
+		TestUtil.assertEquals("herbertkarl", buffer);
 
-		assertEquals(0, channel.read(buffer));
+		buffer.clear();
 		closedMarker.createNewFile();
 		assertEquals(-1, channel.read(buffer));
 	}

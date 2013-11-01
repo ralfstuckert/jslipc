@@ -99,6 +99,18 @@ public class ReadableChunkFileChannel extends AbstractChunkFileChannel
 
 	@Override
 	public int read(ByteBuffer dst) throws IOException {
+		int sum = 0;
+		int count = 0;
+		while ((count = readInternal(dst)) > 0) {
+			sum += count;
+		}
+		if (sum == 0) {
+			return count;
+		}
+		return sum;
+	}
+
+	private int readInternal(ByteBuffer dst) throws IOException {
 		checkClosed();
 		FileChannel channel = getChunkFileChannel();
 		if (channel == null) {
@@ -114,7 +126,5 @@ public class ReadableChunkFileChannel extends AbstractChunkFileChannel
 		markChunkRead();
 		return read(dst);
 	}
-
-
 
 }
