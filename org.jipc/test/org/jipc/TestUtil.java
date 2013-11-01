@@ -11,6 +11,8 @@ import java.util.UUID;
 import org.jipc.channel.buffer.ByteBufferQueue;
 import org.junit.Assert;
 
+import static org.junit.Assert.*;
+
 /**
  * Some helper methods for testing.
  */
@@ -47,9 +49,31 @@ public class TestUtil {
 		return buffer;
 	}
 
-	public static void writeToFile(final File file, final String text)
+	/**
+	 * Wraps the given String into a ByteBuffer using String.getBytes().
+	 * @param text
+	 * @return the wrapping buffer.
+	 */
+	public static ByteBuffer toBuffer(final String text) {
+		return ByteBuffer.wrap(text.getBytes());
+	}
+	
+
+
+	public static void appendToFile(final File file, final String text)
 			throws IOException {
 		FileWriter writer = new FileWriter(file, true);
+		writer.append(text);
+		writer.close();
+	}
+
+	public static void writeNewFile(final File file, final String text)
+			throws IOException {
+		if (file.exists()) {
+			assertTrue(file.delete());
+		}
+		assertTrue(file.createNewFile());
+		FileWriter writer = new FileWriter(file);
 		writer.append(text);
 		writer.close();
 	}

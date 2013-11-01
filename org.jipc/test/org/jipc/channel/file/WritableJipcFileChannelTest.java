@@ -5,13 +5,12 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 
 import org.jipc.TestUtil;
 import org.junit.Test;
 
-public class WritableFileJipcChannelTest extends AbstractJipcFileChannelTest {
+public class WritableJipcFileChannelTest extends AbstractJipcFileChannelTest {
 
 	@Override
 	protected WritableJipcFileChannel createChannel(File file) throws IOException {
@@ -29,13 +28,13 @@ public class WritableFileJipcChannelTest extends AbstractJipcFileChannelTest {
 	public void testWrite() throws Exception {
 		WritableJipcFileChannel channel = createChannel(file);
 
-		assertEquals(7, channel.write(toBuffer("herbert")));
+		assertEquals(7, channel.write(TestUtil.toBuffer("herbert")));
 		TestUtil.assertEquals("herbert", file);
 
-		assertEquals(0, channel.write(toBuffer("")));
+		assertEquals(0, channel.write(TestUtil.toBuffer("")));
 		TestUtil.assertEquals("herbert", file);
 
-		assertEquals(4, channel.write(toBuffer("karl")));
+		assertEquals(4, channel.write(TestUtil.toBuffer("karl")));
 		TestUtil.assertEquals("herbertkarl", file);
 	}
 
@@ -43,12 +42,12 @@ public class WritableFileJipcChannelTest extends AbstractJipcFileChannelTest {
 	public void testEndOfStream() throws Exception {
 		WritableJipcFileChannel channel = createChannel(file);
 
-		assertEquals(7, channel.write(toBuffer("herbert")));
+		assertEquals(7, channel.write(TestUtil.toBuffer("herbert")));
 		TestUtil.assertEquals("herbert", file);
 
-		// simulate close by writer
+		// simulate close by reader
 		assertTrue(closedMarker.createNewFile());
-		assertEquals(0, channel.write(toBuffer("karl")));
+		assertEquals(0, channel.write(TestUtil.toBuffer("karl")));
 	}
 
 	@Test(expected = ClosedChannelException.class)
@@ -58,8 +57,4 @@ public class WritableFileJipcChannelTest extends AbstractJipcFileChannelTest {
 		channel.write(buffer);
 	}
 
-	private ByteBuffer toBuffer(final String text) {
-		return ByteBuffer.wrap(text.getBytes());
-	}
-	
 }

@@ -28,7 +28,7 @@ public class ReadableJipcFileChannelTest extends AbstractJipcFileChannelTest {
 		ReadableJipcFileChannel channel = createChannel(file);
 		assertEquals(0, channel.read(buffer));
 
-		TestUtil.writeToFile(file, "herbert");
+		TestUtil.appendToFile(file, "herbert");
 		assertEquals(7, channel.read(buffer));
 		TestUtil.assertEquals("herbert", buffer);
 
@@ -36,7 +36,7 @@ public class ReadableJipcFileChannelTest extends AbstractJipcFileChannelTest {
 		assertEquals(0, channel.read(buffer));
 		TestUtil.assertEquals("", buffer);
 
-		TestUtil.writeToFile(file, "karl");
+		TestUtil.appendToFile(file, "karl");
 		assertEquals(4, channel.read(buffer));
 		TestUtil.assertEquals("karl", buffer);
 	}
@@ -46,7 +46,7 @@ public class ReadableJipcFileChannelTest extends AbstractJipcFileChannelTest {
 		ReadableJipcFileChannel channel = createChannel(file);
 		assertEquals(0, channel.read(buffer));
 
-		TestUtil.writeToFile(file, "herbert");
+		TestUtil.appendToFile(file, "herbert");
 		assertEquals(7, channel.read(buffer));
 		TestUtil.assertEquals("herbert", buffer);
 
@@ -54,7 +54,7 @@ public class ReadableJipcFileChannelTest extends AbstractJipcFileChannelTest {
 		assertEquals(0, channel.read(buffer));
 		TestUtil.assertEquals("", buffer);
 
-		TestUtil.writeToFile(file, "karl");
+		TestUtil.appendToFile(file, "karl");
 		// simulate close by writer
 		assertTrue(closedMarker.createNewFile());
 
