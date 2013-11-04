@@ -1,40 +1,41 @@
-Jipc Java inter process communication library
+= Jipc - Java Inter-Process Communication API =
 
+= Version 0.0.6 =
 
-Version 0.0.5
-=============
+*News*
+ * new chunk file based pipe (!ChunkFilePipe), see Issue 8
 
-Fixes:
----------
-- #2: Documentation / Examples
-- #3: Provide release notes
-- #6: JipcBinman implementations should use File.deleteOnExit()
-- #7: Provide SHA1 checksum for download
+*Fixes*
+ * Issue 8: Chunk based file channel and pipe
 
+----
 
-Version 0.0.4
-=============
+== Version 0.0.5 ==
 
-Fixes:
----------
-- #1: Pipes/Channels should be enabled to clean up all resources on close
-- #5: JipcRole Client and Server are confusing
+*Fixes*
+ * issue 2: Documentation / Examples
+ * issue 3: Provide release notes
+ * issue 6: !JipcBinman implementations should use File.deleteOnExit()
+ * issue 7: Provide SHA1 checksum for download
 
+----
 
+=== Version 0.0.4 ===
 
-Version 0.0.3
-=============
+*Fixes*
+ * issue 1: Pipes/Channels should be enabled to clean up all resources on close
+ * issue 5: !JipcRole Client and Server are confusing
 
-News:
------
-- new file based pipe (FilePipe)
-- interface JipcPipe
-- clean up and refactoring
-- replaced JipcChannel.isClosedByPeer() by getState() which returns either
-  Open, ClosedByPeer or Closed. Thus, semantics are more accurate.
+----
 
-To Adapt:
----------
-- renamed MemoryMappedFilePipe to SharedMemoryPipe
-- reorganized package hierarchy
+=== Version 0.0.3 ===
 
+*News*
+ * new file based pipe (!FilePipe)
+ * interface !JipcPipe
+ * clean up and refactoring
+ * replaced !JipcChannel.isClosedByPeer() by getState() which returns either Open, !ClosedByPeer or Closed. Thus, semantics are more accurate.
+
+*To Adapt*
+ * renamed !MemoryMappedFilePipe to !SharedMemoryPipe
+ * reorganized package hierarchy
