@@ -50,13 +50,13 @@ public class ChunkFilePipe implements JipcPipe, JipcBinman {
 	 * </tr>
 	 * <tr>
 	 * <td>yang</td>
-	 * <td>yinToYang.channel</td>
-	 * <td>yangToYin.channel</td>
+	 * <td>yinToYang</td>
+	 * <td>yangToYin</td>
 	 * </tr>
 	 * <tr>
 	 * <td>yin</td>
-	 * <td>yangToYin.channel</td>
-	 * <td>yinToYang.channel</td>
+	 * <td>yangToYin</td>
+	 * <td>yinToYang</td>
 	 * </tr>
 	 * </table>
 	 * The role itself does not have any special semantics, means: it makes no
