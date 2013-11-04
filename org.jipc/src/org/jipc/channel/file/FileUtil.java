@@ -5,7 +5,7 @@ import java.io.File;
 /**
  * Some file helper methods.
  */
-public class FileHelper {
+public class FileUtil {
 
 	/**
 	 * Deletes a file or directory.
@@ -24,4 +24,5 @@ public class FileHelper {
 		file.delete();
 		file.deleteOnExit();
 	}
+	
 }

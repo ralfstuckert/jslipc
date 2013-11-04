@@ -5,13 +5,9 @@ import java.io.IOException;
 
 import org.jipc.JipcPipe;
 import org.jipc.JipcRole;
-import org.jipc.ipc.AbstractTestConsumer;
+import org.jipc.ipc.AbstractTestProducer;
 
-public class FilePipeTestConsumer extends AbstractTestConsumer {
-
-	public static void main(String[] args) throws Exception {
-		init(args);
-	}
+public abstract class AbstractFilePipeTestEndpoint extends AbstractTestProducer {
 
 	@Override
 	protected JipcPipe createPipe(String[] args) throws IOException {
@@ -28,15 +24,9 @@ public class FilePipeTestConsumer extends AbstractTestConsumer {
 		}
 		return null;
 	}
+	
+	protected abstract JipcPipe createPipe(final File source, final File sink) throws IOException;
 
-	protected JipcPipe createPipe(final File source, final File sink)
-			throws IOException {
-		return new FilePipe(source, sink);
-	}
-
-	protected JipcPipe createPipe(final File directory, final JipcRole role)
-			throws IOException {
-		return new FilePipe(directory, role);
-	}
+	protected abstract JipcPipe createPipe(final File directory, final JipcRole role) throws IOException;
 
 }

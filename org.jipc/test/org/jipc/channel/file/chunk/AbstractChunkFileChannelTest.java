@@ -82,6 +82,7 @@ public abstract class AbstractChunkFileChannelTest {
 		createChunkFile(2, "ilse");		
 		
 		channel.close();
+		assertFalse("expected " + directory + " to be deleted", directory.exists());
 		String[] files = directory.list();
 		assertTrue("not deleted: " + toString(files),
 				files == null || files.length == 0);

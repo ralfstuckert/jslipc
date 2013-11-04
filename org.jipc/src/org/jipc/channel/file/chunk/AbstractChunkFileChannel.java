@@ -9,21 +9,23 @@ import java.util.regex.Pattern;
 
 import org.jipc.JipcBinman;
 import org.jipc.channel.JipcChannel;
-import org.jipc.channel.file.FileHelper;
+import org.jipc.channel.file.FileUtil;
 
 public abstract class AbstractChunkFileChannel implements JipcChannel,
 		InterruptibleChannel, JipcBinman {
 
 	protected static final String CHUNK_FILE_NAME = ".chunk";
+	
 	private File directory;
 	private boolean deleteFilesOnClose;
 	private boolean closed;
 	private File closeMarker;
-	private ChunkFilenameFilter filenameFilter = new ChunkFilenameFilter();
+	private ChunkFilenameFilter filenameFilter;
 
 	public AbstractChunkFileChannel(final File directory) {
 		this.directory = directory;
 		closeMarker = new File(directory, ".closed");
+		filenameFilter = new ChunkFilenameFilter();
 	}
 
 	protected File getDirectory() {
@@ -61,7 +63,7 @@ public abstract class AbstractChunkFileChannel implements JipcChannel,
 		boolean closedByPeer = !getCloseMarker().createNewFile();
 		if (closedByPeer) {
 			if (deleteFilesOnClose) {
-				FileHelper.delete(directory, true);
+				FileUtil.delete(directory, true);
 			}
 		}
 	}
