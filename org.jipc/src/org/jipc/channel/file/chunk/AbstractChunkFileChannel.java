@@ -11,6 +11,9 @@ import org.jipc.JipcBinman;
 import org.jipc.channel.JipcChannel;
 import org.jipc.channel.file.FileUtil;
 
+/**
+ * Common base class for chunk file based {@link JipcChannel}s.
+ */
 public abstract class AbstractChunkFileChannel implements JipcChannel,
 		InterruptibleChannel, JipcBinman {
 

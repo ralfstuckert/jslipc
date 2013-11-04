@@ -8,6 +8,14 @@ import java.nio.channels.FileChannel;
 
 import org.jipc.channel.WritableJipcByteChannel;
 
+/**
+ * A {@link WritableJipcByteChannel} implementation that writes the data as
+ * chunk files into a given directory. During {@link #write(ByteBuffer) writing}, 
+ * the file is named <code>.chunk_xx.tmp</code>, where <code>xx</code> is the index of the chunk.
+ * Once the complete buffer is written, the file is renamed to <code>.chunk_xx</code> in 
+ * order to signal a consuming {@link ReadableChunkFileChannel} that is chunk is completely
+ * written and may be read.
+ */
 public class WritableChunkFileChannel extends AbstractChunkFileChannel
 		implements WritableJipcByteChannel {
 

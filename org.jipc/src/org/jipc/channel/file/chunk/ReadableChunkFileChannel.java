@@ -8,6 +8,11 @@ import java.nio.channels.FileChannel;
 
 import org.jipc.channel.ReadableJipcByteChannel;
 
+/**
+ * A {@link ReadableJipcByteChannel} implementation that reads chunk files written into
+ * the given directory by a {@link WritableChunkFileChannel}. Read chunks will be deleted
+ * immediately to save disk space.
+ */
 public class ReadableChunkFileChannel extends AbstractChunkFileChannel
 		implements ReadableJipcByteChannel {
 

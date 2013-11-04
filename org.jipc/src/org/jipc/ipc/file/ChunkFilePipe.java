@@ -8,7 +8,24 @@ import org.jipc.JipcPipe;
 import org.jipc.JipcRole;
 import org.jipc.channel.file.chunk.ReadableChunkFileChannel;
 import org.jipc.channel.file.chunk.WritableChunkFileChannel;
+import org.jipc.ipc.shm.SharedMemoryPipe;
 
+/**
+ * In contrast to the {@link FilePipe} this implementation is based on chunk
+ * files which are written to a directory by a {@link WritableChunkFileChannel}
+ * and consumed by a {@link ReadableChunkFileChannel}. Once consumed, a chunk is
+ * immediately deleted from disk, so only yet unread data needs to be persisted.
+ * This way, the ChunkFilePipe does not block like the {@link SharedMemoryPipe}
+ * and does not waste disk space like the {@link FilePipe}. The price is speed,
+ * since creating vast of files costs time.<br/>
+ * <br/>
+ * You may either provide {@link #ChunkFilePipe(File, File) both directories} or
+ * a {@link #ChunkFilePipe(File, JipcRole) directory and the role} of
+ * <em>this</em> end of the pipe. This implementation provides a
+ * {@link JipcBinman#cleanUpOnClose()} method, which will delete the files on
+ * {@link #close()}.<br/>
+ * <br/>
+ */
 public class ChunkFilePipe implements JipcPipe, JipcBinman {
 
 	public final static String YANG_TO_YIN_NAME = "yangToYin";
@@ -19,11 +36,55 @@ public class ChunkFilePipe implements JipcPipe, JipcBinman {
 	private WritableChunkFileChannel sink;
 	private boolean cleanUpOnClose;
 
+	/**
+	 * This is an alternative to {@link #ChunkFilePipe(File, File)} where you do
+	 * not pass the two files, but a directory hosting two files
+	 * <code>yangToYin</code> and <code>yinToYang</code>. The files are created
+	 * if they do not yet exist. Which one is used for source or sink depends on
+	 * the role:
+	 * <table border="1">
+	 * <tr>
+	 * <th>role</th>
+	 * <th>source</th>
+	 * <th>sink</th>
+	 * </tr>
+	 * <tr>
+	 * <td>yang</td>
+	 * <td>yinToYang.channel</td>
+	 * <td>yangToYin.channel</td>
+	 * </tr>
+	 * <tr>
+	 * <td>yin</td>
+	 * <td>yangToYin.channel</td>
+	 * <td>yinToYang.channel</td>
+	 * </tr>
+	 * </table>
+	 * The role itself does not have any special semantics, means: it makes no
+	 * difference whether you are {@link JipcRole#Yin yin} or
+	 * {@link JipcRole#Yang yang}. It is just needed to distinguish the
+	 * endpoints of the pipe, so one end should have the role yin, the other
+	 * yang.
+	 * 
+	 * @param directory
+	 * @param role
+	 * @throws IOException
+	 */
 	public ChunkFilePipe(final File directory, final JipcRole role)
 			throws IOException {
 		this(getSourceDir(directory, role), getSinkDir(directory, role));
 	}
 
+	/**
+	 * Creates a pipe with a {@link ReadableChunkFileChannel} and
+	 * {@link WritableChunkFileChannel} based on the given directories.
+	 * 
+	 * @param sourceDir
+	 *            the directory to create the {@link ReadableChunkFileChannel}
+	 *            from.
+	 * @param sinkDir
+	 *            the directory to create the {@link WritableChunkFileChannel}
+	 *            from.
+	 */
 	public ChunkFilePipe(final File sourceDir, final File sinkDir) {
 		checkDirectory(sourceDir, "sourceDir");
 		checkDirectory(sinkDir, "sinkDir");
@@ -75,7 +136,6 @@ public class ChunkFilePipe implements JipcPipe, JipcBinman {
 			sink.close();
 		}
 	}
-
 
 	@Override
 	public ReadableChunkFileChannel source() throws IOException {
