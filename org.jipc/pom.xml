@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.jipc</groupId>
 	<artifactId>jipc</artifactId>
-	<version>0.0.5-SNAPSHOT</version>
+	<version>0.0.5</version>
 	<!-- packaging>bundle</packaging -->
 	<properties>
 		<distribution.dir>${project.build.directory}/dist</distribution.dir>
@@ -64,6 +64,12 @@
 			</plugin>
 			<plugin>
 				<artifactId>maven-javadoc-plugin</artifactId>
+				<configuration>
+					<doctitle>&lt;table border="0"&gt;&lt;tr&gt;&lt;td&gt;&lt;img src="resources/jipcLogo.png"  height="90" /&gt;&lt;/td&gt;&lt;td align="center"&gt;&nbsp;&nbsp;&nbsp;Java Inter-Process Communication API&lt;br/&gt;Version ${project.version}&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</doctitle>
+					<header>&lt;img src="{@docRoot}/resources/jipcLogoSmall.png" height="35"/&gt;</header>
+					<javadocDirectory>${basedir}/javadoc</javadocDirectory>
+					<docfilessubdirs>true</docfilessubdirs>
+				</configuration>
 				<executions>
 					<execution>
 						<id>generate-javadoc</id>
