@@ -244,6 +244,16 @@ public class JipcChannelOutputStreamTest {
 		assertEquals(InterruptedIOException.class, caught.get().getClass());
 	}
 
+	
+	@Test
+	public void testClose() throws Exception {
+		final JipcChannelOutputStream is = new JipcChannelOutputStream(
+				channelMock);
+		is.close();
+		verify(channelMock).close();
+	}
+
+
 	protected void mockWriteByte(final int date) throws IOException {
 		doAnswer(new Answer<Integer>() {
 			public Integer answer(InvocationOnMock invocation) {

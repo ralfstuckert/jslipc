@@ -8,7 +8,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
@@ -219,6 +219,14 @@ public class JipcChannelInputStreamTest {
 		assertFalse(thread.isAlive());
 		assertNotNull("expected InterruptedIOException ", caught.get());
 		assertEquals(InterruptedIOException.class, caught.get().getClass());
+	}
+	
+	@Test
+	public void testClose() throws Exception {
+		final JipcChannelInputStream is = new JipcChannelInputStream(
+				channelMock);
+		is.close();
+		verify(channelMock).close();
 	}
 
 	protected void mockReadByte(final int date) throws IOException {

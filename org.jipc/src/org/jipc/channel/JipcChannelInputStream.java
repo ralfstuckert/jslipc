@@ -27,6 +27,12 @@ public class JipcChannelInputStream extends InputStream {
 		}
 		this.channel = channel;
 	}
+	
+	@Override
+	public void close() throws IOException {
+		super.close();
+		channel.close();
+	}
 
 	@Override
 	public int read() throws IOException {
