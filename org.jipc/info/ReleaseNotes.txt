@@ -1,6 +1,15 @@
 = Jipc - Java Inter-Process Communication API =
 
-= Version 0.0.6 =
+= Version 0.0.7 =
+
+*News*
+
+*Fixes*
+ * Issue 10: JicpChannelInputStream and -OutputStream does not delegate close() to underlying channel
+
+----
+
+== Version 0.0.6 ==
 
 *News*
  * new chunk file based pipe (!ChunkFilePipe), see Issue 8
