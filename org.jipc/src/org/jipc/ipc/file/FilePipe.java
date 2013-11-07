@@ -138,12 +138,12 @@ public class FilePipe implements JipcPipe, JipcBinman {
 		return sink;
 	}
 
-	protected static File getSourceFile(final File directory,
+	public static File getSourceFile(final File directory,
 			final JipcRole role) throws IOException {
 		return getChannelFile(directory, role, JipcRole.Yang);
 	}
 
-	protected static File getSinkFile(final File directory, final JipcRole role)
+	public static File getSinkFile(final File directory, final JipcRole role)
 			throws IOException {
 		return getChannelFile(directory, role, JipcRole.Yin);
 	}

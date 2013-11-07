@@ -155,12 +155,12 @@ public class ChunkFilePipe implements JipcPipe, JipcBinman {
 		return sink;
 	}
 
-	protected static File getSourceDir(final File directory, final JipcRole role)
+	public static File getSourceDir(final File directory, final JipcRole role)
 			throws IOException {
 		return getChannelDir(directory, role, JipcRole.Yang);
 	}
 
-	protected static File getSinkDir(final File directory, final JipcRole role)
+	public static File getSinkDir(final File directory, final JipcRole role)
 			throws IOException {
 		return getChannelDir(directory, role, JipcRole.Yin);
 	}

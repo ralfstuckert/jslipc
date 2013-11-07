@@ -1,17 +1,17 @@
 package org.jipc;
 
+import static org.junit.Assert.assertTrue;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.UUID;
 
 import org.jipc.channel.buffer.ByteBufferQueue;
+import org.jipc.channel.file.FileUtil;
 import org.junit.Assert;
-
-import static org.junit.Assert.*;
 
 /**
  * Some helper methods for testing.
@@ -108,15 +108,7 @@ public class TestUtil {
 	}
 
 	public static File createDirectory() {
-		return createDirectory(getTempDir());
+		return FileUtil.createDirectory(getTempDir());
 	}
 
-	public static File createDirectory(final File parent) {
-		File file = null;
-		do {
-			String name = UUID.randomUUID().toString();
-			file = new File(parent, name);
-		} while (!file.mkdir());
-		return file;
-	}
 }
