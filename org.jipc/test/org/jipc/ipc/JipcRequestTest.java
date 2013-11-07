@@ -17,6 +17,7 @@ import org.junit.Test;
  */
 public class JipcRequestTest extends AbstractJipcMessageTest {
 
+	private String header;
 	private String request;
 	private String requestWithParameter;
 	private String requestBadHeader;
@@ -24,7 +25,8 @@ public class JipcRequestTest extends AbstractJipcMessageTest {
 	@Before
 	public void setUp() throws Exception {
 		super.setUp();
-		request = "CONNECT JIPC/1.0\n";
+		header = "CONNECT JIPC/1.0";
+		request = header + "\n";
 		requestWithParameter = request + parameter;
 		requestBadHeader = "CONNECT HTTP/1.0\n";
 	}
@@ -41,6 +43,12 @@ public class JipcRequestTest extends AbstractJipcMessageTest {
 	@Override
 	protected JipcRequest createMessageWithParameter() throws IOException {
 		return new JipcRequest(requestWithParameter);
+	}
+
+	@Test
+	public void testGetHeader() throws Exception {
+		JipcRequest req = new JipcRequest(request);
+		assertEquals(header, req.getHeader());
 	}
 
 	@Test

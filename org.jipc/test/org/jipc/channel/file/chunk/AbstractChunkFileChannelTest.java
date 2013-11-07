@@ -9,7 +9,6 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 import org.jipc.TestUtil;
-import org.jipc.channel.file.chunk.AbstractChunkFileChannel;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

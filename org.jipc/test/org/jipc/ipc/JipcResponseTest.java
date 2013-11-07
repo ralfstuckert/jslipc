@@ -15,6 +15,7 @@ import org.junit.Test;
  */
 public class JipcResponseTest extends AbstractJipcMessageTest {
 
+	private String header;
 	private String response;
 	private String responseWithParameter;
 	private String responseBadHeader;
@@ -28,8 +29,9 @@ public class JipcResponseTest extends AbstractJipcMessageTest {
 		successMessage = "pipe successfully created";
 		failureMessage = "just too bad";
 
-		response = "JIPC/1.0 " + JipcCode.PipeCreated.value() + " "
-				+ successMessage + "\n";
+		header = "JIPC/1.0 " + JipcCode.PipeCreated.value() + " "
+				+ successMessage;
+		response = header + "\n";
 
 		responseWithParameter = response + parameter;
 		responseBadHeader = "HTTP/1.0 127 dsfk\n";
@@ -49,6 +51,12 @@ public class JipcResponseTest extends AbstractJipcMessageTest {
 	@Override
 	protected JipcResponse createMessageWithParameter() throws IOException {
 		return new JipcResponse(responseWithParameter);
+	}
+
+	@Test
+	public void testGetHeader() throws Exception {
+		JipcResponse res = new JipcResponse(response);
+		assertEquals(header, res.getHeader());
 	}
 
 	@Test

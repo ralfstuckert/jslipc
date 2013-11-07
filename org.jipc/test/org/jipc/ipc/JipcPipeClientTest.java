@@ -6,24 +6,15 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
-import java.io.Writer;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.jipc.JipcPipe;
@@ -33,6 +24,8 @@ import org.jipc.UrlUtil;
 import org.jipc.channel.JipcChannelInputStream;
 import org.jipc.channel.JipcChannelOutputStream;
 import org.jipc.channel.file.FileUtil;
+import org.jipc.ipc.JipcRequest.JipcCommand;
+import org.jipc.ipc.JipcResponse.JipcCode;
 import org.jipc.ipc.file.ChunkFilePipe;
 import org.jipc.ipc.file.FilePipe;
 import org.jipc.ipc.shm.SharedMemoryPipe;
@@ -84,6 +77,7 @@ public class JipcPipeClientTest {
 
 		final AtomicReference<JipcPipe> pipeRef = new AtomicReference<JipcPipe>();
 		Thread thread = new Thread() {
+			@SuppressWarnings("unchecked")
 			public void run() {
 				JipcPipeClient client;
 				try {
@@ -99,21 +93,19 @@ public class JipcPipeClientTest {
 		File connectDir = waitForDirectory();
 		FilePipe connectPipe = new FilePipe(connectDir, JipcRole.Yin);
 		connectPipe.cleanUpOnClose();
-		List<String> requestLines = readRequest(connectPipe);
-		assertTrue(requestLines.toString(), requestLines.size() > 0);
-		assertEquals("CONNECT JIPC/1.0", requestLines.get(0));
-		assertThat(requestLines, hasItem("ACCEPT-TYPES: ChunkFilePipe"));
+		JipcRequest request = readRequest(connectPipe);
+		assertEquals(JipcCommand.CONNECT, request.getCommand());
+		assertEquals("ChunkFilePipe",
+				request.getParameter(JipcRequest.PARAM_ACCEPT_TYPES));
 
 		File pipeDir = FileUtil.createDirectory(directory);
-		StringBuilder bob = new StringBuilder();
-		bob.append("200 JIPC/1.0\n");
-		bob.append("TYPE: ChunkFilePipe\n");
-		bob.append("DIRECTORY: ");
-		bob.append(URLEncoder.encode(pipeDir.getAbsolutePath(),
-				StandardCharsets.UTF_8.toString()));
-		bob.append("\n");
-		bob.append("ROLE: Yang\n");
-		writeResponse(connectPipe, bob.toString());
+		JipcResponse response = new JipcResponse(JipcCode.PipeCreated, "ok");
+		response.setParameter(JipcResponse.PARAM_DIRECTORY,
+				pipeDir.getAbsolutePath());
+		response.setParameter(JipcResponse.PARAM_ROLE, JipcRole.Yang.toString());
+		response.setParameter(JipcResponse.PARAM_TYPE,
+				ChunkFilePipe.class.getSimpleName());
+		writeResponse(connectPipe, response);
 		connectPipe.close();
 
 		thread.join();
@@ -121,25 +113,22 @@ public class JipcPipeClientTest {
 		assertEquals(ChunkFilePipe.class, pipeRef.get().getClass());
 	}
 
-	private void writeResponse(FilePipe connectPipe, String response)
+	private void writeResponse(FilePipe connectPipe, JipcResponse response)
 			throws IOException {
-		Writer writer = new OutputStreamWriter(new JipcChannelOutputStream(
-				connectPipe.sink()), StandardCharsets.UTF_8);
-		writer.write(response);
-		writer.close();
+		OutputStream out = new JipcChannelOutputStream(connectPipe.sink());
+		out.write(response.toBytes());
+		out.close();
 	}
 
-	private List<String> readRequest(FilePipe connectPipe) throws IOException {
-		BufferedReader reader = new BufferedReader(new InputStreamReader(
-				new JipcChannelInputStream(connectPipe.source()),
-				StandardCharsets.UTF_8));
-		List<String> request = new ArrayList<String>();
-		String line;
-		while ((line = reader.readLine()) != null) {
-			System.out.println("read: " + line);
-			request.add(line);
+	private JipcRequest readRequest(FilePipe connectPipe) throws IOException {
+		InputStream in = new JipcChannelInputStream(connectPipe.source());
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		int date = 0;
+		while ((date = in.read()) != -1) {
+			baos.write(date);
 		}
-		reader.close();
+		in.close();
+		JipcRequest request = new JipcRequest(baos.toByteArray());
 		return request;
 	}
 
@@ -187,7 +176,6 @@ public class JipcPipeClientTest {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		client.requestPipe(baos, acceptedTypes);
 		String request = new String(baos.toByteArray());
-		System.out.println(request);
 		return Arrays.asList(request.split("\\n"));
 	}
 
@@ -204,21 +192,19 @@ public class JipcPipeClientTest {
 			throws UnsupportedEncodingException, IOException {
 
 		File dir = TestUtil.createDirectory();
-		JipcRole role = JipcRole.Yang;
-		Map<String, String> parameter = new HashMap<String, String>();
-		parameter.put("TYPE", FilePipe.class.getSimpleName());
-		parameter.put("ROLE", role.toString());
-		parameter.put(
-				"DIRECTORY",
-				URLEncoder.encode(dir.getAbsolutePath(),
-						StandardCharsets.UTF_8.toString()));
+		JipcResponse response = new JipcResponse(JipcCode.PipeCreated, "ok");
+		response.setParameter(JipcResponse.PARAM_TYPE,
+				FilePipe.class.getSimpleName());
+		response.setParameter(JipcResponse.PARAM_ROLE, JipcRole.Yang.toString());
+		response.setParameter(JipcResponse.PARAM_DIRECTORY,
+				dir.getAbsolutePath());
 
-		JipcPipe pipe = waitForResponse(client, parameter);
+		JipcPipe pipe = waitForResponse(client, response);
 		assertNotNull(pipe);
 		assertEquals(FilePipe.class, pipe.getClass());
-		File sink = FilePipe.getSinkFile(dir, role);
+		File sink = FilePipe.getSinkFile(dir, JipcRole.Yang);
 		assertTrue(sink.exists());
-		File source = FilePipe.getSourceFile(dir, role);
+		File source = FilePipe.getSourceFile(dir, JipcRole.Yang);
 		assertTrue(source.exists());
 	}
 
@@ -226,22 +212,20 @@ public class JipcPipeClientTest {
 			throws UnsupportedEncodingException, IOException {
 
 		File dir = TestUtil.createDirectory();
-		JipcRole role = JipcRole.Yang;
-		Map<String, String> parameter = new HashMap<String, String>();
-		parameter.put("TYPE", ChunkFilePipe.class.getSimpleName());
-		parameter.put("ROLE", role.toString());
-		parameter.put(
-				"DIRECTORY",
-				URLEncoder.encode(dir.getAbsolutePath(),
-						StandardCharsets.UTF_8.toString()));
+		JipcResponse response = new JipcResponse(JipcCode.PipeCreated, "ok");
+		response.setParameter(JipcResponse.PARAM_TYPE,
+				ChunkFilePipe.class.getSimpleName());
+		response.setParameter(JipcResponse.PARAM_ROLE, JipcRole.Yang.toString());
+		response.setParameter(JipcResponse.PARAM_DIRECTORY,
+				dir.getAbsolutePath());
 
-		JipcPipe pipe = waitForResponse(client, parameter);
+		JipcPipe pipe = waitForResponse(client, response);
 		assertNotNull(pipe);
 		assertEquals(ChunkFilePipe.class, pipe.getClass());
-		File sink = ChunkFilePipe.getSinkDir(dir, role);
+		File sink = ChunkFilePipe.getSinkDir(dir, JipcRole.Yang);
 		assertTrue(sink.exists());
 		assertTrue(sink.isDirectory());
-		File source = ChunkFilePipe.getSourceDir(dir, role);
+		File source = ChunkFilePipe.getSourceDir(dir, JipcRole.Yang);
 		assertTrue(source.exists());
 		assertTrue(source.isDirectory());
 	}
@@ -251,31 +235,21 @@ public class JipcPipeClientTest {
 
 		File file = File.createTempFile("xxx", ".tmp");
 		file.deleteOnExit();
-		JipcRole role = JipcRole.Yang;
-		Map<String, String> parameter = new HashMap<String, String>();
-		parameter.put("TYPE", SharedMemoryPipe.class.getSimpleName());
-		parameter.put("ROLE", role.toString());
-		parameter.put("FILE", URLEncoder.encode(file.getAbsolutePath(),
-				StandardCharsets.UTF_8.toString()));
-		parameter.put("SIZE", Integer.toString(8292));
+		JipcResponse response = new JipcResponse(JipcCode.PipeCreated, "ok");
+		response.setParameter(JipcResponse.PARAM_TYPE,
+				SharedMemoryPipe.class.getSimpleName());
+		response.setParameter(JipcResponse.PARAM_ROLE, JipcRole.Yang.toString());
+		response.setParameter(JipcResponse.PARAM_FILE, file.getAbsolutePath());
+		response.setParameter(JipcResponse.PARAM_SIZE, Integer.toString(8292));
 
-		JipcPipe pipe = waitForResponse(client, parameter);
+		JipcPipe pipe = waitForResponse(client, response);
 		assertNotNull(pipe);
 		assertEquals(SharedMemoryPipe.class, pipe.getClass());
 	}
 
 	private JipcPipe waitForResponse(JipcPipeClient client,
-			Map<String, String> parameter) throws IOException {
-		StringBuilder bob = new StringBuilder();
-		bob.append("200 JIPC/1.0\n");
-		for (Entry<String, String> entry : parameter.entrySet()) {
-			bob.append(entry.getKey());
-			bob.append(": ");
-			bob.append(entry.getValue());
-			bob.append("\n");
-		}
-		InputStream in = new ByteArrayInputStream(bob.toString().getBytes(
-				StandardCharsets.UTF_8));
+			JipcResponse response) throws IOException {
+		InputStream in = new ByteArrayInputStream(response.toBytes());
 
 		JipcPipe pipe = client.waitForResponse(in);
 		return pipe;

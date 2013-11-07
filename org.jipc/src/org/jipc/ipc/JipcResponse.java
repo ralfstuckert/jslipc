@@ -65,7 +65,7 @@ public class JipcResponse extends AbstractJipcMessage {
 		StringBuilder bob = new StringBuilder();
 		bob.append(getProtocol());
 		bob.append(" ");
-		bob.append(getCode().toString());
+		bob.append(Integer.valueOf(getCode().value()));
 		bob.append(" ");
 		bob.append(getMessage());
 		return bob.toString();

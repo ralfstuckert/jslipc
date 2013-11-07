@@ -10,7 +10,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 
 import org.jipc.TestUtil;
-import org.jipc.channel.file.chunk.ReadableChunkFileChannel;
 import org.junit.Test;
 
 /**

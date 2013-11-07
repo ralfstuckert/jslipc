@@ -19,6 +19,8 @@ public abstract class AbstractJipcMessage {
 	public static final String PARAM_DIRECTORY = "DIRECTORY";
 	public static final String PARAM_FILE = "FILE";
 	public static final String PARAM_ROLE = "ROLE";
+	public static final String PARAM_TYPE = "TYPE";
+	public static final String PARAM_SIZE = "SIZE";
 	public static final String PARAM_ACCEPT_TYPES = "ACCEPT-TYPES";
 	
 	protected static final String JIPC_PROTOCOL_PREFIX = "JIPC/";

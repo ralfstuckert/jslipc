@@ -10,9 +10,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 
-import org.jipc.StringUtil;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

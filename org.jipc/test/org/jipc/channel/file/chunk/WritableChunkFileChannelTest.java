@@ -9,8 +9,6 @@ import java.io.IOException;
 import java.nio.channels.ClosedChannelException;
 
 import org.jipc.TestUtil;
-import org.jipc.channel.file.chunk.AbstractChunkFileChannel;
-import org.jipc.channel.file.chunk.WritableChunkFileChannel;
 import org.junit.Test;
 
 public class WritableChunkFileChannelTest extends AbstractChunkFileChannelTest {
