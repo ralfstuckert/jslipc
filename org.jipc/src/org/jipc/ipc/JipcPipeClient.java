@@ -24,6 +24,10 @@ import org.jipc.ipc.shm.SharedMemoryPipe;
  */
 public class JipcPipeClient {
 
+	@SuppressWarnings("unchecked")
+	public final static Class<? extends JipcPipe>[] ALL_PIPES = new Class[] {
+			FilePipe.class, ChunkFilePipe.class, SharedMemoryPipe.class };
+
 	private File serverDirectory;
 
 	/**

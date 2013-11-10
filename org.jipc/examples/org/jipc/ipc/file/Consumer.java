@@ -1,4 +1,4 @@
-package ipc.file;
+package org.jipc.ipc.file;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
