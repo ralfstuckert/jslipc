@@ -11,12 +11,15 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
+import org.jipc.ipc.file.ChunkFilePipe;
+import org.jipc.ipc.file.FilePipe;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Abstract base class for both {@link JipcRequestTest} and {@link JipcResponseTest}.
+ * Abstract base class for both {@link JipcRequestTest} and
+ * {@link JipcResponseTest}.
  */
 public abstract class AbstractJipcMessageTest {
 
@@ -39,9 +42,11 @@ public abstract class AbstractJipcMessageTest {
 	protected abstract AbstractJipcMessage createMessage() throws IOException;
 
 	/**
-	 * Must be overridden by the subclasses to instantiate a concrete message with the {@link #parameter}.
+	 * Must be overridden by the subclasses to instantiate a concrete message
+	 * with the {@link #parameter}.
 	 */
-	protected abstract AbstractJipcMessage createMessageWithParameter() throws IOException;
+	protected abstract AbstractJipcMessage createMessageWithParameter()
+			throws IOException;
 
 	@Test
 	public void testGetProtocolVersion() throws Exception {
@@ -66,6 +71,19 @@ public abstract class AbstractJipcMessageTest {
 	}
 
 	@Test
+	public void testSetFileParameter() throws Exception {
+		AbstractJipcMessage req = createMessage();
+		File file = new File("value1");
+		req.setFileParameter("param1", file);
+		assertEquals(file.getAbsolutePath(), req.getParameter("param1"));
+		assertEquals(file.getAbsoluteFile(), req.getFileParameter("param1"));
+
+		req.setFileParameter("param1", null);
+		assertEquals(null, req.getParameter("param1"));
+		assertEquals(null, req.getFileParameter("param1"));
+	}
+
+	@Test
 	public void testGetIntParameter() throws Exception {
 		AbstractJipcMessage req = createMessageWithParameter();
 		assertEquals(new Integer(17), req.getIntParameter("param2"));
@@ -76,6 +94,18 @@ public abstract class AbstractJipcMessageTest {
 	public void testGetIntParameterFails() throws Exception {
 		AbstractJipcMessage req = createMessageWithParameter();
 		req.getIntParameter("param1");
+	}
+
+	@Test
+	public void testSetIntParameter() throws Exception {
+		AbstractJipcMessage req = createMessage();
+		req.setIntParameter("param2", 23);
+		assertEquals("23", req.getParameter("param2"));
+		assertEquals(new Integer(23), req.getIntParameter("param2"));
+
+		req.setIntParameter("param2", null);
+		assertEquals(null, req.getParameter("param2"));
+		assertEquals(null, req.getIntParameter("param2"));
 	}
 
 	@Test
@@ -101,21 +131,46 @@ public abstract class AbstractJipcMessageTest {
 	@Test
 	public void testToBytes() throws Exception {
 		AbstractJipcMessage req = createMessageWithParameter();
-		byte[] expected = new String( req.getHeader() + "\n" + parameter).getBytes(StandardCharsets.UTF_8);
+		byte[] expected = new String(req.getHeader() + "\n" + parameter)
+				.getBytes(StandardCharsets.UTF_8);
 		byte[] actual = req.toBytes();
 
 		assertArrayEquals(expected, actual);
 	}
-	
+
 	@Test
 	public void testAddParameter() throws Exception {
 		AbstractJipcMessage req = createMessage();
 		req.setParameter("param1", "value1");
 		req.setParameter("param2", "17");
 		req.setParameter("param3", "äöüß");
-		
+
 		String expected = createMessageWithParameter().toString();
 		assertEquals(expected, req.toString());
 	}
-	
+
+	@Test
+	public void testGetTypeParameter() throws Exception {
+		AbstractJipcMessage req = createMessage();
+		req.setParameter(AbstractJipcMessage.PARAM_TYPE,
+				ChunkFilePipe.class.getSimpleName());
+		assertEquals(ChunkFilePipe.class, req.getTypeParameter());
+
+		req.setParameter(AbstractJipcMessage.PARAM_TYPE,
+				FilePipe.class.getSimpleName());
+		assertEquals(FilePipe.class, req.getTypeParameter());
+	}
+
+	@Test
+	public void testSetTypeParameter() throws Exception {
+		AbstractJipcMessage req = createMessage();
+		req.setTypeParameter(ChunkFilePipe.class);
+		assertEquals(ChunkFilePipe.class.getSimpleName(),
+				req.getParameter(AbstractJipcMessage.PARAM_TYPE));
+
+		req.setTypeParameter(FilePipe.class);
+		assertEquals(FilePipe.class.getSimpleName(),
+				req.getParameter(AbstractJipcMessage.PARAM_TYPE));
+	}
+
 }

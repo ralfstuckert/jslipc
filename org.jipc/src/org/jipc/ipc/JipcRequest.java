@@ -2,8 +2,11 @@ package org.jipc.ipc;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.jipc.JipcPipe;
+import org.jipc.StringUtil;
 
 /**
  * Encapsulates the request sent by the {@link JipcPipeClient}.
@@ -90,8 +93,20 @@ public class JipcRequest extends AbstractJipcMessage {
 		setParameter(PARAM_ACCEPT_TYPES, bob.toString());
 	}
 	
-	private String getTypeName(final Class<? extends JipcPipe> pipeClass) {
-		return pipeClass.getSimpleName();
+	/**
+	 * @return the List of accepted pipe types.
+	 */
+	public List<Class<? extends JipcPipe>> getAcceptTypes() {
+		List<Class<? extends JipcPipe>> result = new ArrayList<Class<? extends JipcPipe>>();
+		String types = getParameter(PARAM_ACCEPT_TYPES);
+		if (types != null) {
+			List<String> split = StringUtil.split(types, ',');
+			for (String type : split) {
+				result.add(getTypeClass(type));
+			}
+		}
+		return result;
 	}
+	
 
 }

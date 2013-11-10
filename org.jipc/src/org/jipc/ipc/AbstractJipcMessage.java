@@ -3,13 +3,19 @@ package org.jipc.ipc;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.jipc.JipcPipe;
 import org.jipc.StringUtil;
 import org.jipc.UrlUtil;
+import org.jipc.ipc.file.ChunkFilePipe;
+import org.jipc.ipc.file.FilePipe;
+import org.jipc.ipc.shm.SharedMemoryPipe;
 
 /**
  * Abstract base class for both {@link JipcRequest} and {@link JipcResponse}.
@@ -22,15 +28,21 @@ public abstract class AbstractJipcMessage {
 	public static final String PARAM_TYPE = "TYPE";
 	public static final String PARAM_SIZE = "SIZE";
 	public static final String PARAM_ACCEPT_TYPES = "ACCEPT-TYPES";
-	
+
 	protected static final String JIPC_PROTOCOL_PREFIX = "JIPC/";
 	protected static final String UTF_8 = StandardCharsets.UTF_8.toString();
+	@SuppressWarnings("unchecked")
+	protected static final List<Class<? extends JipcPipe>> SUPPORTED_PIPES = Arrays
+			.asList((Class<? extends JipcPipe>) FilePipe.class,
+					(Class<? extends JipcPipe>) ChunkFilePipe.class,
+					(Class<? extends JipcPipe>) SharedMemoryPipe.class);
 
 	private String protocolVersion;
 	private Map<String, String> parameter = new HashMap<String, String>();
 
 	/**
 	 * Creates a message from its byte array representation.
+	 * 
 	 * @see #toBytes()
 	 */
 	public AbstractJipcMessage(final byte[] request) throws IOException {
@@ -39,6 +51,7 @@ public abstract class AbstractJipcMessage {
 
 	/**
 	 * Creates a message from its string representation.
+	 * 
 	 * @see #toString()
 	 */
 	public AbstractJipcMessage(final String request) throws IOException {
@@ -60,9 +73,9 @@ public abstract class AbstractJipcMessage {
 			throw new IOException("bad protocol: '" + protocolPart + "'");
 		}
 		protocolVersion = protocolPart.substring(JIPC_PROTOCOL_PREFIX.length());
-		
+
 		if (lines.size() > 1) {
-			parseParameter(lines.subList(1, lines.size() ));
+			parseParameter(lines.subList(1, lines.size()));
 		}
 	}
 
@@ -87,6 +100,13 @@ public abstract class AbstractJipcMessage {
 		}
 	}
 
+	/**
+	 * @return all parameters.
+	 */
+	public Map<String,String> getParameters() {
+		return Collections.unmodifiableMap(parameter);
+	}
+	
 	/**
 	 * Returns the parameter or <code>null</code> if not found.
 	 * 
@@ -113,6 +133,20 @@ public abstract class AbstractJipcMessage {
 	}
 
 	/**
+	 * Sets the given File parameter.
+	 * 
+	 * @param key
+	 * @param file
+	 */
+	public void setFileParameter(final String key, final File file) {
+		if (file == null) {
+			setParameter(key, null);
+		} else {
+			setParameter(key, file.getAbsolutePath());
+		}
+	}
+
+	/**
 	 * Returns the integer value of the parameter, or <code>null</code> if not
 	 * found.
 	 * 
@@ -135,15 +169,65 @@ public abstract class AbstractJipcMessage {
 	}
 
 	/**
+	 * Sets the given integer parameter.
+	 * 
+	 * @param key
+	 * @param integer
+	 */
+	public void setIntParameter(final String key, final Integer integer)
+			throws IOException {
+		if (integer == null) {
+			setParameter(key, null);
+		} else {
+			try {
+				setParameter(key, Integer.toString(integer));
+			} catch (NumberFormatException e) {
+				throw new IOException("expected numerical value for '" + key
+						+ "' but is '" + integer + "'");
+			}
+		}
+	}
+
+	/**
+	 * @return the value of the parameter {@link #PARAM_TYPE}.
+	 */
+	public Class<? extends JipcPipe> getTypeParameter() {
+		return getTypeClass(getParameter(PARAM_TYPE));
+	}
+	
+	/**
+	 * @return the value of the parameter {@link #PARAM_TYPE}.
+	 */
+	public void setTypeParameter(final Class<? extends JipcPipe> type) {
+		setParameter(PARAM_TYPE, getTypeName(type));
+	}
+	
+	protected String getTypeName(final Class<? extends JipcPipe> pipeClass) {
+		return pipeClass.getSimpleName();
+	}
+	
+	protected Class<? extends JipcPipe> getTypeClass(final String type) {
+		if (type == null) {
+			return null;
+		}
+		for (Class<? extends JipcPipe> clazz : SUPPORTED_PIPES) {
+			if (type.equals(getTypeName(clazz))) {
+				return clazz;
+			}
+		}
+		return null;
+	}
+	/**
 	 * @param key
 	 * @return <code>true</code> if the given parameter exists.
 	 */
 	public boolean hasParameter(final String key) {
 		return parameter.containsKey(key);
 	}
-	
+
 	/**
 	 * Adds a parameter.
+	 * 
 	 * @param key
 	 * @param value
 	 */
@@ -164,12 +248,12 @@ public abstract class AbstractJipcMessage {
 	public String getProtocol() {
 		return JIPC_PROTOCOL_PREFIX + getProtocolVersion();
 	}
-	
+
 	/**
 	 * @return the header of the message.
 	 */
 	protected abstract String getHeader();
-	
+
 	public String toString() {
 		StringBuilder bob = new StringBuilder();
 		bob.append(getHeader());
@@ -184,10 +268,9 @@ public abstract class AbstractJipcMessage {
 		}
 		return bob.toString();
 	}
-	
+
 	public byte[] toBytes() {
 		return toString().getBytes(StandardCharsets.UTF_8);
 	}
-	
-	
+
 }

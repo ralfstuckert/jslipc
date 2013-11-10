@@ -1,6 +1,7 @@
 package org.jipc.channel.file;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.UUID;
 
 /**
@@ -37,6 +38,20 @@ public class FileUtil {
 			String name = UUID.randomUUID().toString();
 			file = new File(parent, name);
 		} while (!file.mkdir());
+		return file;
+	}
+
+	/**
+	 * Creates a new file with a unique name in the given directory.
+	 * @param parent
+	 * @return the created file
+	 */
+	public static File createFile(final File parent) throws IOException {
+		File file = null;
+		do {
+			String name = UUID.randomUUID().toString();
+			file = new File(parent, name);
+		} while (!file.createNewFile());
 		return file;
 	}
 

@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
+import org.jipc.JipcRole;
 import org.jipc.ipc.JipcResponse.JipcCode;
 import org.junit.After;
 import org.junit.Before;
@@ -108,5 +109,30 @@ public class JipcResponseTest extends AbstractJipcMessageTest {
 		res = new JipcResponse(responseBadRequest);
 		assertEquals(failureMessage, res.getMessage());
 	}
+
+	@Test
+	public void testGetRoleParameter() throws Exception {
+		JipcResponse res = new JipcResponse(response);
+		res.setParameter(AbstractJipcMessage.PARAM_ROLE,
+				JipcRole.Yang.toString());
+		assertEquals(JipcRole.Yang, res.getRoleParameter());
+
+		res.setParameter(AbstractJipcMessage.PARAM_ROLE,
+				JipcRole.Yin.toString());
+		assertEquals(JipcRole.Yin, res.getRoleParameter());
+	}
+
+	@Test
+	public void testSetRoleParameter() throws Exception {
+		JipcResponse res = new JipcResponse(response);
+		res.setRoleParameter(JipcRole.Yang);
+		assertEquals(JipcRole.Yang.toString(),
+				res.getParameter(AbstractJipcMessage.PARAM_ROLE));
+
+		res.setRoleParameter(JipcRole.Yin);
+		assertEquals(JipcRole.Yin.toString(),
+				res.getParameter(AbstractJipcMessage.PARAM_ROLE));
+	}
+
 
 }

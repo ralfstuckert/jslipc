@@ -17,10 +17,23 @@ import org.jipc.ipc.file.ChunkFilePipe;
 import org.jipc.ipc.file.FilePipe;
 import org.jipc.ipc.shm.SharedMemoryPipe;
 
+/**
+ * This is an analogy to socket which requests a connection pipe from a
+ * {@link JipcPipeServer}. Method {@link #connect(Class...)} requests a new
+ * connection and waits for the server response.
+ */
 public class JipcPipeClient {
 
 	private File serverDirectory;
 
+	/**
+	 * Creates a client talking to the {@link JipcPipeServer} on the given
+	 * directory.
+	 * 
+	 * @param serverDirectory
+	 *            the JipcPipeServer directory.
+	 * @throws IOException
+	 */
 	public JipcPipeClient(final File serverDirectory) throws IOException {
 		if (serverDirectory == null) {
 			throw new IllegalArgumentException(
@@ -37,21 +50,39 @@ public class JipcPipeClient {
 		this.serverDirectory = serverDirectory;
 	}
 
+	/**
+	 * Requests and waits for a pipe created by the corresponding
+	 * {@link JipcPipeServer}
+	 * 
+	 * @param acceptedTypes
+	 *            the pipe types accepted by the client.
+	 * @return the created pipe.
+	 * @throws IOException
+	 */
 	public JipcPipe connect(Class<? extends JipcPipe>... acceptedTypes)
 			throws IOException {
 		File directory = FileUtil.createDirectory(serverDirectory);
 		FilePipe pipe = new FilePipe(directory, JipcRole.Yang);
 		pipe.cleanUpOnClose();
 
-		requestPipe(new JipcChannelOutputStream(pipe.sink()), acceptedTypes);
-		JipcPipe response = waitForResponse(new JipcChannelInputStream(
+		sendRequest(new JipcChannelOutputStream(pipe.sink()), acceptedTypes);
+		JipcPipe response = readResponse(new JipcChannelInputStream(
 				pipe.source()));
 
 		pipe.close();
 		return response;
 	}
 
-	protected void requestPipe(final OutputStream out,
+	/**
+	 * Writes a request for a pipe to the given OutputStream.
+	 * 
+	 * @param out
+	 *            the stream to write to.
+	 * @param acceptedTypes
+	 *            the pipe types accepted by the client.
+	 * @throws IOException
+	 */
+	protected void sendRequest(final OutputStream out,
 			Class<? extends JipcPipe>... acceptedTypes) throws IOException {
 		JipcRequest request = new JipcRequest(JipcCommand.CONNECT);
 		request.setAcceptTypes(acceptedTypes);
@@ -61,30 +92,39 @@ public class JipcPipeClient {
 		out.close();
 	}
 
-	protected JipcPipe waitForResponse(final InputStream in) throws IOException {
+	/**
+	 * Reads the response from the server and creates the pipe.
+	 * 
+	 * @param in
+	 *            the stream to read from.
+	 * @return the created pipe.
+	 * @throws IOException
+	 */
+	protected JipcPipe readResponse(final InputStream in) throws IOException {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		int date = 0;
 		while ((date = in.read()) != -1) {
 			baos.write(date);
 		}
 		in.close();
-		
+
 		JipcResponse response = new JipcResponse(baos.toByteArray());
 		if (response.getCode() != JipcCode.PipeCreated) {
-			throw new IOException("connect failed,  " + response.getCode() + ", " + response.getMessage());
+			throw new IOException("connect failed,  " + response.getCode()
+					+ ", " + response.getMessage());
 		}
-		String type = response.getParameter(JipcResponse.PARAM_TYPE);
-		if (getTypeName(FilePipe.class).equals(type)) {
+		Class<? extends JipcPipe> type = response.getTypeParameter();
+		if (FilePipe.class.equals(type)) {
 			File dir = response.getFileParameter(JipcResponse.PARAM_DIRECTORY);
 			JipcRole role = getRole(response);
 			return new FilePipe(dir, role);
 		}
-		if (getTypeName(ChunkFilePipe.class).equals(type)) {
+		if (ChunkFilePipe.class.equals(type)) {
 			File dir = response.getFileParameter(JipcResponse.PARAM_DIRECTORY);
 			JipcRole role = getRole(response);
 			return new ChunkFilePipe(dir, role);
 		}
-		if (getTypeName(SharedMemoryPipe.class).equals(type)) {
+		if (SharedMemoryPipe.class.equals(type)) {
 			File file = response.getFileParameter(JipcResponse.PARAM_FILE);
 			JipcRole role = getRole(response);
 			Integer size = response.getIntParameter(JipcResponse.PARAM_SIZE);
@@ -96,17 +136,14 @@ public class JipcPipeClient {
 		throw new IOException("unknown type '" + type + "'");
 	}
 
-
 	private JipcRole getRole(JipcResponse response) throws IOException {
 		try {
-			return JipcRole.valueOf(response.getParameter(JipcResponse.PARAM_ROLE));
+			return JipcRole.valueOf(response
+					.getParameter(JipcResponse.PARAM_ROLE));
 		} catch (Exception e) {
-			throw new IOException("unkown role '" + response.getParameter(JipcResponse.PARAM_ROLE) + "'");
+			throw new IOException("unkown role '"
+					+ response.getParameter(JipcResponse.PARAM_ROLE) + "'");
 		}
 	}
 
-
-	protected String getTypeName(final Class<? extends JipcPipe> pipeClass) {
-		return pipeClass.getSimpleName();
-	}
 }

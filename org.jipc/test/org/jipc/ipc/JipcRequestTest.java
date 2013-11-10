@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 import org.jipc.ipc.JipcRequest.JipcCommand;
 import org.jipc.ipc.file.ChunkFilePipe;
@@ -95,6 +96,17 @@ public class JipcRequestTest extends AbstractJipcMessageTest {
 		
 		req.setAcceptTypes(ChunkFilePipe.class, FilePipe.class);
 		assertEquals("ChunkFilePipe,FilePipe", req.getParameter(JipcRequest.PARAM_ACCEPT_TYPES));
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testGetAcceptTypes() throws Exception {
+		JipcRequest req = new JipcRequest(JipcCommand.CONNECT);
+		req.setParameter(JipcRequest.PARAM_ACCEPT_TYPES, "FilePipe");
+		assertEquals(Arrays.asList(FilePipe.class), req.getAcceptTypes() );
+		
+		req.setParameter(JipcRequest.PARAM_ACCEPT_TYPES, "ChunkFilePipe,FilePipe");
+		assertEquals(Arrays.asList(ChunkFilePipe.class, FilePipe.class), req.getAcceptTypes() );
 	}
 
 }

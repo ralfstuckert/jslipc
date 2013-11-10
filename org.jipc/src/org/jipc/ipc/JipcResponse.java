@@ -2,6 +2,8 @@ package org.jipc.ipc;
 
 import java.io.IOException;
 
+import org.jipc.JipcRole;
+
 /**
  * Encapsulates the response sent by the {@link JipcPipeServer}.
  */
@@ -11,7 +13,7 @@ public class JipcResponse extends AbstractJipcMessage {
 	 * The code indicates the result of the operation.
 	 */
 	public enum JipcCode {
-		PipeCreated(200), BadRequest(400);
+		PipeCreated(200), BadRequest(400), InternalError(500);
 
 		private int value;
 
@@ -41,16 +43,16 @@ public class JipcResponse extends AbstractJipcMessage {
 	 * Creates a JipcResponse from its byte array representation.
 	 * @see #toBytes()
 	 */
-	public JipcResponse(final byte[] request) throws IOException {
-		super(request);
+	public JipcResponse(final byte[] response) throws IOException {
+		super(response);
 	}
 
 	/**
 	 * Creates a JipcResponse from its string representation.
 	 * @see #toString()
 	 */
-	public JipcResponse(final String request) throws IOException {
-		super(request);
+	public JipcResponse(final String response) throws IOException {
+		super(response);
 	}
 	
 	/**
@@ -111,4 +113,19 @@ public class JipcResponse extends AbstractJipcMessage {
 	public String getMessage() {
 		return message;
 	}
+
+	/**
+	 * @return the value of the parameter {@link #PARAM_ROLE}.
+	 */
+	public JipcRole getRoleParameter() {
+		return JipcRole.valueOf(getParameter(PARAM_ROLE));
+	}
+	
+	/**
+	 * @return the value of the parameter {@link #PARAM_ROLE}.
+	 */
+	public void setRoleParameter(final JipcRole role) {
+		setParameter(PARAM_ROLE, role.toString());
+	}
+	
 }
