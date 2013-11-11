@@ -32,38 +32,63 @@ import org.junit.Test;
  */
 public class JipcPipeServerTest {
 
-	private File directory;
+	private File serverConnectDir;
+	private File serverPipeDir;
 
 	@Before
 	public void setUp() throws Exception {
-		directory = TestUtil.createDirectory();
+		serverConnectDir = TestUtil.createDirectory();
+		serverPipeDir = TestUtil.createDirectory();
 	}
 
 	@After
 	public void tearDown() throws Exception {
-		FileUtil.delete(directory, true);
+		FileUtil.delete(serverConnectDir, true);
+		FileUtil.delete(serverPipeDir, true);
 	}
 
 	@Test
 	public void testJipcPipeServer() throws Exception {
-		new JipcPipeServer(directory);
+		new JipcPipeServer(serverConnectDir, serverPipeDir);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void testJipcPipeServerWithNull() throws Exception {
-		new JipcPipeServer(null);
+	public void testJipcPipeServerConnectDirNull() throws Exception {
+		new JipcPipeServer(null, serverPipeDir);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void testJipcPipeServerWithNonExistingDir() throws Exception {
-		new JipcPipeServer(new File("herbert"));
+	public void testJipcPipeServerPipeDirNull() throws Exception {
+		new JipcPipeServer(serverConnectDir, null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void testJipcPipeServerWithFile() throws Exception {
+	public void testJipcPipeServerWithNonExistingConnectDir() throws Exception {
+		new JipcPipeServer(new File("herbert"), serverPipeDir);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testJipcPipeServerWithNonExistingPipeDir() throws Exception {
+		new JipcPipeServer(serverConnectDir, new File("herbert"));
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testJipcPipeServerWithSameDir() throws Exception {
+		new JipcPipeServer(serverConnectDir, serverConnectDir);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testJipcPipeServerWithConnectFile() throws Exception {
 		File file = File.createTempFile("xxx", ".tmp");
 		file.deleteOnExit();
-		new JipcPipeServer(file);
+		new JipcPipeServer(file, serverPipeDir);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testJipcPipeServerWithPipeFile() throws Exception {
+		File file = File.createTempFile("xxx", ".tmp");
+		file.deleteOnExit();
+		new JipcPipeServer(serverConnectDir, file);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -75,7 +100,7 @@ public class JipcPipeServerTest {
 			public void run() {
 				JipcPipeServer server;
 				try {
-					server = new JipcPipeServer(directory);
+					server = new JipcPipeServer(serverConnectDir, serverPipeDir);
 					pipeRef.set(server.accept());
 				} catch (IOException e) {
 					e.printStackTrace();
@@ -84,7 +109,7 @@ public class JipcPipeServerTest {
 		};
 		thread.start();
 
-		File connectDir = FileUtil.createDirectory(directory);
+		File connectDir = FileUtil.createDirectory(serverConnectDir);
 		FilePipe connectPipe = new FilePipe(connectDir, JipcRole.Yang);
 		connectPipe.cleanUpOnClose();
 
@@ -97,6 +122,7 @@ public class JipcPipeServerTest {
 		File pipeDir = response.getFileParameter(JipcResponse.PARAM_DIRECTORY);
 		assertNotNull(pipeDir);
 		assertTrue(pipeDir.exists());
+		assertEquals(serverPipeDir, pipeDir.getParentFile());
 
 		connectPipe.close();
 
@@ -110,8 +136,8 @@ public class JipcPipeServerTest {
 
 	@Test(timeout = 10000)
 	public void testWaitForDirectory() throws Exception {
-		File dir = FileUtil.createDirectory(directory);
-		final JipcPipeServer server = new JipcPipeServer(directory);
+		File dir = FileUtil.createDirectory(serverConnectDir);
+		final JipcPipeServer server = new JipcPipeServer(serverConnectDir, serverPipeDir);
 		assertEquals(dir, server.waitForDirectory());
 
 		final AtomicReference<File> fileRef = new AtomicReference<File>();
@@ -136,7 +162,7 @@ public class JipcPipeServerTest {
 
 	@SuppressWarnings("unchecked")
 	public void testCreatePipe() throws Exception {
-		final JipcPipeServer server = new JipcPipeServer(directory);
+		final JipcPipeServer server = new JipcPipeServer(serverConnectDir, serverPipeDir);
 
 		JipcRequest request = new JipcRequest(JipcCommand.CONNECT);
 		request.setAcceptTypes(SharedMemoryPipe.class);
@@ -146,8 +172,10 @@ public class JipcPipeServerTest {
 		assertEquals(SharedMemoryPipe.class, pipe.getClass());
 		assertEquals(SharedMemoryPipe.class, response.getTypeParameter());
 		assertEquals(JipcRole.Yang, response.getRoleParameter());
-		assertNotNull(response.getFileParameter(JipcResponse.PARAM_FILE));
-		assertTrue(response.getFileParameter(JipcResponse.PARAM_FILE).exists());
+		File file = response.getFileParameter(JipcResponse.PARAM_FILE);
+		assertNotNull(file);
+		assertTrue(file.exists());
+		assertEquals(serverPipeDir, file.getParentFile());
 
 		request.setAcceptTypes(FilePipe.class, ChunkFilePipe.class, SharedMemoryPipe.class);
 		response = new JipcResponse(JipcCode.PipeCreated, "ok");
@@ -156,8 +184,10 @@ public class JipcPipeServerTest {
 		assertEquals(ChunkFilePipe.class, pipe.getClass());
 		assertEquals(ChunkFilePipe.class, response.getTypeParameter());
 		assertEquals(JipcRole.Yang, response.getRoleParameter());
-		assertNotNull(response.getFileParameter(JipcResponse.PARAM_DIRECTORY));
-		assertTrue(response.getFileParameter(JipcResponse.PARAM_DIRECTORY).exists());
+		File dir = response.getFileParameter(JipcResponse.PARAM_DIRECTORY);
+		assertNotNull(dir);
+		assertTrue(dir.exists());
+		assertEquals(serverPipeDir, dir.getParentFile());
 	}
 
 	private JipcResponse readResponse(FilePipe connectPipe) throws IOException {

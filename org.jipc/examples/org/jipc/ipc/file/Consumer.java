@@ -3,15 +3,17 @@ package org.jipc.ipc.file;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 
+import org.jipc.JipcBinman;
+import org.jipc.JipcPipe;
 import org.jipc.JipcRole;
 import org.jipc.channel.JipcChannelInputStream;
 import org.jipc.channel.JipcChannelOutputStream;
-import org.jipc.ipc.file.FilePipe;
 
 public class Consumer {
 	public static void main(String[] args) throws Exception {
@@ -19,7 +21,15 @@ public class Consumer {
 		File directory = new File("./pipe");
 		directory.mkdir();
 		FilePipe pipe = new FilePipe(directory, JipcRole.Yang);
-		pipe.cleanUpOnClose();
+
+		Consumer consumer = new Consumer();
+		consumer.talkToProducer(pipe);
+	}
+
+	public void talkToProducer(JipcPipe pipe) throws IOException {
+		if (pipe instanceof JipcBinman) {
+			((JipcBinman)pipe).cleanUpOnClose();
+		}
 		// set up streams
 		OutputStream out = new JipcChannelOutputStream(pipe.sink());
 		InputStream in = new JipcChannelInputStream(pipe.source());
@@ -36,6 +46,8 @@ public class Consumer {
 		// close all resources
 		reader.close();
 		writer.close();
-		pipe.close();
+		if (pipe instanceof JipcBinman) {
+			((JipcBinman)pipe).close();
+		}
 	}
 }

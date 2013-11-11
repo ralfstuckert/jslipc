@@ -63,6 +63,11 @@ public class JipcResponse extends AbstractJipcMessage {
 	}
 	
 	@Override
+	protected String getMessageName() {
+		return "responest";
+	}
+
+	@Override
 	protected String getHeader() {
 		StringBuilder bob = new StringBuilder();
 		bob.append(getProtocol());

@@ -45,8 +45,8 @@ public abstract class AbstractJipcMessage {
 	 * 
 	 * @see #toBytes()
 	 */
-	public AbstractJipcMessage(final byte[] request) throws IOException {
-		this(new String(request, StandardCharsets.UTF_8));
+	public AbstractJipcMessage(final byte[] message) throws IOException {
+		this(new String(message, StandardCharsets.UTF_8));
 	}
 
 	/**
@@ -54,17 +54,22 @@ public abstract class AbstractJipcMessage {
 	 * 
 	 * @see #toString()
 	 */
-	public AbstractJipcMessage(final String request) throws IOException {
-		parseRequest(request);
+	public AbstractJipcMessage(final String message) throws IOException {
+		parseMessage(message);
 	}
+	
+	/**
+	 * @return either 'request' or 'response'.
+	 */
+	protected abstract String getMessageName();
 
 	/**
-	 * Parses the request header and parameter.
+	 * Parses the message header and parameter.
 	 */
-	protected void parseRequest(final String request) throws IOException {
-		List<String> lines = StringUtil.splitLines(request);
+	protected void parseMessage(final String message) throws IOException {
+		List<String> lines = StringUtil.splitLines(message);
 		if (lines.size() < 1) {
-			throw new IOException("bad request '" + request + "'");
+			throw new IOException("bad " + getMessageName() + " '" + message + "'");
 		}
 
 		String protocolPart = parseHeader(lines.get(0));
@@ -80,7 +85,7 @@ public abstract class AbstractJipcMessage {
 	}
 
 	/**
-	 * Parses the header line of the request.
+	 * Parses the header line of the message.
 	 * 
 	 * @param header
 	 * @return the protocol part of the header
@@ -236,7 +241,7 @@ public abstract class AbstractJipcMessage {
 	}
 
 	/**
-	 * @return the command of the request.
+	 * @return the command of the message.
 	 */
 	public String getProtocolVersion() {
 		return protocolVersion;

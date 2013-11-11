@@ -20,53 +20,73 @@ import org.jipc.ipc.file.FilePipe;
 import org.jipc.ipc.shm.SharedMemoryPipe;
 
 /**
- * This is an analogy to a ServerSocket. The method {@link #accept()} wait for an 
- * incoming connection request sent by a {@link JipcPipeClient}.
+ * This is an analogy to a ServerSocket. The method {@link #accept()} wait for
+ * an incoming connection request sent by a {@link JipcPipeClient}.
  */
 public class JipcPipeServer {
 
-	private File serverDirectory;
+	private File connectDirectory;
+	private File pipeDirectory;
 	private Class<? extends JipcPipe>[] supportedTypes;
 
 	/**
 	 * Creates a JipcPipeServer supporting all pipe types.
 	 * 
-	 * @param serverDirectory
-	 *            the server directory.
+	 * @param connectDirectory
+	 *            the directory the server searches for incoming connection
+	 *            request.
+	 * @param pipeDirectory
+	 *            the directory used to set up pipes.
 	 * @throws IOException
 	 */
 	@SuppressWarnings("unchecked")
-	public JipcPipeServer(final File serverDirectory) throws IOException {
-		this(serverDirectory, ChunkFilePipe.class, FilePipe.class,
-				SharedMemoryPipe.class);
+	public JipcPipeServer(final File connectDirectory, final File pipeDirectory)
+			throws IOException {
+		this(connectDirectory, pipeDirectory, ChunkFilePipe.class,
+				FilePipe.class, SharedMemoryPipe.class);
 	}
 
 	/**
 	 * Creates a JipcPipeServer working on the given directory.
 	 * 
-	 * @param serverDirectory
-	 *            the server directory.
+	 * @param connectDirectory
+	 *            the directory the server searches for incoming connection
+	 *            request.
+	 * @param pipeDirectory
+	 *            the directory used to set up pipes.
 	 * @param supportedTypes
 	 *            the pipe types supported by the server, the first one is
 	 *            preferred.
 	 * @throws IOException
 	 */
-	public JipcPipeServer(final File serverDirectory,
+	public JipcPipeServer(final File connectDirectory,
+			final File pipeDirectory,
 			Class<? extends JipcPipe>... supportedTypes) throws IOException {
-		if (serverDirectory == null) {
+		checkDirectory(connectDirectory, "connectDirectory");
+		checkDirectory(pipeDirectory, "pipeDirectory");
+		if (connectDirectory.equals(pipeDirectory)) {
 			throw new IllegalArgumentException(
-					"parameter 'serverDirectory' must not be null");
+					"connect- and pipe-directory must not be the same: "
+							+ connectDirectory.getAbsolutePath());
 		}
-		if (!serverDirectory.exists()) {
-			throw new IllegalArgumentException(
-					serverDirectory.getAbsolutePath() + " does not exist");
-		}
-		if (!serverDirectory.isDirectory()) {
-			throw new IllegalArgumentException(
-					serverDirectory.getAbsolutePath() + " is not a directory");
-		}
-		this.serverDirectory = serverDirectory;
+		this.connectDirectory = connectDirectory;
+		this.pipeDirectory = pipeDirectory;
 		this.supportedTypes = supportedTypes;
+	}
+
+	public void checkDirectory(File directory, String name) {
+		if (directory == null) {
+			throw new IllegalArgumentException("parameter '" + name
+					+ "' must not be null");
+		}
+		if (!directory.exists()) {
+			throw new IllegalArgumentException(directory.getAbsolutePath()
+					+ " does not exist");
+		}
+		if (!directory.isDirectory()) {
+			throw new IllegalArgumentException(directory.getAbsolutePath()
+					+ " is not a directory");
+		}
 	}
 
 	/**
@@ -126,7 +146,7 @@ public class JipcPipeServer {
 		Class<? extends JipcPipe> type = getSuitableType(request);
 
 		if (FilePipe.class.equals(type)) {
-			File dir = FileUtil.createDirectory(serverDirectory);
+			File dir = FileUtil.createDirectory(pipeDirectory);
 			response.setTypeParameter(type);
 			response.setFileParameter(JipcResponse.PARAM_DIRECTORY, dir);
 			response.setParameter(JipcResponse.PARAM_ROLE,
@@ -134,7 +154,7 @@ public class JipcPipeServer {
 			return new FilePipe(dir, JipcRole.Yin);
 		}
 		if (ChunkFilePipe.class.equals(type)) {
-			File dir = FileUtil.createDirectory(serverDirectory);
+			File dir = FileUtil.createDirectory(pipeDirectory);
 			response.setTypeParameter(type);
 			response.setFileParameter(JipcResponse.PARAM_DIRECTORY, dir);
 			response.setParameter(JipcResponse.PARAM_ROLE,
@@ -142,7 +162,7 @@ public class JipcPipeServer {
 			return new ChunkFilePipe(dir, JipcRole.Yin);
 		}
 		if (SharedMemoryPipe.class.equals(type)) {
-			File file = FileUtil.createFile(serverDirectory);
+			File file = FileUtil.createFile(pipeDirectory);
 			Integer size = request.getIntParameter(JipcResponse.PARAM_SIZE);
 			response.setTypeParameter(type);
 			response.setFileParameter(JipcResponse.PARAM_FILE, file);
@@ -185,8 +205,7 @@ public class JipcPipeServer {
 	 * @return the read JipcRequest.
 	 * @throws IOException
 	 */
-	protected JipcRequest readRequest(final InputStream in)
-			throws IOException {
+	protected JipcRequest readRequest(final InputStream in) throws IOException {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		int date = 0;
 		while ((date = in.read()) != -1) {
@@ -211,13 +230,14 @@ public class JipcPipeServer {
 
 	/**
 	 * Wait for a not yet served FilePipe directory.
+	 * 
 	 * @return the directory.
 	 * @throws IOException
 	 */
 	protected synchronized File waitForDirectory() throws IOException {
 		File dir = null;
 		while (dir == null) {
-			File[] files = serverDirectory.listFiles();
+			File[] files = connectDirectory.listFiles();
 			for (File file : files) {
 				if (file.isDirectory() && !isMarkedServed(file)) {
 					dir = file;

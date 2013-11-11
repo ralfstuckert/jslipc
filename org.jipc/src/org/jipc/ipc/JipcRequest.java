@@ -41,6 +41,11 @@ public class JipcRequest extends AbstractJipcMessage {
 	public JipcRequest(final JipcCommand command) throws IOException {
 		super(command + " " + JIPC_PROTOCOL_PREFIX + "1.0");
 	}
+	
+	@Override
+	protected String getMessageName() {
+		return "request";
+	}
 
 	@Override
 	protected String getHeader() {
