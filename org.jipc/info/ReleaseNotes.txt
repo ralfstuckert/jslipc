@@ -1,6 +1,15 @@
 = Jipc - Java Inter-Process Communication API =
 
-= Version 0.0.7 =
+= Version 0.0.8 =
+
+*News*
+
+*Fixes*
+
+ 
+ ----
+
+== Version 0.0.7 ==
 
 *News*
  * Equivalent to ServerSocket, see Issue9

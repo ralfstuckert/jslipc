@@ -17,6 +17,7 @@ import org.jipc.ipc.pipe.file.FilePipe;
 
 
 public class Producer {
+
 	public static void main(String[] args) throws Exception {
 		// set up pipe
 		File directory = new File("./pipe");
