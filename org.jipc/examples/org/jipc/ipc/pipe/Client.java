@@ -1,10 +1,10 @@
-package org.jipc.ipc;
+package org.jipc.ipc.pipe;
 
 import java.io.File;
 
 import org.jipc.JipcPipe;
-import org.jipc.ipc.file.Consumer;
 import org.jipc.ipc.pipe.JipcPipeClient;
+import org.jipc.ipc.pipe.file.Consumer;
 
 public class Client {
 	
