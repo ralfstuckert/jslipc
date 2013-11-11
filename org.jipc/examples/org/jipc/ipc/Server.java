@@ -4,6 +4,8 @@ import java.io.File;
 
 import org.jipc.JipcPipe;
 import org.jipc.ipc.file.Producer;
+import org.jipc.ipc.pipe.JipcConnection;
+import org.jipc.ipc.pipe.JipcPipeServer;
 
 public class Server {
 	

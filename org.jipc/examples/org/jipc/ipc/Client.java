@@ -4,6 +4,7 @@ import java.io.File;
 
 import org.jipc.JipcPipe;
 import org.jipc.ipc.file.Consumer;
+import org.jipc.ipc.pipe.JipcPipeClient;
 
 public class Client {
 	

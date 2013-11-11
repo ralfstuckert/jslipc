@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import org.jipc.channel.buffer.ByteBufferQueue;
-import org.jipc.channel.file.FileUtil;
+import org.jipc.util.FileUtil;
 import org.junit.Assert;
 
 /**

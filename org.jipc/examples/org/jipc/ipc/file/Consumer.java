@@ -14,6 +14,7 @@ import org.jipc.JipcPipe;
 import org.jipc.JipcRole;
 import org.jipc.channel.JipcChannelInputStream;
 import org.jipc.channel.JipcChannelOutputStream;
+import org.jipc.ipc.pipe.file.FilePipe;
 
 public class Consumer {
 	public static void main(String[] args) throws Exception {

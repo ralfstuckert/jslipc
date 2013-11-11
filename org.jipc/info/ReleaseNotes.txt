@@ -3,11 +3,16 @@
 = Version 0.0.7 =
 
 *News*
+ * Equivalent to ServerSocket, see Issue9
 
 *Fixes*
+ * Issue 9:	Equivalent to ServerSocket
  * Issue 10: JicpChannelInputStream and -OutputStream does not delegate close() to underlying channel
 
-----
+*To Adapt*
+ * reorganized package hierarchy
+ 
+ ----
 
 == Version 0.0.6 ==
 

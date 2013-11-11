@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 
 import org.jipc.JipcBinman;
 import org.jipc.channel.JipcChannel;
-import org.jipc.channel.file.FileUtil;
+import org.jipc.util.FileUtil;
 
 /**
  * Common base class for chunk file based {@link JipcChannel}s.
