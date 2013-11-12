@@ -97,8 +97,32 @@ public class JipcPipeServerTest {
 
 	@SuppressWarnings("unchecked")
 	@Test(timeout = 600000)
-	public void testAccept() throws Exception {
+	public void testAcceptWithNoAcceptType() throws Exception {
+		// ChunkFilePipe is the default
+		checkAccept(ChunkFilePipe.class);
+	}
 
+	@SuppressWarnings("unchecked")
+	@Test(timeout = 600000)
+	public void testAcceptWithFilePipe() throws Exception {
+		checkAccept(FilePipe.class, FilePipe.class);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test(timeout = 600000)
+	public void testAcceptWithChunkFilePipe() throws Exception {
+		checkAccept(ChunkFilePipe.class, ChunkFilePipe.class);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test(timeout = 600000)
+	public void testAcceptWithSharedMemoryPipe() throws Exception {
+		checkAccept(SharedMemoryPipe.class, SharedMemoryPipe.class);
+	}
+
+	public void checkAccept(Class<? extends JipcPipe> expectedPipeClass,
+			Class<? extends JipcPipe>... acceptTypes) throws IOException,
+			InterruptedException {
 		final AtomicReference<JipcConnection> pipeRef = new AtomicReference<JipcConnection>();
 		Thread thread = new Thread() {
 			public void run() {
@@ -118,12 +142,16 @@ public class JipcPipeServerTest {
 		connectPipe.cleanUpOnClose();
 
 		JipcRequest request = new JipcRequest(JipcCommand.CONNECT);
-		request.setAcceptTypes(ChunkFilePipe.class);
+		request.setAcceptTypes(acceptTypes);
 		writeRequest(connectPipe, request);
 
 		JipcResponse response = readResponse(connectPipe);
-		assertEquals(ChunkFilePipe.class, response.getTypeParameter());
+		assertEquals(response.getMessage(), JipcCode.PipeCreated, response.getCode());
+		assertEquals(expectedPipeClass, response.getTypeParameter());
 		File pipeDir = response.getFileParameter(JipcResponse.PARAM_DIRECTORY);
+		if (SharedMemoryPipe.class.equals(expectedPipeClass)) {
+			pipeDir = response.getFileParameter(JipcResponse.PARAM_FILE);
+		}
 		assertNotNull(pipeDir);
 		assertTrue(pipeDir.exists());
 		assertEquals(serverPipeDir, pipeDir.getParentFile());
@@ -135,13 +163,14 @@ public class JipcPipeServerTest {
 		assertNotNull(connection);
 		assertEquals(request.getParameters(), connection.getRequestParameters());
 		assertNotNull(connection.getPipe());
-		assertEquals(ChunkFilePipe.class, connection.getPipe().getClass());
+		assertEquals(expectedPipeClass, connection.getPipe().getClass());
 	}
 
 	@Test(timeout = 10000)
 	public void testWaitForDirectory() throws Exception {
 		File dir = FileUtil.createDirectory(serverConnectDir);
-		final JipcPipeServer server = new JipcPipeServer(serverConnectDir, serverPipeDir);
+		final JipcPipeServer server = new JipcPipeServer(serverConnectDir,
+				serverPipeDir);
 		assertEquals(dir, server.waitForDirectory());
 
 		final AtomicReference<File> fileRef = new AtomicReference<File>();
@@ -150,7 +179,7 @@ public class JipcPipeServerTest {
 				try {
 					fileRef.set(server.waitForDirectory());
 				} catch (IOException e) {
-//					e.printStackTrace();
+					// e.printStackTrace();
 				}
 			}
 		};
@@ -166,7 +195,8 @@ public class JipcPipeServerTest {
 
 	@SuppressWarnings("unchecked")
 	public void testCreatePipe() throws Exception {
-		final JipcPipeServer server = new JipcPipeServer(serverConnectDir, serverPipeDir);
+		final JipcPipeServer server = new JipcPipeServer(serverConnectDir,
+				serverPipeDir);
 
 		JipcRequest request = new JipcRequest(JipcCommand.CONNECT);
 		request.setAcceptTypes(SharedMemoryPipe.class);
@@ -181,7 +211,8 @@ public class JipcPipeServerTest {
 		assertTrue(file.exists());
 		assertEquals(serverPipeDir, file.getParentFile());
 
-		request.setAcceptTypes(FilePipe.class, ChunkFilePipe.class, SharedMemoryPipe.class);
+		request.setAcceptTypes(FilePipe.class, ChunkFilePipe.class,
+				SharedMemoryPipe.class);
 		response = new JipcResponse(JipcCode.PipeCreated, "ok");
 		pipe = server.createPipe(request, response);
 		assertNotNull(pipe);

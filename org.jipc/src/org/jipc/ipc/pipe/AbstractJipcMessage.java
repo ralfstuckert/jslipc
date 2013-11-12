@@ -22,12 +22,12 @@ import org.jipc.util.UrlUtil;
  */
 public abstract class AbstractJipcMessage {
 
-	public static final String PARAM_DIRECTORY = "DIRECTORY";
-	public static final String PARAM_FILE = "FILE";
-	public static final String PARAM_ROLE = "ROLE";
-	public static final String PARAM_TYPE = "TYPE";
-	public static final String PARAM_SIZE = "SIZE";
-	public static final String PARAM_ACCEPT_TYPES = "ACCEPT-TYPES";
+	public static final String PARAM_DIRECTORY = "directory";
+	public static final String PARAM_FILE = "file";
+	public static final String PARAM_ROLE = "role";
+	public static final String PARAM_TYPE = "tyoe";
+	public static final String PARAM_SIZE = "size";
+	public static final String PARAM_ACCEPT_TYPES = "accept-types";
 
 	protected static final String JIPC_PROTOCOL_PREFIX = "JIPC/";
 	protected static final String UTF_8 = StandardCharsets.UTF_8.toString();

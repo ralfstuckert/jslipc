@@ -1,7 +1,7 @@
-package org.jipc.ipc.pipe.file;
+package org.jipc.ipc.pipe;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -10,23 +10,10 @@ import java.io.OutputStreamWriter;
 
 import org.jipc.JipcBinman;
 import org.jipc.JipcPipe;
-import org.jipc.JipcRole;
 import org.jipc.channel.JipcChannelInputStream;
 import org.jipc.channel.JipcChannelOutputStream;
-import org.jipc.ipc.pipe.file.FilePipe;
 
-
-public class Producer {
-
-	public static void main(String[] args) throws Exception {
-		// set up pipe
-		File directory = new File("./pipe");
-		directory.mkdir();
-		FilePipe pipe = new FilePipe(directory, JipcRole.Yin);
-		
-		Producer producer = new Producer();
-		producer.talkToConsumer(pipe);
-	}
+public class PipeProducer {
 
 	public void talkToConsumer(final JipcPipe pipe) throws IOException {
 		if (pipe instanceof JipcBinman) {
@@ -35,6 +22,16 @@ public class Producer {
 		// set up streams
 		OutputStream out = new JipcChannelOutputStream(pipe.sink());
 		InputStream in = new JipcChannelInputStream(pipe.source());
+
+		talkToConsumer(out, in);
+
+		if (pipe instanceof JipcBinman) {
+			((JipcBinman)pipe).close();
+		}
+	}
+
+	public void talkToConsumer(OutputStream out, InputStream in)
+			throws IOException {
 		BufferedReader reader = new BufferedReader(new InputStreamReader(in));
 		BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out));
 
@@ -49,8 +46,6 @@ public class Producer {
 		// close all resources
 		reader.close();
 		writer.close();
-		if (pipe instanceof JipcBinman) {
-			((JipcBinman)pipe).close();
-		}
 	}
+
 }

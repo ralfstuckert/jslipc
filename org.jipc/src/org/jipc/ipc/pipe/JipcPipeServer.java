@@ -189,6 +189,9 @@ public class JipcPipeServer {
 	protected Class<? extends JipcPipe> getSuitableType(JipcRequest request)
 			throws IOException {
 		List<Class<? extends JipcPipe>> acceptTypes = request.getAcceptTypes();
+		if (acceptTypes == null || acceptTypes.size() == 0) {
+			return supportedTypes[0];
+		}
 		for (Class<? extends JipcPipe> current : supportedTypes) {
 			if (acceptTypes.contains(current)) {
 				return current;

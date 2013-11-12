@@ -63,7 +63,7 @@ public class JipcPipeClientTest {
 		new JipcPipeClient(null);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test(expected = IOException.class)
 	public void testJipcPipeClientWithNonExistingDir() throws Exception {
 		new JipcPipeClient(new File("herbert"));
 	}
@@ -168,16 +168,18 @@ public class JipcPipeClientTest {
 		assertEquals("CONNECT JIPC/1.0", requestLines.get(0));
 		assertThat(
 				requestLines,
-				hasItem("ACCEPT-TYPES: "
+				hasItem(AbstractJipcMessage.PARAM_ACCEPT_TYPES+": "
 						+ UrlUtil.urlEncode("FilePipe,ChunkFilePipe")));
 	}
 
 	protected List<String> sendRequest(final JipcPipeClient client,
 			Class<? extends JipcPipe>... acceptedTypes) throws IOException {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		client.sendRequest(baos, acceptedTypes);
-		String request = new String(baos.toByteArray());
-		return Arrays.asList(request.split("\\n"));
+		JipcRequest request = new JipcRequest(JipcCommand.CONNECT);
+		request.setAcceptTypes(acceptedTypes);
+		client.sendRequest(baos, request);
+		String requestString = new String(baos.toByteArray());
+		return Arrays.asList(requestString.split("\\n"));
 	}
 
 	@Test

@@ -24,10 +24,6 @@ import org.jipc.util.FileUtil;
  */
 public class JipcPipeClient {
 
-	@SuppressWarnings("unchecked")
-	public final static Class<? extends JipcPipe>[] ALL_PIPES = new Class[] {
-			FilePipe.class, ChunkFilePipe.class, SharedMemoryPipe.class };
-
 	private File serverDirectory;
 
 	/**
@@ -44,7 +40,7 @@ public class JipcPipeClient {
 					"parameter 'serverDirectory' must not be null");
 		}
 		if (!serverDirectory.exists()) {
-			throw new IllegalArgumentException(
+			throw new IOException(
 					serverDirectory.getAbsolutePath() + " does not exist");
 		}
 		if (!serverDirectory.isDirectory()) {
@@ -65,11 +61,25 @@ public class JipcPipeClient {
 	 */
 	public JipcPipe connect(Class<? extends JipcPipe>... acceptedTypes)
 			throws IOException {
+		JipcRequest request = createRequest(acceptedTypes);
+		return connect(request);
+	}
+
+	/**
+	 * Requests and waits for a pipe created by the corresponding
+	 * {@link JipcPipeServer}
+	 * 
+	 * @param request
+	 *            the request to send.
+	 * @return the created pipe.
+	 * @throws IOException
+	 */
+	public JipcPipe connect(final JipcRequest request) throws IOException {
 		File directory = FileUtil.createDirectory(serverDirectory);
 		FilePipe pipe = new FilePipe(directory, JipcRole.Yang);
 		pipe.cleanUpOnClose();
 
-		sendRequest(new JipcChannelOutputStream(pipe.sink()), acceptedTypes);
+		sendRequest(new JipcChannelOutputStream(pipe.sink()), request);
 		JipcPipe response = readResponse(new JipcChannelInputStream(
 				pipe.source()));
 
@@ -86,14 +96,26 @@ public class JipcPipeClient {
 	 *            the pipe types accepted by the client.
 	 * @throws IOException
 	 */
-	protected void sendRequest(final OutputStream out,
-			Class<? extends JipcPipe>... acceptedTypes) throws IOException {
-		JipcRequest request = new JipcRequest(JipcCommand.CONNECT);
-		request.setAcceptTypes(acceptedTypes);
+	protected void sendRequest(final OutputStream out, final JipcRequest request)
+			throws IOException {
 		byte[] bytes = request.toBytes();
 		out.write(bytes);
 		out.flush();
 		out.close();
+	}
+
+	/**
+	 * Creates a JipcRequest for the given accept-types.
+	 * 
+	 * @param acceptedTypes
+	 * @return the create request
+	 * @throws IOException
+	 */
+	protected JipcRequest createRequest(
+			Class<? extends JipcPipe>... acceptedTypes) throws IOException {
+		JipcRequest request = new JipcRequest(JipcCommand.CONNECT);
+		request.setAcceptTypes(acceptedTypes);
+		return request;
 	}
 
 	/**

@@ -3,10 +3,8 @@ package org.jipc.ipc.pipe;
 import java.io.File;
 
 import org.jipc.JipcPipe;
-import org.jipc.ipc.pipe.JipcPipeClient;
-import org.jipc.ipc.pipe.file.Consumer;
 
-public class Client {
+public class PipeClient {
 	
 	public static void main(String[] args) throws Exception {
 		// set up pipe
@@ -14,10 +12,11 @@ public class Client {
 		directory.mkdirs();
 		JipcPipeClient client = new JipcPipeClient(directory);
 		// request connection
-		JipcPipe pipe = client.connect(JipcPipeClient.ALL_PIPES);
+		@SuppressWarnings("unchecked")
+		JipcPipe pipe = client.connect();
 
-		Consumer consumer = new Consumer();
-		consumer.talkToProducer(pipe);
+		PipeConsumer pipeConsumer = new PipeConsumer();
+		pipeConsumer.talkToProducer(pipe);
 	}
 
 }

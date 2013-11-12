@@ -3,11 +3,8 @@ package org.jipc.ipc.pipe;
 import java.io.File;
 
 import org.jipc.JipcPipe;
-import org.jipc.ipc.pipe.JipcConnection;
-import org.jipc.ipc.pipe.JipcPipeServer;
-import org.jipc.ipc.pipe.file.Producer;
 
-public class Server {
+public class PipeServer {
 	
 	public static void main(String[] args) throws Exception {
 		// set up pipe
@@ -23,8 +20,8 @@ public class Server {
 		JipcConnection connection = server.accept();
 		JipcPipe pipe = connection.getPipe();
 		
-		Producer producer = new Producer();
-		producer.talkToConsumer(pipe);
+		PipeProducer pipeProducer = new PipeProducer();
+		pipeProducer.talkToConsumer(pipe);
 	}
 
 }
