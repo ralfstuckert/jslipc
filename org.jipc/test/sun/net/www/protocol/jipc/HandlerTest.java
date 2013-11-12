@@ -56,7 +56,7 @@ public class HandlerTest {
 	}
 
 	@Test(timeout = 60000)
-	public void testOpenConnection() throws Exception {
+	public void testOpenConnectionWithAbsoluteServerDir() throws Exception {
 		checkOpenConnection("/" + connectDir.getAbsolutePath());
 	}
 
