@@ -17,6 +17,7 @@ import org.jipc.channel.buffer.ByteBufferQueue;
 import org.jipc.channel.buffer.ReadableBbqChannel;
 import org.jipc.channel.buffer.WritableBbqChannel;
 import org.jipc.util.BufferUtil;
+import org.jipc.util.FileUtil;
 
 /**
  * This pipe uses shared memory to create in-memory buffers which are used to
@@ -113,8 +114,7 @@ public class SharedMemoryPipe implements JipcPipe, JipcBinman {
 		BufferUtil.releaseBufferSilently(buffer);
 
 		if (cleanUpOnClose && sourceClosedByPeer && sinkClosedByPeer) {
-			file.delete();
-			file.deleteOnExit();
+			FileUtil.delete(file);
 		}
 	}
 

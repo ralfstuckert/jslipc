@@ -11,8 +11,18 @@ public class FileUtil {
 
 	/**
 	 * Deletes a file or directory.
+	 * 
 	 * @param file
-	 * @param recursive 
+	 */
+	public static void delete(final File file) {
+		delete(file, true);
+	}
+
+	/**
+	 * Deletes a file or directory.
+	 * 
+	 * @param file
+	 * @param recursive
 	 */
 	public static void delete(final File file, final boolean recursive) {
 		if (recursive && file.isDirectory()) {
@@ -23,12 +33,19 @@ public class FileUtil {
 				}
 			}
 		}
-		file.delete();
-		file.deleteOnExit();
+
+		if (!file.delete()) {
+			// TODO use logging
+//			System.err.println("failed to delete " + file
+//					+ ", trying delete on exit");
+			// Thread.dumpStack();
+			file.deleteOnExit();
+		}
 	}
 
 	/**
 	 * Creates a new directory with a unique name in the given directory.
+	 * 
 	 * @param parent
 	 * @return the created directory
 	 */
@@ -43,6 +60,7 @@ public class FileUtil {
 
 	/**
 	 * Creates a new file with a unique name in the given directory.
+	 * 
 	 * @param parent
 	 * @return the created file
 	 */
@@ -55,5 +73,4 @@ public class FileUtil {
 		return file;
 	}
 
-	
 }

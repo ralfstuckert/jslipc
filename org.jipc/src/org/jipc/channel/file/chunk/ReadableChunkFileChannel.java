@@ -7,6 +7,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
 import org.jipc.channel.ReadableJipcByteChannel;
+import org.jipc.util.FileUtil;
 
 /**
  * A {@link ReadableJipcByteChannel} implementation that reads chunk files written into
@@ -51,8 +52,7 @@ public class ReadableChunkFileChannel extends AbstractChunkFileChannel
 			currentChunkRAF = null;
 		}
 		if (currentChunkFile != null) {
-			currentChunkFile.delete();
-			currentChunkFile.deleteOnExit();
+			FileUtil.delete(currentChunkFile);
 		}
 	}
 

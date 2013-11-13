@@ -9,6 +9,7 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 import org.jipc.TestUtil;
+import org.jipc.util.FileUtil;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,9 +36,7 @@ public abstract class AbstractChunkFileChannelTest {
 
 	@After
 	public void tearDown() throws Exception {
-		if (closedMarker.exists()) {
-			assertTrue(closedMarker.delete());
-		}
+		FileUtil.delete(closedMarker);
 	}
 
 	protected abstract AbstractChunkFileChannel createChannel(
