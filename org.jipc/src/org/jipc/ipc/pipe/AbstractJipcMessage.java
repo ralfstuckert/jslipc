@@ -25,7 +25,7 @@ public abstract class AbstractJipcMessage {
 	public static final String PARAM_DIRECTORY = "directory";
 	public static final String PARAM_FILE = "file";
 	public static final String PARAM_ROLE = "role";
-	public static final String PARAM_TYPE = "tyoe";
+	public static final String PARAM_TYPE = "type";
 	public static final String PARAM_SIZE = "size";
 	public static final String PARAM_ACCEPT_TYPES = "accept-types";
 
