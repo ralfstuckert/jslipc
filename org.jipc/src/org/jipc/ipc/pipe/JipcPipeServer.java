@@ -9,6 +9,7 @@ import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.List;
 
+import org.jipc.JipcBinman;
 import org.jipc.JipcPipe;
 import org.jipc.JipcRole;
 import org.jipc.channel.JipcChannelInputStream;
@@ -127,6 +128,9 @@ public class JipcPipeServer {
 
 			sendResponse(response, out);
 
+			if (pipe instanceof JipcBinman) {
+				((JipcBinman)pipe).cleanUpOnClose();
+			}
 			return new JipcConnection(pipe, request.getParameters());
 		} finally {
 			connectPipe.close();

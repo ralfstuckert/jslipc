@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.jipc.JipcBinman;
 import org.jipc.JipcPipe;
 import org.jipc.JipcRole;
 import org.jipc.channel.JipcChannelInputStream;
@@ -76,15 +77,18 @@ public class JipcPipeClient {
 	 */
 	public JipcPipe connect(final JipcRequest request) throws IOException {
 		File directory = FileUtil.createDirectory(serverDirectory);
-		FilePipe pipe = new FilePipe(directory, JipcRole.Yang);
-		pipe.cleanUpOnClose();
+		FilePipe connectPipe = new FilePipe(directory, JipcRole.Yang);
+		connectPipe.cleanUpOnClose();
 
-		sendRequest(new JipcChannelOutputStream(pipe.sink()), request);
-		JipcPipe response = readResponse(new JipcChannelInputStream(
-				pipe.source()));
+		sendRequest(new JipcChannelOutputStream(connectPipe.sink()), request);
+		JipcPipe pipe = readResponse(new JipcChannelInputStream(
+				connectPipe.source()));
+		if (pipe instanceof JipcBinman) {
+			((JipcBinman)pipe).cleanUpOnClose();
+		}
 
-		pipe.close();
-		return response;
+		connectPipe.close();
+		return pipe;
 	}
 
 	/**

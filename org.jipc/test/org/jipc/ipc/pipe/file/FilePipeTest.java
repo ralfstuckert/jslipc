@@ -12,7 +12,6 @@ import org.jipc.JipcPipe;
 import org.jipc.JipcRole;
 import org.jipc.TestUtil;
 import org.jipc.ipc.pipe.AbstractTestProducer;
-import org.jipc.ipc.pipe.file.FilePipe;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -165,6 +164,22 @@ public class FilePipeTest {
 		pipe.close();
 		assertFalse(source.exists());
 		assertFalse(sink.exists());
+	}
+
+	@Test
+	public void testCleanUpOnCloseWithDirAndRole() throws Exception {
+		FilePipe pipe = new FilePipe(directory, JipcRole.Yang);
+
+		pipe.cleanUpOnClose();
+		assertTrue(pipe.source().isOpen());
+		assertTrue(pipe.sink().isOpen());
+
+		createClosedMarker(new File(directory, FilePipe.YANG_TO_YIN_NAME));
+		createClosedMarker(new File(directory, FilePipe.YIN_TO_YANG_NAME));
+
+		assertTrue(directory.exists());
+		pipe.close();
+		assertFalse(directory.exists());
 	}
 
 	private void createClosedMarker(final File file) throws IOException {

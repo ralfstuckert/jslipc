@@ -13,7 +13,6 @@ import org.jipc.JipcPipe;
 import org.jipc.JipcRole;
 import org.jipc.TestUtil;
 import org.jipc.ipc.pipe.AbstractTestProducer;
-import org.jipc.ipc.pipe.file.ChunkFilePipe;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -176,6 +175,22 @@ public class ChunkFilePipeTest {
 
 		assertFalse(sourceDir.exists());
 		assertFalse(sinkDir.exists());
+	}
+
+	@Test
+	public void testCleanUpOnCloseWithDirAndRole() throws Exception {
+		ChunkFilePipe pipe = new ChunkFilePipe(directory, JipcRole.Yang);
+
+		pipe.cleanUpOnClose();
+		assertTrue(pipe.source().isOpen());
+		assertTrue(pipe.sink().isOpen());
+
+		createClosedMarker(new File(directory, ChunkFilePipe.YANG_TO_YIN_NAME));
+		createClosedMarker(new File(directory, ChunkFilePipe.YIN_TO_YANG_NAME));
+
+		assertTrue(directory.exists());
+		pipe.close();
+		assertFalse(directory.exists());
 	}
 
 	protected String toString(Object[] array) {

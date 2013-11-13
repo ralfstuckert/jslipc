@@ -9,6 +9,7 @@ import org.jipc.JipcRole;
 import org.jipc.channel.file.chunk.ReadableChunkFileChannel;
 import org.jipc.channel.file.chunk.WritableChunkFileChannel;
 import org.jipc.ipc.pipe.shm.SharedMemoryPipe;
+import org.jipc.util.FileUtil;
 
 /**
  * In contrast to the {@link FilePipe} this implementation is based on chunk
@@ -30,6 +31,7 @@ public class ChunkFilePipe implements JipcPipe, JipcBinman {
 
 	public final static String YANG_TO_YIN_NAME = "yangToYin";
 	public final static String YIN_TO_YANG_NAME = "yinToYang";
+	private File pipeDir;
 	private File sourceDir;
 	private File sinkDir;
 	private ReadableChunkFileChannel source;
@@ -72,6 +74,7 @@ public class ChunkFilePipe implements JipcPipe, JipcBinman {
 	public ChunkFilePipe(final File directory, final JipcRole role)
 			throws IOException {
 		this(getSourceDir(directory, role), getSinkDir(directory, role));
+		pipeDir = directory;
 	}
 
 	/**
@@ -134,6 +137,10 @@ public class ChunkFilePipe implements JipcPipe, JipcBinman {
 		}
 		if (sink != null) {
 			sink.close();
+		}
+		if (cleanUpOnClose && pipeDir != null && !sourceDir.exists()
+				&& !sinkDir.exists()) {
+			FileUtil.delete(pipeDir, true);
 		}
 	}
 

@@ -8,6 +8,7 @@ import org.jipc.JipcPipe;
 import org.jipc.JipcRole;
 import org.jipc.channel.file.ReadableJipcFileChannel;
 import org.jipc.channel.file.WritableJipcFileChannel;
+import org.jipc.util.FileUtil;
 
 /**
  * The FilePipe uses a {@link ReadableJipcFileChannel} and
@@ -18,15 +19,17 @@ import org.jipc.channel.file.WritableJipcFileChannel;
  * {@link JipcBinman#cleanUpOnClose()} method, which will delete the files on
  * {@link #close()}.<br/>
  * <br/>
- * A FilePipe is bound only by the underlying OS' maximum file size and therefore
- * a write will not block until any limit is reached. But be aware that the underlying 
- * files always grow (by writes) and do not shrink (by reads).
+ * A FilePipe is bound only by the underlying OS' maximum file size and
+ * therefore a write will not block until any limit is reached. But be aware
+ * that the underlying files always grow (by writes) and do not shrink (by
+ * reads).
  */
 public class FilePipe implements JipcPipe, JipcBinman {
 
 	public final static String YANG_TO_YIN_NAME = "yangToYin.channel";
 	public final static String YIN_TO_YANG_NAME = "yinToYang.channel";
 
+	private File pipeDir;
 	private File sourceFile;
 	private File sinkFile;
 	private ReadableJipcFileChannel source;
@@ -36,9 +39,9 @@ public class FilePipe implements JipcPipe, JipcBinman {
 	/**
 	 * This is an alternative to {@link #FilePipe(File, File)} where you do not
 	 * pass the two files, but a directory hosting two files
-	 * <code>yangToYin.channel</code> and
-	 * <code>yinToYang.channel</code>. The files are created if they do not
-	 * yet exist. Which one is used for source or sink depends on the role:
+	 * <code>yangToYin.channel</code> and <code>yinToYang.channel</code>. The
+	 * files are created if they do not yet exist. Which one is used for source
+	 * or sink depends on the role:
 	 * <table border="1">
 	 * <tr>
 	 * <th>role</th>
@@ -56,9 +59,10 @@ public class FilePipe implements JipcPipe, JipcBinman {
 	 * <td>yinToYang.channel</td>
 	 * </tr>
 	 * </table>
-	 * The role itself does not have any special semantics, means: it makes no difference whether
-	 * you are {@link JipcRole#Yin yin} or {@link JipcRole#Yang yang}. It is just needed
-	 * to distinguish the endpoints of the pipe, so one end should have the role yin, the other
+	 * The role itself does not have any special semantics, means: it makes no
+	 * difference whether you are {@link JipcRole#Yin yin} or
+	 * {@link JipcRole#Yang yang}. It is just needed to distinguish the
+	 * endpoints of the pipe, so one end should have the role yin, the other
 	 * yang.
 	 * 
 	 * @param directory
@@ -68,6 +72,7 @@ public class FilePipe implements JipcPipe, JipcBinman {
 	public FilePipe(final File directory, final JipcRole role)
 			throws IOException {
 		this(getSourceFile(directory, role), getSinkFile(directory, role));
+		pipeDir = directory;
 	}
 
 	/**
@@ -118,6 +123,10 @@ public class FilePipe implements JipcPipe, JipcBinman {
 		if (sink != null) {
 			sink.close();
 		}
+		if (cleanUpOnClose && pipeDir != null && !sourceFile.exists()
+				&& !sinkFile.exists()) {
+			FileUtil.delete(pipeDir, true);
+		}
 	}
 
 	@Override
@@ -138,8 +147,8 @@ public class FilePipe implements JipcPipe, JipcBinman {
 		return sink;
 	}
 
-	public static File getSourceFile(final File directory,
-			final JipcRole role) throws IOException {
+	public static File getSourceFile(final File directory, final JipcRole role)
+			throws IOException {
 		return getChannelFile(directory, role, JipcRole.Yang);
 	}
 
@@ -149,8 +158,7 @@ public class FilePipe implements JipcPipe, JipcBinman {
 	}
 
 	private static File getChannelFile(final File directory,
-			final JipcRole role, JipcRole yinToYangRole)
-			throws IOException {
+			final JipcRole role, JipcRole yinToYangRole) throws IOException {
 		if (directory == null) {
 			throw new IllegalArgumentException(
 					"parameter 'directory' must not be null");
