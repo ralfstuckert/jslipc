@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
-import org.jipc.ipc.pipe.AbstractJipcMessage;
 import org.jipc.ipc.pipe.file.ChunkFilePipe;
 import org.jipc.ipc.pipe.file.FilePipe;
 import org.junit.After;

@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
-import org.jipc.ipc.pipe.JipcRequest;
 import org.jipc.ipc.pipe.JipcRequest.JipcCommand;
 import org.jipc.ipc.pipe.file.ChunkFilePipe;
 import org.jipc.ipc.pipe.file.FilePipe;

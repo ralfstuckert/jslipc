@@ -6,8 +6,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 import org.jipc.JipcRole;
-import org.jipc.ipc.pipe.AbstractJipcMessage;
-import org.jipc.ipc.pipe.JipcResponse;
 import org.jipc.ipc.pipe.JipcResponse.JipcCode;
 import org.junit.After;
 import org.junit.Before;
