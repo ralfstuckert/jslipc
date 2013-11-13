@@ -6,7 +6,6 @@ import java.io.IOException;
 import org.jipc.JipcPipe;
 import org.jipc.JipcRole;
 import org.jipc.ipc.pipe.AbstractTestProducer;
-import org.jipc.ipc.pipe.file.FilePipe;
 
 public class FilePipeTestProducer extends AbstractTestProducer {
 

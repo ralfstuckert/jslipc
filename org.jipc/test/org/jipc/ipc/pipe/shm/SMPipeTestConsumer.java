@@ -6,7 +6,6 @@ import java.io.IOException;
 import org.jipc.JipcPipe;
 import org.jipc.JipcRole;
 import org.jipc.ipc.pipe.AbstractTestConsumer;
-import org.jipc.ipc.pipe.shm.SharedMemoryPipe;
 
 public class SMPipeTestConsumer extends AbstractTestConsumer {
 

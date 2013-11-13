@@ -70,8 +70,6 @@ public class Handler extends URLStreamHandler {
 	 */
 	protected JipcRequest createRequest(final URL url) throws IOException {
 		JipcRequest request = new JipcRequest(JipcCommand.CONNECT);
-		String path = url.getPath();
-		request.setParameter(JipcRequest.PARAM_DIRECTORY, path);
 
 		Map<String, String> parameters = parseParameter(url.getQuery());
 		if (parameters != null) {

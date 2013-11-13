@@ -14,7 +14,6 @@ import java.nio.channels.FileChannel;
 import org.jipc.JipcPipe;
 import org.jipc.JipcRole;
 import org.jipc.ipc.pipe.AbstractTestProducer;
-import org.jipc.ipc.pipe.shm.SharedMemoryPipe;
 import org.junit.Before;
 import org.junit.Test;
 

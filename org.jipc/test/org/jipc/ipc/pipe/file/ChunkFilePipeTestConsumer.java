@@ -5,7 +5,6 @@ import java.io.IOException;
 
 import org.jipc.JipcPipe;
 import org.jipc.JipcRole;
-import org.jipc.ipc.pipe.file.ChunkFilePipe;
 
 public class ChunkFilePipeTestConsumer extends FilePipeTestConsumer {
 
