@@ -36,6 +36,7 @@ public class HandlerTest {
 
 	private File connectDir;
 	private File pipeDir;
+	private File dir;
 
 	@Before
 	public void setUp() throws Exception {
@@ -47,6 +48,9 @@ public class HandlerTest {
 	public void tearDown() throws Exception {
 		FileUtil.delete(connectDir, true);
 		FileUtil.delete(pipeDir, true);
+		if (dir != null) {
+			FileUtil.delete(dir, true);
+		}
 	}
 
 	@Test(expected = IOException.class)
@@ -62,7 +66,7 @@ public class HandlerTest {
 
 	@Test(timeout = 60000)
 	public void testOpenConnectionWithRelativeServerDir() throws Exception {
-		File dir = FileUtil.createDirectory(new File("."));
+		dir = FileUtil.createDirectory(new File("."));
 		checkOpenConnection(dir.getPath());
 	}
 
@@ -94,6 +98,11 @@ public class HandlerTest {
 		checkConnection(urlConnection.getOutputStream(),
 				serverSidePipe.source());
 		checkConnection(serverSidePipe.sink(), urlConnection.getInputStream());
+		
+		urlConnection.getInputStream().close();
+		urlConnection.getOutputStream().close();
+		serverSidePipe.source().close();
+		serverSidePipe.sink().close();
 	}
 
 	@Test
@@ -103,9 +112,7 @@ public class HandlerTest {
 		JipcRequest request = handler.createRequest(url);
 		assertNotNull(request);
 		assertEquals(JipcCommand.CONNECT, request.getCommand());
-		assertEquals(new File("c:/server/connect"),
-				request.getFileParameter(JipcRequest.PARAM_DIRECTORY));
-		assertEquals(1, request.getParameters().size());
+		assertEquals(0, request.getParameters().size());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -117,9 +124,7 @@ public class HandlerTest {
 		JipcRequest request = handler.createRequest(url);
 		assertNotNull(request);
 		assertEquals(JipcCommand.CONNECT, request.getCommand());
-		assertEquals(new File("c:/server/connect"),
-				request.getFileParameter(JipcRequest.PARAM_DIRECTORY));
-		assertEquals(3, request.getParameters().size());
+		assertEquals(2, request.getParameters().size());
 
 		assertEquals(Arrays.asList(ChunkFilePipe.class, FilePipe.class),
 				request.getAcceptTypes());
