@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import org.jipc.TestUtil;
+import org.jipc.util.FileUtil;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,9 +33,7 @@ public abstract class AbstractJipcFileChannelTest {
 
 	@After
 	public void tearDown() throws Exception {
-		if (closedMarker.exists()) {
-			assertTrue(closedMarker.delete());
-		}
+		FileUtil.delete(closedMarker);
 	}
 
 
@@ -72,5 +71,13 @@ public abstract class AbstractJipcFileChannelTest {
 		channel.close();
 		assertFalse(file.exists());
 		assertFalse(closedMarker.exists());
+	}
+
+	@Test
+	public void testCloseReleaseFiles() throws Exception {
+		AbstractJipcFileChannel channel = createChannel(file);
+		channel.close();
+		assertTrue(file.exists());
+		assertTrue(file.delete());
 	}
 }

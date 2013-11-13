@@ -8,6 +8,7 @@ import java.nio.channels.FileChannel;
 
 import org.jipc.JipcBinman;
 import org.jipc.channel.JipcChannel;
+import org.jipc.util.FileUtil;
 
 /**
  * Common base class for file based {@link JipcChannel}s.
@@ -61,16 +62,14 @@ public abstract class AbstractJipcFileChannel implements JipcChannel, JipcBinman
 			return;
 		}
 		this.closed = true;
+		fileChannel.close();
+		randomAccessFile.close();
 		
 		boolean closedByPeer = !getCloseMarker().createNewFile();
 		if (closedByPeer) {
-			fileChannel.close();
-			randomAccessFile.close();
 			if (deleteFilesOnClose) {
-				file.delete();
-				file.deleteOnExit();
-				getCloseMarker().delete();
-				getCloseMarker().deleteOnExit();
+				FileUtil.delete(file);
+				FileUtil.delete(getCloseMarker());
 			}
 		}
 	}
