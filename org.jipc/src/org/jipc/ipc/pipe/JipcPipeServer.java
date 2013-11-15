@@ -6,10 +6,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.io.OutputStream;
+import java.nio.channels.InterruptedByTimeoutException;
 import java.util.Arrays;
 import java.util.List;
 
 import org.jipc.JipcBinman;
+import org.jipc.TimeoutAware;
 import org.jipc.JipcPipe;
 import org.jipc.JipcRole;
 import org.jipc.channel.JipcChannelInputStream;
@@ -19,16 +21,18 @@ import org.jipc.ipc.pipe.file.ChunkFilePipe;
 import org.jipc.ipc.pipe.file.FilePipe;
 import org.jipc.ipc.pipe.shm.SharedMemoryPipe;
 import org.jipc.util.FileUtil;
+import org.jipc.util.TimeUtil;
 
 /**
  * This is an analogy to a ServerSocket. The method {@link #accept()} wait for
  * an incoming connection request sent by a {@link JipcPipeClient}.
  */
-public class JipcPipeServer {
+public class JipcPipeServer implements TimeoutAware {
 
 	private File connectDirectory;
 	private File pipeDirectory;
 	private Class<? extends JipcPipe>[] supportedTypes;
+	private int timeout = 0;
 
 	/**
 	 * Creates a JipcPipeServer supporting all pipe types.
@@ -243,6 +247,7 @@ public class JipcPipeServer {
 	 */
 	protected synchronized File waitForDirectory() throws IOException {
 		File dir = null;
+		long waitingSince = System.currentTimeMillis();
 		while (dir == null) {
 			File[] files = connectDirectory.listFiles();
 			for (File file : files) {
@@ -250,19 +255,10 @@ public class JipcPipeServer {
 					dir = file;
 				}
 			}
-			sleep();
+			sleep(waitingSince);
 		}
 		markServed(dir);
 		return dir;
-	}
-
-	private void sleep() throws InterruptedIOException {
-		try {
-			Thread.sleep(200);
-		} catch (InterruptedException e) {
-			throw new InterruptedIOException();
-		}
-
 	}
 
 	private boolean isMarkedServed(final File dir) {
@@ -273,4 +269,26 @@ public class JipcPipeServer {
 		new File(dir, ".served").createNewFile();
 	}
 
+	/**
+	 * Sleeps for the default time and watches for timeouts.
+	 * @param waitingSince the timestamp when the operation started to block.
+	 * @throws InterruptedIOException
+	 * @throws InterruptedByTimeoutException
+	 */
+	protected void sleep(long waitingSince) throws InterruptedIOException, InterruptedByTimeoutException {
+		TimeUtil.sleep(getTimeout(), waitingSince);
+	}
+	
+	@Override
+	public int getTimeout() {
+		return timeout;
+	}
+
+	@Override
+	public void setTimeout(int timeout) {
+		if (timeout < 0) {
+			throw new IllegalArgumentException("parameter timeout must be > 0: " + timeout);
+		}
+		this.timeout = timeout;
+	}
 }

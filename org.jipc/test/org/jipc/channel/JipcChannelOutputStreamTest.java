@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
+import java.nio.channels.InterruptedByTimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.jipc.channel.JipcChannel.JipcChannelState;
@@ -211,6 +212,31 @@ public class JipcChannelOutputStreamTest {
 		// now the queue os no longer empty
 		thread.join(1000);
 		assertNull("caught exception " + caught.get(), caught.get());
+		assertFalse(thread.isAlive());
+	}
+
+	@SuppressWarnings("resource")
+	@Test
+	public void testWriteTimeout() throws Exception {
+		final JipcChannelOutputStream os = new JipcChannelOutputStream(channelMock);
+		os.setTimeout(300);
+		final byte[] buf = createByteArray(10, 1, 17, 12, 56);
+		doReturn(0).when(channelMock).write(any(ByteBuffer.class));
+		final AtomicReference<Exception> caught = new AtomicReference<Exception>();
+		Thread thread = new Thread() {
+			public void run() {
+				try {
+					os.write(buf, 1, 3);
+				} catch (Exception e) {
+					caught.set(e);
+				}
+			}
+		};
+		thread.start();
+		thread.join(1000);
+		assertNotNull("expected timeout exception", caught.get());
+		assertEquals(InterruptedByTimeoutException.class, caught.get()
+				.getClass());
 		assertFalse(thread.isAlive());
 	}
 

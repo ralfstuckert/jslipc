@@ -10,6 +10,7 @@ import java.io.InterruptedIOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
+import java.nio.channels.InterruptedByTimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.jipc.TestUtil;
@@ -22,7 +23,7 @@ public class WritableBbqChannelTest extends AbstractBbqChannelTest {
 			throws Exception {
 		return new WritableBbqChannel(queue);
 	}
-	
+
 	@SuppressWarnings("resource")
 	@Test(expected = IllegalArgumentException.class)
 	public void testWritableBbqChannelWithNull() {
@@ -39,8 +40,7 @@ public class WritableBbqChannelTest extends AbstractBbqChannelTest {
 	@Test
 	public void testWrite() throws Exception {
 		ByteBufferQueue queue = TestUtil.createByteBufferQueue(SIZE);
-		WritableBbqChannel channel = new WritableBbqChannel(
-				queue);
+		WritableBbqChannel channel = new WritableBbqChannel(queue);
 		queue.init();
 
 		// test writing 10 bytes
@@ -78,8 +78,7 @@ public class WritableBbqChannelTest extends AbstractBbqChannelTest {
 	@Test()
 	public void testWriteToNonInitializedQueueBlocks() throws Exception {
 		final ByteBufferQueue queue = TestUtil.createByteBufferQueue(SIZE);
-		final WritableBbqChannel channel = new WritableBbqChannel(
-				queue);
+		final WritableBbqChannel channel = new WritableBbqChannel(queue);
 
 		final ByteBuffer src = TestUtil.createByteBuffer(10, (byte) 33);
 		src.flip();
@@ -107,8 +106,7 @@ public class WritableBbqChannelTest extends AbstractBbqChannelTest {
 	@Test(expected = ClosedChannelException.class)
 	public void testWriteToClosedChannel() throws Exception {
 		ByteBufferQueue queue = TestUtil.createByteBufferQueue(SIZE);
-		WritableBbqChannel channel = new WritableBbqChannel(
-				queue);
+		WritableBbqChannel channel = new WritableBbqChannel(queue);
 		queue.init();
 
 		int capacity = queue.getCapacity();
@@ -125,13 +123,12 @@ public class WritableBbqChannelTest extends AbstractBbqChannelTest {
 	@Test
 	public void testWriteToOutputStream() throws Exception {
 		ByteBufferQueue queue = TestUtil.createByteBufferQueue(SIZE);
-		WritableBbqChannel channel = new WritableBbqChannel(
-				queue);
+		WritableBbqChannel channel = new WritableBbqChannel(queue);
 		queue.init();
-		
+
 		OutputStream os = channel.newOutputStream();
 		for (int i = 0; i < 10; i++) {
-			os.write((byte)i);
+			os.write((byte) i);
 		}
 		for (int i = 0; i < 10; i++) {
 			assertEquals(new Byte((byte) i), queue.poll());
@@ -142,15 +139,13 @@ public class WritableBbqChannelTest extends AbstractBbqChannelTest {
 	@Test
 	public void testWriteToOutputStreamMayBlock() throws Exception {
 		ByteBufferQueue queue = TestUtil.createByteBufferQueue(SIZE);
-		WritableBbqChannel channel = new WritableBbqChannel(
-				queue);
+		WritableBbqChannel channel = new WritableBbqChannel(queue);
 		queue.init();
-		
+
 		// fill queue
 		for (int i = 0; i < queue.getCapacity(); i++) {
 			assertTrue(queue.offer((byte) i));
 		}
-		
 
 		// now try blocking write
 		final OutputStream os = channel.newOutputStream();
@@ -158,7 +153,7 @@ public class WritableBbqChannelTest extends AbstractBbqChannelTest {
 		Thread thread = new Thread() {
 			public void run() {
 				try {
-					os.write((byte)17);
+					os.write((byte) 17);
 				} catch (Exception e) {
 					e.printStackTrace();
 					caught.set(e);
@@ -170,7 +165,7 @@ public class WritableBbqChannelTest extends AbstractBbqChannelTest {
 		assertNull("caught exception " + caught.get(), caught.get());
 		assertTrue(thread.isAlive());
 
-		queue.poll();		
+		queue.poll();
 		// now the queue is no longer full
 		thread.join(1000);
 		assertNull("caught exception " + caught.get(), caught.get());
@@ -179,17 +174,12 @@ public class WritableBbqChannelTest extends AbstractBbqChannelTest {
 
 	@SuppressWarnings("resource")
 	@Test
-	public void testInterruptWritingToOutputStream() throws Exception {
+	public void testWriteTimeout() throws Exception {
 		ByteBufferQueue queue = TestUtil.createByteBufferQueue(SIZE);
-		WritableBbqChannel channel = new WritableBbqChannel(
-				queue);
-		queue.init();
-		
-		// fill queue
-		for (int i = 0; i < queue.getCapacity(); i++) {
-			assertTrue(queue.offer((byte) i));
-		}
-		
+		WritableBbqChannel channel = new WritableBbqChannel(queue);
+		channel.setTimeout(300);
+		// do not init, wait for initialization
+		// queue.init();
 
 		// now try blocking write
 		final OutputStream os = channel.newOutputStream();
@@ -197,7 +187,39 @@ public class WritableBbqChannelTest extends AbstractBbqChannelTest {
 		Thread thread = new Thread() {
 			public void run() {
 				try {
-					os.write((byte)17);
+					os.write((byte) 17);
+				} catch (Exception e) {
+					caught.set(e);
+				}
+			}
+		};
+		thread.start();
+		thread.join(1000);
+		assertNotNull("expected timeout exception", caught.get());
+		assertEquals(InterruptedByTimeoutException.class, caught.get()
+				.getClass());
+		assertFalse(thread.isAlive());
+	}
+
+	@SuppressWarnings("resource")
+	@Test
+	public void testInterruptWritingToOutputStream() throws Exception {
+		ByteBufferQueue queue = TestUtil.createByteBufferQueue(SIZE);
+		WritableBbqChannel channel = new WritableBbqChannel(queue);
+		queue.init();
+
+		// fill queue
+		for (int i = 0; i < queue.getCapacity(); i++) {
+			assertTrue(queue.offer((byte) i));
+		}
+
+		// now try blocking write
+		final OutputStream os = channel.newOutputStream();
+		final AtomicReference<Exception> caught = new AtomicReference<Exception>();
+		Thread thread = new Thread() {
+			public void run() {
+				try {
+					os.write((byte) 17);
 				} catch (Exception e) {
 					caught.set(e);
 				}
@@ -214,6 +236,5 @@ public class WritableBbqChannelTest extends AbstractBbqChannelTest {
 		assertNotNull("expected InterruptedIOException ", caught.get());
 		assertEquals(InterruptedIOException.class, caught.get().getClass());
 	}
-
 
 }

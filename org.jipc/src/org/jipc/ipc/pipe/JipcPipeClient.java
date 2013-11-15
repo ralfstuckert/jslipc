@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.jipc.JipcBinman;
+import org.jipc.TimeoutAware;
 import org.jipc.JipcPipe;
 import org.jipc.JipcRole;
 import org.jipc.channel.JipcChannelInputStream;
@@ -23,9 +24,10 @@ import org.jipc.util.FileUtil;
  * {@link JipcPipeServer}. Method {@link #connect(Class...)} requests a new
  * connection and waits for the server response.
  */
-public class JipcPipeClient {
+public class JipcPipeClient implements TimeoutAware {
 
 	private File serverDirectory;
+	private int timeout = 0;
 
 	/**
 	 * Creates a client talking to the {@link JipcPipeServer} on the given
@@ -41,8 +43,8 @@ public class JipcPipeClient {
 					"parameter 'serverDirectory' must not be null");
 		}
 		if (!serverDirectory.exists()) {
-			throw new IOException(
-					serverDirectory.getAbsolutePath() + " does not exist");
+			throw new IOException(serverDirectory.getAbsolutePath()
+					+ " does not exist");
 		}
 		if (!serverDirectory.isDirectory()) {
 			throw new IllegalArgumentException(
@@ -80,11 +82,17 @@ public class JipcPipeClient {
 		FilePipe connectPipe = new FilePipe(directory, JipcRole.Yang);
 		connectPipe.cleanUpOnClose();
 
-		sendRequest(new JipcChannelOutputStream(connectPipe.sink()), request);
-		JipcPipe pipe = readResponse(new JipcChannelInputStream(
-				connectPipe.source()));
+		JipcChannelOutputStream out = new JipcChannelOutputStream(
+				connectPipe.sink());
+		out.setTimeout(getTimeout());
+		sendRequest(out, request);
+
+		JipcChannelInputStream in = new JipcChannelInputStream(
+				connectPipe.source());
+		in.setTimeout(getTimeout());
+		JipcPipe pipe = readResponse(in);
 		if (pipe instanceof JipcBinman) {
-			((JipcBinman)pipe).cleanUpOnClose();
+			((JipcBinman) pipe).cleanUpOnClose();
 		}
 
 		connectPipe.close();
@@ -174,6 +182,19 @@ public class JipcPipeClient {
 			throw new IOException("unkown role '"
 					+ response.getParameter(JipcResponse.PARAM_ROLE) + "'");
 		}
+	}
+
+	@Override
+	public int getTimeout() {
+		return timeout;
+	}
+
+	@Override
+	public void setTimeout(int timeout) {
+		if (timeout < 0) {
+			throw new IllegalArgumentException("parameter timeout must be > 0: " + timeout);
+		}
+		this.timeout = timeout;
 	}
 
 }

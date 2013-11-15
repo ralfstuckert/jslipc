@@ -13,6 +13,7 @@ import java.io.InterruptedIOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.ClosedChannelException;
+import java.nio.channels.InterruptedByTimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.jipc.TestUtil;
@@ -42,8 +43,7 @@ public class ReadableBbqChannelTest extends AbstractBbqChannelTest {
 	@Test
 	public void testRead() throws Exception {
 		final ByteBufferQueue queue = TestUtil.createByteBufferQueue(SIZE);
-		ReadableBbqChannel channel = new ReadableBbqChannel(
-				queue);
+		ReadableBbqChannel channel = new ReadableBbqChannel(queue);
 		queue.init();
 
 		for (int i = 0; i < 10; i++) {
@@ -72,8 +72,7 @@ public class ReadableBbqChannelTest extends AbstractBbqChannelTest {
 	@Test()
 	public void testReadOnNonInitializedQueueBlocks() throws Exception {
 		final ByteBufferQueue queue = TestUtil.createByteBufferQueue(SIZE);
-		final ReadableBbqChannel channel = new ReadableBbqChannel(
-				queue);
+		final ReadableBbqChannel channel = new ReadableBbqChannel(queue);
 		final ByteBuffer dest = TestUtil.createByteBuffer(SIZE, (byte) 0);
 		final AtomicReference<Exception> caught = new AtomicReference<Exception>();
 		Thread thread = new Thread() {
@@ -99,8 +98,7 @@ public class ReadableBbqChannelTest extends AbstractBbqChannelTest {
 	@Test(expected = ClosedChannelException.class)
 	public void testReadFromClosedChannel() throws Exception {
 		final ByteBufferQueue queue = TestUtil.createByteBufferQueue(SIZE);
-		ReadableBbqChannel channel = new ReadableBbqChannel(
-				queue);
+		ReadableBbqChannel channel = new ReadableBbqChannel(queue);
 		queue.init();
 
 		for (int i = 0; i < 10; i++) {
@@ -115,15 +113,14 @@ public class ReadableBbqChannelTest extends AbstractBbqChannelTest {
 	@Test
 	public void testEndOfStream() throws Exception {
 		final ByteBufferQueue queue = TestUtil.createByteBufferQueue(SIZE);
-		ReadableBbqChannel channel = new ReadableBbqChannel(
-				queue);
+		ReadableBbqChannel channel = new ReadableBbqChannel(queue);
 		queue.init();
 		for (int i = 0; i < 10; i++) {
 			assertTrue(queue.offer((byte) i));
 		}
 		ByteBuffer dest = TestUtil.createByteBuffer(SIZE, (byte) 0);
 		queue.close();
-		
+
 		assertEquals(10, channel.read(dest));
 		for (int i = 0; i < 10; i++) {
 			assertEquals(i, dest.get(i));
@@ -135,8 +132,7 @@ public class ReadableBbqChannelTest extends AbstractBbqChannelTest {
 	@Test
 	public void testInputStream() throws Exception {
 		final ByteBufferQueue queue = TestUtil.createByteBufferQueue(SIZE);
-		ReadableBbqChannel channel = new ReadableBbqChannel(
-				queue);
+		ReadableBbqChannel channel = new ReadableBbqChannel(queue);
 		queue.init();
 
 		InputStream is = Channels.newInputStream(channel);
@@ -152,12 +148,11 @@ public class ReadableBbqChannelTest extends AbstractBbqChannelTest {
 		assertEquals(-1, is.read());
 
 	}
-	
+
 	@Test
 	public void testInputStreamWithQueueClosed() throws Exception {
 		final ByteBufferQueue queue = TestUtil.createByteBufferQueue(SIZE);
-		ReadableBbqChannel channel = new ReadableBbqChannel(
-				queue);
+		ReadableBbqChannel channel = new ReadableBbqChannel(queue);
 		queue.init();
 
 		InputStream is = Channels.newInputStream(channel);
@@ -173,27 +168,26 @@ public class ReadableBbqChannelTest extends AbstractBbqChannelTest {
 		assertEquals(-1, is.read());
 
 	}
-	
+
 	@SuppressWarnings("resource")
 	@Test
 	public void testReadFromInputStream() throws Exception {
 		ByteBufferQueue queue = TestUtil.createByteBufferQueue(SIZE);
-		ReadableBbqChannel channel = new ReadableBbqChannel(
-				queue);
+		ReadableBbqChannel channel = new ReadableBbqChannel(queue);
 		queue.init();
-		
+
 		for (int i = 0; i < 10; i++) {
 			assertTrue(queue.offer((byte) i));
 		}
-		
+
 		InputStream is = channel.newInputStream();
 		for (int i = 0; i < 9; i++) {
 			assertEquals(i, is.read());
 		}
-		
+
 		queue.close();
 		assertEquals(9, is.read());
-		
+
 		assertEquals(-1, is.read());
 		assertEquals(-1, is.read());
 	}
@@ -202,22 +196,21 @@ public class ReadableBbqChannelTest extends AbstractBbqChannelTest {
 	@Test
 	public void testReadFromInputStreamWithQueueClosed() throws Exception {
 		ByteBufferQueue queue = TestUtil.createByteBufferQueue(SIZE);
-		ReadableBbqChannel channel = new ReadableBbqChannel(
-				queue);
+		ReadableBbqChannel channel = new ReadableBbqChannel(queue);
 		queue.init();
-		
+
 		for (int i = 0; i < 10; i++) {
 			assertTrue(queue.offer((byte) i));
 		}
-		
+
 		InputStream is = channel.newInputStream();
 		for (int i = 0; i < 9; i++) {
 			assertEquals(i, is.read());
 		}
-		
+
 		queue.close();
 		assertEquals(9, is.read());
-		
+
 		assertEquals(-1, is.read());
 		assertEquals(-1, is.read());
 	}
@@ -226,10 +219,9 @@ public class ReadableBbqChannelTest extends AbstractBbqChannelTest {
 	@Test
 	public void testReadFromInputStreamMayBlock() throws Exception {
 		ByteBufferQueue queue = TestUtil.createByteBufferQueue(SIZE);
-		ReadableBbqChannel channel = new ReadableBbqChannel(
-				queue);
+		ReadableBbqChannel channel = new ReadableBbqChannel(queue);
 		queue.init();
-		
+
 		// now try blocking write
 		final InputStream is = channel.newInputStream();
 		final AtomicReference<Exception> caught = new AtomicReference<Exception>();
@@ -256,12 +248,40 @@ public class ReadableBbqChannelTest extends AbstractBbqChannelTest {
 
 	@SuppressWarnings("resource")
 	@Test
+	public void testReadTimeout() throws Exception {
+		ByteBufferQueue queue = TestUtil.createByteBufferQueue(SIZE);
+		ReadableBbqChannel channel = new ReadableBbqChannel(queue);
+		channel.setTimeout(300);
+		// do not init, wait for initialization
+		// queue.init();
+
+		// now try blocking write
+		final InputStream is = channel.newInputStream();
+		final AtomicReference<Exception> caught = new AtomicReference<Exception>();
+		Thread thread = new Thread() {
+			public void run() {
+				try {
+					is.read();
+				} catch (Exception e) {
+					caught.set(e);
+				}
+			}
+		};
+		thread.start();
+		thread.join(1000);
+		assertNotNull("expected timeout exception", caught.get());
+		assertEquals(InterruptedByTimeoutException.class, caught.get()
+				.getClass());
+		assertFalse(thread.isAlive());
+	}
+
+	@SuppressWarnings("resource")
+	@Test
 	public void testInterruptReadingFromBlockedInputStream() throws Exception {
 		ByteBufferQueue queue = TestUtil.createByteBufferQueue(SIZE);
-		ReadableBbqChannel channel = new ReadableBbqChannel(
-				queue);
+		ReadableBbqChannel channel = new ReadableBbqChannel(queue);
 		queue.init();
-		
+
 		// now try blocking write
 		final InputStream is = channel.newInputStream();
 		final AtomicReference<Exception> caught = new AtomicReference<Exception>();
@@ -285,25 +305,24 @@ public class ReadableBbqChannelTest extends AbstractBbqChannelTest {
 		assertNotNull("expected InterruptedIOException ", caught.get());
 		assertEquals(InterruptedIOException.class, caught.get().getClass());
 	}
-	
 
 	@SuppressWarnings("resource")
 	@Test(timeout = 5000)
 	public void testReadFromReader() throws Exception {
 		ByteBufferQueue queue = TestUtil.createByteBufferQueue(SIZE);
-		ReadableBbqChannel channel = new ReadableBbqChannel(
-				queue);
+		ReadableBbqChannel channel = new ReadableBbqChannel(queue);
 		queue.init();
-		
+
 		String text = "hello\nhow are you?\nI'm fine\n";
 		for (char character : text.toCharArray()) {
 			assertTrue(queue.offer((byte) character));
 		}
-		
-		BufferedReader reader = new BufferedReader(new InputStreamReader(channel.newInputStream()));
+
+		BufferedReader reader = new BufferedReader(new InputStreamReader(
+				channel.newInputStream()));
 		assertEquals("hello", reader.readLine());
 		assertEquals("how are you?", reader.readLine());
-		
+
 		queue.close();
 		// check reading to end of stream
 		assertEquals("I'm fine", reader.readLine());
@@ -315,16 +334,16 @@ public class ReadableBbqChannelTest extends AbstractBbqChannelTest {
 	@Test(timeout = 5000)
 	public void testReadFromReaderMayBlock() throws Exception {
 		ByteBufferQueue queue = TestUtil.createByteBufferQueue(SIZE);
-		ReadableBbqChannel channel = new ReadableBbqChannel(
-				queue);
+		ReadableBbqChannel channel = new ReadableBbqChannel(queue);
 		queue.init();
-		
+
 		String text = "hello\n";
 		for (char character : text.toCharArray()) {
 			assertTrue(queue.offer((byte) character));
 		}
-		
-		final BufferedReader reader = new BufferedReader(new InputStreamReader(channel.newInputStream()));
+
+		final BufferedReader reader = new BufferedReader(new InputStreamReader(
+				channel.newInputStream()));
 		assertEquals("hello", reader.readLine());
 
 		final AtomicReference<Exception> caught = new AtomicReference<Exception>();
@@ -332,7 +351,7 @@ public class ReadableBbqChannelTest extends AbstractBbqChannelTest {
 		Thread thread = new Thread() {
 			public void run() {
 				try {
-					lineRead.set( reader.readLine());
+					lineRead.set(reader.readLine());
 				} catch (Exception e) {
 					e.printStackTrace();
 					caught.set(e);
@@ -349,13 +368,12 @@ public class ReadableBbqChannelTest extends AbstractBbqChannelTest {
 		for (char character : text.toCharArray()) {
 			assertTrue(queue.offer((byte) character));
 		}
-		
+
 		// now the queue is no longer empty
 		thread.join(1000);
 		assertNull("caught exception " + caught.get(), caught.get());
 		assertEquals("how are you?", lineRead.get());
 		assertFalse(thread.isAlive());
 	}
-
 
 }

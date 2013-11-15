@@ -4,18 +4,20 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.InterruptedByTimeoutException;
 
+import org.jipc.TimeoutAware;
 import org.jipc.channel.JipcChannel.JipcChannelState;
+import org.jipc.util.TimeUtil;
 
 /**
  * This class wraps a {@link ReadableJipcByteChannel} in order to provide a blocking InputStream.
  */
-public class JipcChannelInputStream extends InputStream {
-
-	private static final int SLEEP_TIME = 100;
+public class JipcChannelInputStream extends InputStream implements TimeoutAware {
 
 	private ReadableJipcByteChannel channel;
 	private ByteBuffer oneByteBuffer = ByteBuffer.wrap(new byte[1]);
+	private int timeout = 0;
 
 	/**
 	 * Creates a JipcChannelInputStream based on the underlying channel.
@@ -54,22 +56,39 @@ public class JipcChannelInputStream extends InputStream {
 
 	protected int readBlocking(ByteBuffer buffer) throws IOException,
 			InterruptedIOException {
+		long waitingSince = System.currentTimeMillis();
 		int bytesRead = 0;
 		while ((bytesRead = channel.read(buffer)) == 0) {
 			if (channel.getState() == JipcChannelState.ClosedByPeer) {
 				return -1;
 			}
-			sleep();
+			sleep(waitingSince);
 		}
 		return bytesRead;
 	}
 
-	protected void sleep() throws InterruptedIOException {
-		try {
-			Thread.sleep(SLEEP_TIME);
-		} catch (InterruptedException e) {
-			throw new InterruptedIOException(e.getMessage());
-		}
+	@Override
+	public int getTimeout() {
+		return timeout;
 	}
+
+	@Override
+	public void setTimeout(int timeout) {
+		if (timeout < 0) {
+			throw new IllegalArgumentException("parameter timeout must be > 0: " + timeout);
+		}
+		this.timeout = timeout;
+	}
+
+	/**
+	 * Sleeps for the default time and watches for timeouts.
+	 * @param waitingSince the timestamp when the operation started to block.
+	 * @throws InterruptedIOException
+	 * @throws InterruptedByTimeoutException
+	 */
+	protected void sleep(long waitingSince) throws InterruptedIOException, InterruptedByTimeoutException {
+		TimeUtil.sleep(getTimeout(), waitingSince);
+	}
+	
 
 }

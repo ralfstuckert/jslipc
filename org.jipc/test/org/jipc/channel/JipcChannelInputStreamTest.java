@@ -14,6 +14,7 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.InterruptedByTimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.jipc.channel.JipcChannel.JipcChannelState;
@@ -190,6 +191,33 @@ public class JipcChannelInputStreamTest {
 		assertFalse(thread.isAlive());
 		assertEquals((byte) 17, buf[1]);
 		assertEquals((byte) 12, buf[2]);
+	}
+
+	@SuppressWarnings("resource")
+	@Test
+	public void testReadTimeout() throws Exception {
+		final JipcChannelInputStream is = new JipcChannelInputStream(
+				channelMock);
+		is.setTimeout(300);
+		final byte[] buf = new byte[10];
+
+		final AtomicReference<Exception> caught = new AtomicReference<Exception>();
+		final AtomicReference<Integer> byteRead = new AtomicReference<Integer>();
+		Thread thread = new Thread() {
+			public void run() {
+				try {
+					byteRead.set(is.read(buf, 1, 5));
+				} catch (Exception e) {
+					caught.set(e);
+				}
+			}
+		};
+		thread.start();
+		thread.join(1000);
+		assertNotNull("expected timeout exception", caught.get());
+		assertEquals(InterruptedByTimeoutException.class, caught.get()
+				.getClass());
+		assertFalse(thread.isAlive());
 	}
 
 	@SuppressWarnings("resource")

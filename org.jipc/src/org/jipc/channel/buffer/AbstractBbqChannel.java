@@ -3,17 +3,22 @@ package org.jipc.channel.buffer;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.nio.channels.ClosedChannelException;
+import java.nio.channels.InterruptedByTimeoutException;
 import java.nio.channels.InterruptibleChannel;
 
+import org.jipc.TimeoutAware;
 import org.jipc.channel.JipcChannel;
+import org.jipc.util.TimeUtil;
 
 /**
  * Common base class for {@link ByteBufferQueue} based channels.
  */
-public abstract class AbstractBbqChannel implements JipcChannel, InterruptibleChannel {
-	private static final int SLEEP_TIME = 100;
+public abstract class AbstractBbqChannel implements JipcChannel, InterruptibleChannel, TimeoutAware {
+
 	protected volatile ByteBufferQueue queue;
 	protected volatile boolean closed;
+	private int timeout = 0;
+
 
 	public AbstractBbqChannel(final ByteBufferQueue queue) {
 		if (queue == null) {
@@ -53,30 +58,49 @@ public abstract class AbstractBbqChannel implements JipcChannel, InterruptibleCh
 			throw new ClosedChannelException();
 		}
 	}
+	
 
-	protected void waitForInitialization() throws InterruptedIOException {
+	@Override
+	public int getTimeout() {
+		return timeout;
+	}
+
+	@Override
+	public void setTimeout(int timeout) {
+		if (timeout < 0) {
+			throw new IllegalArgumentException("parameter timeout must be > 0: " + timeout);
+		}
+		this.timeout = timeout;
+	}
+
+	/**
+	 * Sleeps for the default time and watches for timeouts.
+	 * @param waitingSince the timestamp when the operation started to block.
+	 * @throws InterruptedIOException
+	 * @throws InterruptedByTimeoutException
+	 */
+	protected void sleep(long waitingSince) throws InterruptedIOException, InterruptedByTimeoutException {
+		TimeUtil.sleep(getTimeout(), waitingSince);
+	}
+	
+	protected void waitForInitialization() throws InterruptedIOException, InterruptedByTimeoutException {
+		long waitingSince = System.currentTimeMillis();
 		while (!queue.isInitialized()) {
-			sleep();
+			sleep(waitingSince);
 		}
 	}
 
-	protected void sleep() throws InterruptedIOException {
-		try {
-			Thread.sleep(SLEEP_TIME);
-		} catch (InterruptedException e) {
-			throw new InterruptedIOException(e.getMessage());
-		}
-	}
-
-	protected void waitForNonEmpty() throws InterruptedIOException {
+	protected void waitForNonEmpty() throws InterruptedIOException, InterruptedByTimeoutException {
+		long waitingSince = System.currentTimeMillis();
 		while (queue.isEmpty()) {
-			sleep();
+			sleep(waitingSince);
 		}
 	}
 
-	protected void waitForNonFull() throws InterruptedIOException {
+	protected void waitForNonFull() throws InterruptedIOException, InterruptedByTimeoutException {
+		long waitingSince = System.currentTimeMillis();
 		while (queue.isFull()) {
-			sleep();
+			sleep(waitingSince);
 		}
 	}
 
