@@ -54,6 +54,13 @@ public class JipcPipeClient implements TimeoutAware {
 	}
 
 	/**
+	 * @return the server directory.
+	 */
+	public File getServerDirectory() {
+		return serverDirectory;
+	}
+	
+	/**
 	 * Requests and waits for a pipe created by the corresponding
 	 * {@link JipcPipeServer}
 	 * 

@@ -72,6 +72,12 @@ public class JipcPipeClientTest {
 		new JipcPipeClient(file);
 	}
 
+	@Test
+	public void testGetServerDirectory() throws Exception {
+		JipcPipeClient client = new JipcPipeClient(directory);
+		assertEquals(directory, client.getServerDirectory());
+	}
+
 	@Test(timeout = 600000)
 	public void testConnect() throws Exception {
 
