@@ -4,6 +4,7 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,7 +12,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.jipc.JipcPipe;
@@ -23,10 +23,6 @@ import org.jipc.channel.WritableJipcByteChannel;
 import org.jipc.ipc.pipe.JipcConnection;
 import org.jipc.ipc.pipe.JipcPipeServer;
 import org.jipc.ipc.pipe.JipcPipeURLConnection;
-import org.jipc.ipc.pipe.JipcRequest;
-import org.jipc.ipc.pipe.JipcRequest.JipcCommand;
-import org.jipc.ipc.pipe.file.ChunkFilePipe;
-import org.jipc.ipc.pipe.file.FilePipe;
 import org.jipc.util.FileUtil;
 import org.junit.After;
 import org.junit.Before;
@@ -91,9 +87,16 @@ public class HandlerTest {
 		assertNotNull(urlConnection);
 		assertEquals(JipcPipeURLConnection.class, urlConnection.getClass());
 
+		// not yet connected, server still waiting
+		thread.join(200);
+		assertTrue(thread.isAlive());
+
+		// now connect
+		urlConnection.connect();
 		thread.join();
 		assertFalse(thread.isAlive());
 
+		// server responded, check pipe
 		JipcPipe serverSidePipe = connectRef.get().getPipe();
 		checkConnection(urlConnection.getOutputStream(),
 				serverSidePipe.source());
@@ -105,34 +108,6 @@ public class HandlerTest {
 		serverSidePipe.sink().close();
 	}
 
-	@Test
-	public void testCreateRequest() throws Exception {
-		Handler handler = new Handler();
-		URL url = new URL("jipc:///c:/server/connect");
-		JipcRequest request = handler.createRequest(url);
-		assertNotNull(request);
-		assertEquals(JipcCommand.CONNECT, request.getCommand());
-		assertEquals(0, request.getParameters().size());
-	}
-
-	@SuppressWarnings("unchecked")
-	@Test
-	public void testCreateRequestWithParameter() throws Exception {
-		Handler handler = new Handler();
-		URL url = new URL(
-				"jipc:///c:/server/connect?accept-types=ChunkFilePipe,FilePipe&special-guest=spongebob&happy=&x");
-		JipcRequest request = handler.createRequest(url);
-		assertNotNull(request);
-		assertEquals(JipcCommand.CONNECT, request.getCommand());
-		assertEquals(2, request.getParameters().size());
-
-		assertEquals(Arrays.asList(ChunkFilePipe.class, FilePipe.class),
-				request.getAcceptTypes());
-		assertEquals("spongebob", request.getParameter("special-guest"));
-		assertEquals(null, request.getParameter("happy"));
-		assertEquals(null, request.getParameter("x"));
-		assertEquals(null, request.getParameter("y"));
-	}
 
 	private void checkConnection(final OutputStream out,
 			final ReadableJipcByteChannel source) throws IOException {
