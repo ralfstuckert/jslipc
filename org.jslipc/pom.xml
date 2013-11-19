@@ -11,7 +11,8 @@
                <!ENTITY ouml "&#246;">
                <!ENTITY raquo "&#187;">
                <!ENTITY szlig "&#223;">]>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<parent>
 		<groupId>org.sonatype.oss</groupId>
 		<artifactId>oss-parent</artifactId>
@@ -20,7 +21,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.jslipc</groupId>
 	<artifactId>jslipc</artifactId>
-	<version>0.1.0-SNAPSHOT</version>
+	<version>0.1.0-SNAPSHOT </version>
 	<description>Java Socket-Less Inter-Process Communication API</description>
 	<url>http://www.jslipc.org/</url>
 	<licenses>
@@ -75,6 +76,12 @@
 		<testSourceDirectory>test</testSourceDirectory>
 		<plugins>
 			<plugin>
+				<artifactId>maven-release-plugin</artifactId>
+				<configuration>
+					<arguments>-Psonatype-oss-release -Dgpg.passphrase=${gpg.passphrase}</arguments>
+				</configuration>
+			</plugin>
+			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.1</version>
 				<configuration>
@@ -106,9 +113,9 @@
 						&lt;table border="0"&gt;&lt;tr&gt;&lt;td&gt;&lt;img
 						src="resources/jslipcLogo.png" height="90" /&gt;&lt;/td&gt;&lt;td
 						align="center"&gt;   Java
-						Inter-Process Communication API&lt;br/&gt;Version
-						${project.version}&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
-					</doctitle>
+						Inter-Process Communication
+						API&lt;br/&gt;Version
+						${project.version}&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt; </doctitle>
 					<header>&lt;img src="{@docRoot}/resources/jslipcLogoSmall.png"
 						height="35"/&gt;</header>
 					<javadocDirectory>${basedir}/javadoc</javadocDirectory>
@@ -176,7 +183,8 @@
 								<copy todir="${distribution.dir}">
 									<fileset dir="${project.build.directory}">
 										<include name="${project.artifactId}-${project.version}.jar" />
-										<include name="${project.artifactId}-${project.version}-sources.jar" />
+										<include
+											name="${project.artifactId}-${project.version}-sources.jar" />
 										<include name="apidocs/**/*" />
 									</fileset>
 								</copy>
@@ -193,8 +201,12 @@
 									</fileset>
 								</copy>
 
-								<zip destfile="${project.build.directory}/${project.artifactId}-${project.version}.zip" basedir="${distribution.dir}" includes="**/*" />
-								<attachartifact file="${project.build.directory}/${project.artifactId}-${project.version}.zip" type="zip" />
+								<zip
+									destfile="${project.build.directory}/${project.artifactId}-${project.version}.zip"
+									basedir="${distribution.dir}" includes="**/*" />
+								<attachartifact
+									file="${project.build.directory}/${project.artifactId}-${project.version}.zip"
+									type="zip" />
 							</target>
 						</configuration>
 					</execution>
