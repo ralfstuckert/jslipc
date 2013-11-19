@@ -6,7 +6,7 @@ import org.jslipc.JslipcPipe;
 import org.jslipc.ipc.pipe.JslipcConnection;
 import org.jslipc.ipc.pipe.JslipcPipeServer;
 
-public class PipeServer {
+public class BertWithPipeServer {
 	
 	public static void main(String[] args) throws Exception {
 		// set up pipe
@@ -22,8 +22,8 @@ public class PipeServer {
 		JslipcConnection connection = server.accept();
 		JslipcPipe pipe = connection.getPipe();
 		
-		PipeProducer pipeProducer = new PipeProducer();
-		pipeProducer.talkToConsumer(pipe);
+		Bert bert = new Bert();
+		bert.talkToErnie(pipe);
 	}
 
 }

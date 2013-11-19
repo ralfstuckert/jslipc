@@ -5,7 +5,7 @@ import java.io.File;
 import org.jslipc.JslipcPipe;
 import org.jslipc.ipc.pipe.JslipcPipeClient;
 
-public class PipeClient {
+public class ErnieWithPipeClient {
 	
 	public static void main(String[] args) throws Exception {
 		// set up pipe
@@ -16,8 +16,8 @@ public class PipeClient {
 		@SuppressWarnings("unchecked")
 		JslipcPipe pipe = client.connect();
 
-		PipeConsumer pipeConsumer = new PipeConsumer();
-		pipeConsumer.talkToProducer(pipe);
+		Ernie ernie = new Ernie();
+		ernie.talkToBert(pipe);
 	}
 
 }

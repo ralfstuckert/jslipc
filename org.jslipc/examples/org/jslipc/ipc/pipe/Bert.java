@@ -13,9 +13,9 @@ import org.jslipc.JslipcPipe;
 import org.jslipc.channel.JslipcChannelInputStream;
 import org.jslipc.channel.JslipcChannelOutputStream;
 
-public class PipeConsumer {
+public class Bert {
 
-	public void talkToProducer(JslipcPipe pipe) throws IOException {
+	public void talkToErnie(final JslipcPipe pipe) throws IOException {
 		if (pipe instanceof JslipcBinman) {
 			((JslipcBinman)pipe).cleanUpOnClose();
 		}
@@ -23,27 +23,30 @@ public class PipeConsumer {
 		OutputStream out = new JslipcChannelOutputStream(pipe.sink());
 		InputStream in = new JslipcChannelInputStream(pipe.source());
 
-		talkToProducer(out, in);
+		talkToErnie(out, in);
 
 		if (pipe instanceof JslipcBinman) {
 			((JslipcBinman)pipe).close();
 		}
 	}
 
-	public void talkToProducer(OutputStream out, InputStream in)
+	public void talkToErnie(OutputStream out, InputStream in)
 			throws IOException {
 		BufferedReader reader = new BufferedReader(new InputStreamReader(in));
 		BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out));
-		
-		// receive message from producer
+
+		System.out.println("This is Bert sendinng a message to Ernie.");
+		// send message to ernie
+		System.out.println("I'm sending: 'Hi Ernie, how are you?'");
+		writer.write("Hi Ernie, how are you?\n");
+		writer.flush();
+		// receive message from ernie
 		String received = reader.readLine();
-		System.out.println("producer asked: '" + received + "'" );
-		// send message to producer
-		System.out.println("answering: 'I'm fine'" );
-		writer.write("I'm fine\n");
+		System.out.println("Ernie replied: '" + received + "'\n");
 
 		// close all resources
 		reader.close();
 		writer.close();
 	}
+
 }
