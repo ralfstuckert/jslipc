@@ -1,5 +1,17 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE xml [<!ENTITY quot "&#34;">
+               <!ENTITY euro "&#x20ac;">
+               <!ENTITY reg "&#174;">
+               <!ENTITY nbsp "&#160;">
+               <!ENTITY Auml "&#196;">
+               <!ENTITY Uuml "&#220;">
+               <!ENTITY Ouml "&#214;">
+               <!ENTITY auml "&#228;">
+               <!ENTITY uuml "&#252;">
+               <!ENTITY ouml "&#246;">
+               <!ENTITY raquo "&#187;">
+               <!ENTITY szlig "&#223;">]>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<parent>
 		<groupId>org.sonatype.oss</groupId>
 		<artifactId>oss-parent</artifactId>
@@ -93,7 +105,7 @@
 					<doctitle>
 						&lt;table border="0"&gt;&lt;tr&gt;&lt;td&gt;&lt;img
 						src="resources/jslipcLogo.png" height="90" /&gt;&lt;/td&gt;&lt;td
-						align="center"&gt;&nbsp;&nbsp;&nbsp;Java
+						align="center"&gt;   Java
 						Inter-Process Communication API&lt;br/&gt;Version
 						${project.version}&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 					</doctitle>
@@ -164,8 +176,7 @@
 								<copy todir="${distribution.dir}">
 									<fileset dir="${project.build.directory}">
 										<include name="${project.artifactId}-${project.version}.jar" />
-										<include
-											name="${project.artifactId}-${project.version}-sources.jar" />
+										<include name="${project.artifactId}-${project.version}-sources.jar" />
 										<include name="apidocs/**/*" />
 									</fileset>
 								</copy>
@@ -182,12 +193,8 @@
 									</fileset>
 								</copy>
 
-								<zip
-									destfile="${project.build.directory}/${project.artifactId}-${project.version}.zip"
-									basedir="${distribution.dir}" includes="**/*" />
-								<attachartifact
-									file="${project.build.directory}/${project.artifactId}-${project.version}.zip"
-									type="zip" />
+								<zip destfile="${project.build.directory}/${project.artifactId}-${project.version}.zip" basedir="${distribution.dir}" includes="**/*" />
+								<attachartifact file="${project.build.directory}/${project.artifactId}-${project.version}.zip" type="zip" />
 							</target>
 						</configuration>
 					</execution>
@@ -239,7 +246,7 @@
 										</goals>
 									</pluginExecutionFilter>
 									<action>
-										<execute></execute>
+										<execute />
 									</action>
 								</pluginExecution>
 							</pluginExecutions>
