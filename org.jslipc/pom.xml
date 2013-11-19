@@ -89,7 +89,7 @@
 							<goal>perform</goal>
 						</goals>
 						<configuration>
-							<pomFileName>org.jslipc/pom.xml</pomFileName>
+							<pomFileName>./org.jslipc/pom.xml</pomFileName>
 						</configuration>
 					</execution>
 				</executions>
