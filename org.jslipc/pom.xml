@@ -1,9 +1,35 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<parent>
+		<groupId>org.sonatype.oss</groupId>
+		<artifactId>oss-parent</artifactId>
+		<version>7</version>
+	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.jslipc</groupId>
 	<artifactId>jslipc</artifactId>
-	<version>0.0.8-SNAPSHOT</version>
+	<version>0.1.0</version>
+	<description>Java Socket-Less Inter-Process Communication API</description>
+	<url>http://www.jslipc.org/</url>
+	<licenses>
+		<license>
+			<name>The MIT License</name>
+			<url>http://code.google.com/p/jslipc/wiki/License</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+	<scm>
+		<connection>scm:git:https://code.google.com/p/jslipc/</connection>
+		<developerConnection>scm:git:https://code.google.com/p/jslipc/</developerConnection>
+		<url>http://code.google.com/p/jslipc/source/browse</url>
+	</scm>
+	<developers>
+		<developer>
+			<id>stuckert</id>
+			<name>Ralf Stuckert</name>
+			<email>ralf.stuckert@googlemail.com</email>
+		</developer>
+	</developers>
 	<!-- packaging>bundle</packaging -->
 	<properties>
 		<distribution.dir>${project.build.directory}/dist</distribution.dir>
@@ -168,6 +194,20 @@
 				</executions>
 			</plugin>
 
+			<!-- sign artifacts -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-gpg-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>sign-artifacts</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>sign</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 
 		<!-- needed to workaround m2e problem with the bundle plugin: -->
@@ -209,14 +249,4 @@
 			</plugins>
 		</pluginManagement>
 	</build>
-	<licenses>
-		<license>
-			<name>The MIT License</name>
-			<url>http://code.google.com/p/jslipc/wiki/License</url>
-			<distribution>repo</distribution>
-		</license>
-	</licenses>
-	<scm>
-		<url>http://code.google.com/p/jslipc/source/browse</url>
-	</scm>
 </project>
