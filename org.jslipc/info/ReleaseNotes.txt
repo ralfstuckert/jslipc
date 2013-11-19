@@ -1,13 +1,21 @@
-= Jslipc - Java Inter-Process Communication API =
+= Jslipc - Java Socket-Less Inter-Process Communication API =
 
-= Version 0.0.8 =
+= Version 0.1.0 =
 
 *News*
+ * Jslipc URLConnection, see Issue 11
+ * support for timeouts, see Issue 12
 
 *Fixes*
-
+ * Issue 11: Provide a JipcPipe based URLConnection and protocol handler
+ * Issue 12: support for (read- and connect-) timeouts
+ 
+*To Adapt*
+ * project and package structure has been renamed to jslipc
  
  ----
+ 
+= Old releases aka Jipc =
 
 == Version 0.0.7 ==
 
