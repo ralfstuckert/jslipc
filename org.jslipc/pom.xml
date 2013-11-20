@@ -79,21 +79,10 @@
 				<artifactId>maven-release-plugin</artifactId>
 				<version>2.4.2</version>
 				<configuration>
-					<!-- arguments>-Psonatype-oss-release
-						-Dgpg.passphrase=${gpg.passphrase}</arguments -->
+					<arguments>-Psonatype-oss-release
+						-Dgpg.passphrase=${gpg.passphrase}</arguments>
 					<pushChanges>false</pushChanges>
 				</configuration>
-				<!-- executions>
-					<execution>
-						<id>default</id>
-						<goals>
-							<goal>perform</goal>
-						</goals>
-						<configuration>
-							<pomFileName>./org.jslipc/pom.xml</pomFileName>
-						</configuration>
-					</execution>
-				</executions -->
 			</plugin>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
