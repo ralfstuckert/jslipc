@@ -11,7 +11,8 @@
                <!ENTITY ouml "&#246;">
                <!ENTITY raquo "&#187;">
                <!ENTITY szlig "&#223;">]>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<parent>
 		<groupId>org.sonatype.oss</groupId>
 		<artifactId>oss-parent</artifactId>
@@ -20,7 +21,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.jslipc</groupId>
 	<artifactId>jslipc</artifactId>
-	<version>0.1.1-SNAPSHOT</version>
+	<version>0.1.0-SNAPSHOT</version>
 	<description>Java Socket-Less Inter-Process Communication API</description>
 	<url>http://www.jslipc.org/</url>
 	<licenses>
@@ -79,7 +80,7 @@
 				<version>2.2.1</version>
 				<configuration>
 					<!-- arguments>-Psonatype-oss-release
-						-Dgpg.passphrase=${gpg.passphrase}</arguments -->
+						-Dgpg.passphrase=${gpg.passphrase}</arguments  -->
 					<pushChanges>false</pushChanges>
 				</configuration>
 			</plugin>
@@ -185,7 +186,8 @@
 								<copy todir="${distribution.dir}">
 									<fileset dir="${project.build.directory}">
 										<include name="${project.artifactId}-${project.version}.jar" />
-										<include name="${project.artifactId}-${project.version}-sources.jar" />
+										<include
+											name="${project.artifactId}-${project.version}-sources.jar" />
 										<include name="apidocs/**/*" />
 									</fileset>
 								</copy>
@@ -202,8 +204,12 @@
 									</fileset>
 								</copy>
 
-								<zip destfile="${project.build.directory}/${project.artifactId}-${project.version}.zip" basedir="${distribution.dir}" includes="**/*" />
-								<attachartifact file="${project.build.directory}/${project.artifactId}-${project.version}.zip" type="zip" />
+								<zip
+									destfile="${project.build.directory}/${project.artifactId}-${project.version}.zip"
+									basedir="${distribution.dir}" includes="**/*" />
+								<attachartifact
+									file="${project.build.directory}/${project.artifactId}-${project.version}.zip"
+									type="zip" />
 							</target>
 						</configuration>
 					</execution>
@@ -215,7 +221,7 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-gpg-plugin</artifactId>
 				<configuration>
-					<passphrase />
+					<passphrase/>
 				</configuration>
 				<executions>
 					<execution>
