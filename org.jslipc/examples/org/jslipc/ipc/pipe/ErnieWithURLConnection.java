@@ -10,7 +10,7 @@ public class ErnieWithURLConnection {
 		new File("./server/connect").mkdirs();
 
 		// set up pipe
-		URL url = new URL("jslipc://./server/connect?accept-type=ChunkFilePipe");
+		URL url = new URL("jslipc://./server/connect?accept-types=ChunkFilePipe");
 		URLConnection connection = url.openConnection();
 
 		Ernie ernie = new Ernie();
