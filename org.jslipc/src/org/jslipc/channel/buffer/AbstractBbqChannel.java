@@ -3,7 +3,6 @@ package org.jslipc.channel.buffer;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.nio.channels.ClosedChannelException;
-import java.nio.channels.InterruptedByTimeoutException;
 import java.nio.channels.InterruptibleChannel;
 
 import org.jslipc.TimeoutAware;
@@ -79,25 +78,29 @@ public abstract class AbstractBbqChannel implements JslipcChannel, Interruptible
 	 * @throws InterruptedIOException
 	 * @throws InterruptedByTimeoutException
 	 */
-	protected void sleep(long waitingSince) throws InterruptedIOException, InterruptedByTimeoutException {
-		TimeUtil.sleep(getTimeout(), waitingSince);
+	protected void sleep(long waitingSince) throws InterruptedIOException {
+		try {
+			TimeUtil.sleep(getTimeout(), waitingSince);
+		} catch (InterruptedException e) {
+			throw new InterruptedIOException("interrupted by timeout");
+		}
 	}
 	
-	protected void waitForInitialization() throws InterruptedIOException, InterruptedByTimeoutException {
+	protected void waitForInitialization() throws InterruptedIOException {
 		long waitingSince = System.currentTimeMillis();
 		while (!queue.isInitialized()) {
 			sleep(waitingSince);
 		}
 	}
 
-	protected void waitForNonEmpty() throws InterruptedIOException, InterruptedByTimeoutException {
+	protected void waitForNonEmpty() throws InterruptedIOException {
 		long waitingSince = System.currentTimeMillis();
 		while (queue.isEmpty()) {
 			sleep(waitingSince);
 		}
 	}
 
-	protected void waitForNonFull() throws InterruptedIOException, InterruptedByTimeoutException {
+	protected void waitForNonFull() throws InterruptedIOException {
 		long waitingSince = System.currentTimeMillis();
 		while (queue.isFull()) {
 			sleep(waitingSince);

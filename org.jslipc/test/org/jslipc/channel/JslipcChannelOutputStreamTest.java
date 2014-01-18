@@ -17,11 +17,8 @@ import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
-import java.nio.channels.InterruptedByTimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.jslipc.channel.JslipcChannelOutputStream;
-import org.jslipc.channel.WritableJslipcByteChannel;
 import org.jslipc.channel.JslipcChannel.JslipcChannelState;
 import org.junit.After;
 import org.junit.Before;
@@ -237,7 +234,7 @@ public class JslipcChannelOutputStreamTest {
 		thread.start();
 		thread.join(1000);
 		assertNotNull("expected timeout exception", caught.get());
-		assertEquals(InterruptedByTimeoutException.class, caught.get()
+		assertEquals(InterruptedIOException.class, caught.get()
 				.getClass());
 		assertFalse(thread.isAlive());
 	}

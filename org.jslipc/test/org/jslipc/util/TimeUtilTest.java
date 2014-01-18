@@ -1,12 +1,12 @@
 package org.jslipc.util;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.lessThan;
+import static org.hamcrest.Matchers.lessThanOrEqualTo;
+import static org.hamcrest.Matchers.not;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
-import java.io.InterruptedIOException;
-import java.nio.channels.InterruptedByTimeoutException;
-
-import org.jslipc.util.TimeUtil;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,7 +48,7 @@ public class TimeUtilTest {
 
 	private void expectSlept(long expectedTimeSlept, final long toSleep,
 			final int timeout, final long waitingSince)
-			throws InterruptedIOException, InterruptedByTimeoutException {
+			throws InterruptedException {
 		long start = System.currentTimeMillis();
 		TimeUtil.sleep(toSleep, timeout, waitingSince);
 		long slept = System.currentTimeMillis() - start;
@@ -56,12 +56,12 @@ public class TimeUtilTest {
 	}
 
 	private void expectSleepTimeout(long expectedTimeSlept, final long toSleep,
-			final int timeout, final long waitingSince) throws InterruptedIOException {
+			final int timeout, final long waitingSince) throws InterruptedException {
 		long start = System.currentTimeMillis();
 		try {
 			TimeUtil.sleep(toSleep, timeout, waitingSince);
 			fail("expected timeout");
-		} catch (InterruptedByTimeoutException e) {
+		} catch (InterruptedException e) {
 			// expected
 		}
 		long slept = System.currentTimeMillis() - start;
@@ -113,7 +113,7 @@ public class TimeUtilTest {
 		try {
 			TimeUtil.checkForTimeout(timeout, waitingSince);
 			fail("expected timeout");
-		} catch (InterruptedByTimeoutException e) {
+		} catch (InterruptedException e) {
 			// expected
 		}
 	}

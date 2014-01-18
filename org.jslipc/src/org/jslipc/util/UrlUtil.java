@@ -3,7 +3,6 @@ package org.jslipc.util;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 
 /**
  * A bunch of utility methods for dealing with URLs.
@@ -21,7 +20,7 @@ public class UrlUtil {
 	 */
 	public static String urlEncode(final String string) {
 		try {
-			return URLEncoder.encode(string, StandardCharsets.UTF_8.toString());
+			return URLEncoder.encode(string, StringUtil.UTF_8);
 		} catch (UnsupportedEncodingException e) {
 			throw new RuntimeException("UTF-8 must be supported?!?");
 		}
@@ -34,7 +33,7 @@ public class UrlUtil {
 	 */
 	public static String urlDecode(final String string) {
 		try {
-			return URLDecoder.decode(string, StandardCharsets.UTF_8.toString());
+			return URLDecoder.decode(string, StringUtil.UTF_8);
 		} catch (UnsupportedEncodingException e) {
 			throw new RuntimeException("UTF-8 must be supported?!?");
 		}

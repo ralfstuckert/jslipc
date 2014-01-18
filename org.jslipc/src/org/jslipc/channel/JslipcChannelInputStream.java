@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.InterruptedByTimeoutException;
 
 import org.jslipc.TimeoutAware;
 import org.jslipc.channel.JslipcChannel.JslipcChannelState;
@@ -86,8 +85,12 @@ public class JslipcChannelInputStream extends InputStream implements TimeoutAwar
 	 * @throws InterruptedIOException
 	 * @throws InterruptedByTimeoutException
 	 */
-	protected void sleep(long waitingSince) throws InterruptedIOException, InterruptedByTimeoutException {
-		TimeUtil.sleep(getTimeout(), waitingSince);
+	protected void sleep(long waitingSince) throws InterruptedIOException {
+		try {
+			TimeUtil.sleep(getTimeout(), waitingSince);
+		} catch (InterruptedException e) {
+			throw new InterruptedIOException("interrupted by timeout");
+		}
 	}
 	
 

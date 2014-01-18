@@ -1,7 +1,6 @@
 package org.jslipc.util;
 
 import java.io.InterruptedIOException;
-import java.nio.channels.InterruptedByTimeoutException;
 
 /**
  * A bunch of utility methods on dealing with time.
@@ -28,7 +27,7 @@ public class TimeUtil {
 	 *             if a timeout occurred.
 	 */
 	public static void sleep(final int timeout, final long waitingSince)
-			throws InterruptedIOException, InterruptedByTimeoutException {
+			throws InterruptedException {
 		sleep(DEFAULT_SLEEP_TIME, timeout, waitingSince);
 	}
 
@@ -49,9 +48,7 @@ public class TimeUtil {
 	 *             if a timeout occurred.
 	 */
 	public static void sleep(final long toSleep, final int timeout,
-			final long waitingSince) throws InterruptedIOException,
-			InterruptedByTimeoutException {
-		try {
+			final long waitingSince) throws InterruptedException {
 			checkForTimeout(timeout, waitingSince);
 
 			long timeToSleep = getTimeToSleep(toSleep, timeout, waitingSince);
@@ -59,9 +56,6 @@ public class TimeUtil {
 				Thread.sleep(timeToSleep);
 			}
 			checkForTimeout(timeout, waitingSince);
-		} catch (InterruptedException e) {
-			throw new InterruptedIOException(e.getMessage());
-		}
 	}
 
 	protected static long getTimeToSleep(final long toSleep, final int timeout,
@@ -81,13 +75,13 @@ public class TimeUtil {
 	 *            the ms to wait at all before a timeout occurs.
 	 * @param waitingSince
 	 *            the timestamp since when the blocking method is waiting in ms.
-	 * @throws InterruptedByTimeoutException
+	 * @throws InterruptedException
 	 *             if a timeout occurred.
 	 */
 	public static void checkForTimeout(final int timeout,
-			final long waitingSince) throws InterruptedByTimeoutException {
+			final long waitingSince) throws InterruptedException {
 		if (timeout > 0 && System.currentTimeMillis() >= waitingSince + timeout) {
-			throw new InterruptedByTimeoutException();
+			throw new InterruptedException("interrupted due to timeout");
 		}
 	}
 

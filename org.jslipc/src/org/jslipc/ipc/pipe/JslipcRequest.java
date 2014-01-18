@@ -1,7 +1,6 @@
 package org.jslipc.ipc.pipe;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,7 +23,7 @@ public class JslipcRequest extends AbstractJslipcMessage {
 	 * @see #toBytes()
 	 */
 	public JslipcRequest(final byte[] request) throws IOException {
-		super(new String(request, StandardCharsets.UTF_8));
+		super(new String(request, StringUtil.CHARSET_UTF_8));
 	}
 
 	/**

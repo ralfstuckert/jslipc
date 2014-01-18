@@ -1,5 +1,6 @@
 package org.jslipc.util;
 
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,6 +13,16 @@ public class StringUtil {
 		// utility class
 	}
 	
+	/**
+	 * String constant for UTF-8.
+	 */
+	public final static String UTF_8 = "UTF-8";
+	
+    /**
+     * Eight-bit UCS Transformation Format
+     */
+    public static final Charset CHARSET_UTF_8 = Charset.forName(UTF_8);
+
 	/**
 	 * Effectively calls {@link #split(String, char) split(text, '\n')}.
 	 * @param text

@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.io.OutputStream;
-import java.nio.channels.InterruptedByTimeoutException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -275,8 +274,12 @@ public class JslipcPipeServer implements TimeoutAware {
 	 * @throws InterruptedIOException
 	 * @throws InterruptedByTimeoutException
 	 */
-	protected void sleep(long waitingSince) throws InterruptedIOException, InterruptedByTimeoutException {
-		TimeUtil.sleep(getTimeout(), waitingSince);
+	protected void sleep(long waitingSince) throws InterruptedIOException {
+		try {
+			TimeUtil.sleep(getTimeout(), waitingSince);
+		} catch (InterruptedException e) {
+			throw new InterruptedIOException("interrupted by timeout");
+		}
 	}
 	
 	@Override

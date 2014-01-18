@@ -9,11 +9,10 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 
-import org.jslipc.ipc.pipe.AbstractJslipcMessage;
 import org.jslipc.ipc.pipe.file.ChunkFilePipe;
 import org.jslipc.ipc.pipe.file.FilePipe;
+import org.jslipc.util.StringUtil;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -133,7 +132,7 @@ public abstract class AbstractJslipcMessageTest {
 	public void testToBytes() throws Exception {
 		AbstractJslipcMessage req = createMessageWithParameter();
 		byte[] expected = new String(req.getHeader() + "\n" + parameter)
-				.getBytes(StandardCharsets.UTF_8);
+				.getBytes(StringUtil.CHARSET_UTF_8);
 		byte[] actual = req.toBytes();
 
 		assertArrayEquals(expected, actual);

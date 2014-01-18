@@ -3,12 +3,10 @@ package org.jslipc.ipc.pipe;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 
 import org.jslipc.JslipcRole;
-import org.jslipc.ipc.pipe.AbstractJslipcMessage;
-import org.jslipc.ipc.pipe.JslipcResponse;
 import org.jslipc.ipc.pipe.JslipcResponse.JslipcCode;
+import org.jslipc.util.StringUtil;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -65,7 +63,7 @@ public class JslipcResponseTest extends AbstractJslipcMessageTest {
 	@Test
 	public void testJsiplcResponseByteArray() throws Exception {
 		JslipcResponse res = new JslipcResponse(
-				responseWithParameter.getBytes(StandardCharsets.UTF_8));
+				responseWithParameter.getBytes(StringUtil.CHARSET_UTF_8));
 		assertEquals(JslipcCode.PipeCreated, res.getCode());
 		assertEquals(successMessage, res.getMessage());
 		assertEquals("1.0", res.getProtocolVersion());

@@ -14,11 +14,8 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.InterruptedByTimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.jslipc.channel.JslipcChannelInputStream;
-import org.jslipc.channel.ReadableJslipcByteChannel;
 import org.jslipc.channel.JslipcChannel.JslipcChannelState;
 import org.junit.After;
 import org.junit.Before;
@@ -217,8 +214,9 @@ public class JslipcChannelInputStreamTest {
 		thread.start();
 		thread.join(1000);
 		assertNotNull("expected timeout exception", caught.get());
-		assertEquals(InterruptedByTimeoutException.class, caught.get()
+		assertEquals(InterruptedIOException.class, caught.get()
 				.getClass());
+		assertTrue("expected timeout, but is: " + caught.get().getMessage(), caught.get().getMessage().contains("timeout"));
 		assertFalse(thread.isAlive());
 	}
 

@@ -3,13 +3,12 @@ package org.jslipc.ipc.pipe;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
-import org.jslipc.ipc.pipe.JslipcRequest;
 import org.jslipc.ipc.pipe.JslipcRequest.JslipcCommand;
 import org.jslipc.ipc.pipe.file.ChunkFilePipe;
 import org.jslipc.ipc.pipe.file.FilePipe;
+import org.jslipc.util.StringUtil;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -56,7 +55,7 @@ public class JslipcRequestTest extends AbstractJslipcMessageTest {
 	@Test
 	public void testJsiplcRequestByteArray() throws Exception {
 		JslipcRequest req = new JslipcRequest(
-				requestWithParameter.getBytes(StandardCharsets.UTF_8));
+				requestWithParameter.getBytes(StringUtil.CHARSET_UTF_8));
 		assertEquals(JslipcCommand.CONNECT, req.getCommand());
 		assertEquals("1.0", req.getProtocolVersion());
 		assertEquals("value1", req.getParameter("param1"));

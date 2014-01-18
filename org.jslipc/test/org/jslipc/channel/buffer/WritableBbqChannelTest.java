@@ -10,12 +10,9 @@ import java.io.InterruptedIOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
-import java.nio.channels.InterruptedByTimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.jslipc.TestUtil;
-import org.jslipc.channel.buffer.ByteBufferQueue;
-import org.jslipc.channel.buffer.WritableBbqChannel;
 import org.junit.Test;
 
 public class WritableBbqChannelTest extends AbstractBbqChannelTest {
@@ -198,8 +195,9 @@ public class WritableBbqChannelTest extends AbstractBbqChannelTest {
 		thread.start();
 		thread.join(1000);
 		assertNotNull("expected timeout exception", caught.get());
-		assertEquals(InterruptedByTimeoutException.class, caught.get()
+		assertEquals(InterruptedIOException.class, caught.get()
 				.getClass());
+		assertTrue("expected timeout, but is: " + caught.get().getMessage(), caught.get().getMessage().contains("timeout"));
 		assertFalse(thread.isAlive());
 	}
 

@@ -2,7 +2,6 @@ package org.jslipc.ipc.pipe;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -30,7 +29,6 @@ public abstract class AbstractJslipcMessage {
 	public static final String PARAM_ACCEPT_TYPES = "accept-types";
 
 	protected static final String JSLIPC_PROTOCOL_PREFIX = "JSLIPC/";
-	protected static final String UTF_8 = StandardCharsets.UTF_8.toString();
 	@SuppressWarnings("unchecked")
 	protected static final List<Class<? extends JslipcPipe>> SUPPORTED_PIPES = Arrays
 			.asList((Class<? extends JslipcPipe>) FilePipe.class,
@@ -46,7 +44,7 @@ public abstract class AbstractJslipcMessage {
 	 * @see #toBytes()
 	 */
 	public AbstractJslipcMessage(final byte[] message) throws IOException {
-		this(new String(message, StandardCharsets.UTF_8));
+		this(new String(message, StringUtil.CHARSET_UTF_8));
 	}
 
 	/**
@@ -275,7 +273,7 @@ public abstract class AbstractJslipcMessage {
 	}
 
 	public byte[] toBytes() {
-		return toString().getBytes(StandardCharsets.UTF_8);
+		return toString().getBytes(StringUtil.CHARSET_UTF_8);
 	}
 
 	@Override
