@@ -199,7 +199,7 @@ public abstract class AbstractJslipcMessage {
 	}
 	
 	/**
-	 * @return the value of the parameter {@link #PARAM_TYPE}.
+	 * @param type the type to set.
 	 */
 	public void setTypeParameter(final Class<? extends JslipcPipe> type) {
 		setParameter(PARAM_TYPE, getTypeName(type));

@@ -83,7 +83,6 @@ public class JslipcChannelInputStream extends InputStream implements TimeoutAwar
 	 * Sleeps for the default time and watches for timeouts.
 	 * @param waitingSince the timestamp when the operation started to block.
 	 * @throws InterruptedIOException
-	 * @throws InterruptedByTimeoutException
 	 */
 	protected void sleep(long waitingSince) throws InterruptedIOException {
 		try {

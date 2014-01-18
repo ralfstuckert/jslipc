@@ -1,6 +1,5 @@
 package org.jslipc.util;
 
-import java.io.InterruptedIOException;
 
 /**
  * A bunch of utility methods on dealing with time.
@@ -21,10 +20,8 @@ public class TimeUtil {
 	 *            <code>0</code> means infinity. Must be >= 0.
 	 * @param waitingSince
 	 *            the timestamp since when the blocking method is waiting in ms.
-	 * @throws InterruptedIOException
-	 *             if the sleep() has bee interrupted.
-	 * @throws InterruptedByTimeoutException
-	 *             if a timeout occurred.
+	 * @throws InterruptedException
+	 *             if the sleep() has been interrupted or a timeout occurred.
 	 */
 	public static void sleep(final int timeout, final long waitingSince)
 			throws InterruptedException {
@@ -42,10 +39,8 @@ public class TimeUtil {
 	 *            <code>0</code> means infinity. Must be >= 0.
 	 * @param waitingSince
 	 *            the timestamp since when the blocking method is waiting in ms.
-	 * @throws InterruptedIOException
-	 *             if the sleep() has bee interrupted.
-	 * @throws InterruptedByTimeoutException
-	 *             if a timeout occurred.
+	 * @throws InterruptedException
+	 *             if the sleep() has been interrupted or a timeout occurred.
 	 */
 	public static void sleep(final long toSleep, final int timeout,
 			final long waitingSince) throws InterruptedException {
@@ -69,7 +64,7 @@ public class TimeUtil {
 	}
 
 	/**
-	 * Throws a InterruptedByTimeoutException if a timeout occurred.
+	 * Throws a InterruptedException if a timeout occurred.
 	 * 
 	 * @param timeout
 	 *            the ms to wait at all before a timeout occurs.
