@@ -127,7 +127,7 @@ public class JslipcResponse extends AbstractJslipcMessage {
 	}
 	
 	/**
-	 * @role the role parameter to set.
+	 * @param role the role parameter to set.
 	 */
 	public void setRoleParameter(final JslipcRole role) {
 		setParameter(PARAM_ROLE, role.toString());
