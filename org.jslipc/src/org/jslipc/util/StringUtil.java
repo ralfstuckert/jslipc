@@ -62,6 +62,15 @@ public class StringUtil {
 	}
 
 	/**
+	 * Effectively calls {@link #join(char, String...) join('\n', parts)}.
+	 * @param parts
+	 * @return the joined string.
+	 */
+	public static String join(final List<String> parts) {
+		return join(',', parts.toArray(new String[parts.size()]));
+	}
+
+	/**
 	 * Joins the given Strings with the delimiter.
 	 * @param delimiter
 	 * @param parts

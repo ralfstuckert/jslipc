@@ -91,12 +91,19 @@ public class JslipcPipeURLConnection extends URLConnection {
 	protected JslipcRequest createRequest() throws IOException {
 		JslipcRequest request = new JslipcRequest(JslipcCommand.CONNECT);
 
+		// pass query parameter
 		Map<String, String> parameters = parseParameter(url.getQuery());
 		if (parameters != null) {
 			for (Entry<String, String> entry : parameters.entrySet()) {
 				request.setParameter(entry.getKey(), entry.getValue());
 			}
 		}
+		
+		// pass request properties
+		for (Entry<String, List<String>> entry : getRequestProperties().entrySet()) {
+			request.setParameter(entry.getKey(), StringUtil.join(entry.getValue()));
+		}
+		
 		return request;
 	}
 

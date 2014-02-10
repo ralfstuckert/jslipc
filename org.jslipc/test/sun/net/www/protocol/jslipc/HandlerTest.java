@@ -12,8 +12,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.jslipc.JslipcBinman;
 import org.jslipc.JslipcPipe;
 import org.jslipc.TestUtil;
 import org.jslipc.channel.JslipcChannelInputStream;
@@ -66,14 +68,15 @@ public class HandlerTest {
 		checkOpenConnection(dir.getPath());
 	}
 
-	public void checkOpenConnection(final String connectDirPath) throws IOException,
-			InterruptedException {
+	public void checkOpenConnection(final String connectDirPath)
+			throws IOException, InterruptedException {
 		final AtomicReference<JslipcConnection> connectRef = new AtomicReference<JslipcConnection>();
 		Thread thread = new Thread() {
 			public void run() {
 				JslipcPipeServer server;
 				try {
-					server = new JslipcPipeServer(new File(connectDirPath), pipeDir);
+					server = new JslipcPipeServer(new File(connectDirPath),
+							pipeDir);
 					connectRef.set(server.accept());
 				} catch (IOException e) {
 					e.printStackTrace();
@@ -82,8 +85,8 @@ public class HandlerTest {
 		};
 		thread.start();
 
-		URL url = new URL("jslipc://"+ connectDirPath);
-		URLConnection urlConnection = url.openConnection(); 
+		URL url = new URL("jslipc://" + connectDirPath);
+		URLConnection urlConnection = url.openConnection();
 		assertNotNull(urlConnection);
 		assertEquals(JslipcPipeURLConnection.class, urlConnection.getClass());
 
@@ -101,13 +104,12 @@ public class HandlerTest {
 		checkConnection(urlConnection.getOutputStream(),
 				serverSidePipe.source());
 		checkConnection(serverSidePipe.sink(), urlConnection.getInputStream());
-		
+
 		urlConnection.getInputStream().close();
 		urlConnection.getOutputStream().close();
 		serverSidePipe.source().close();
 		serverSidePipe.sink().close();
 	}
-
 
 	private void checkConnection(final OutputStream out,
 			final ReadableJslipcByteChannel source) throws IOException {
@@ -130,4 +132,40 @@ public class HandlerTest {
 		assertArrayEquals(written, read);
 	}
 
+	@Test(timeout = 60000)
+	public void testRequestProperty() throws IOException, InterruptedException {
+		final String connectDirPath = "/" + connectDir.getAbsolutePath();
+		final AtomicReference<JslipcConnection> connectRef = new AtomicReference<JslipcConnection>();
+		Thread thread = new Thread() {
+			public void run() {
+				JslipcPipeServer server;
+				try {
+					server = new JslipcPipeServer(new File(connectDirPath),
+							pipeDir);
+					connectRef.set(server.accept());
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		};
+		thread.start();
+
+		URL url = new URL("jslipc://" + connectDirPath);
+		URLConnection urlConnection = url.openConnection();
+		urlConnection.setRequestProperty("key1", "value1");
+		urlConnection.setRequestProperty("key2", "value2");
+
+		// now connect
+		urlConnection.connect();
+		thread.join();
+		assertFalse(thread.isAlive());
+
+		// server responded, check pipe
+		JslipcConnection jslipcConnection = connectRef.get();
+		Map<String, String> requestParameters = jslipcConnection.getRequestParameters();
+		assertEquals("value1", requestParameters.get("key1"));
+		assertEquals("value2", requestParameters.get("key2"));
+
+		((JslipcBinman)jslipcConnection.getPipe()).close();
+	}
 }

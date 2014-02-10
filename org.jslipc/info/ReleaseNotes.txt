@@ -1,6 +1,13 @@
 = Jslipc - Java Socket-Less Inter-Process Communication API =
 
-= Version 0.2.0 =
+= Version 0.2.1 =
+
+*Fixes*
+ * Issue 14: JslipcPipeURLConnection should support request properties
+
+ ----
+
+== Version 0.2.0 ==
 
 *News*
  * Jslipc no longer depends on Java7, see Issue 13

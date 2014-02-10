@@ -54,14 +54,13 @@ public class JslipcPipeURLConnectionTest {
 	@Before
 	public void setUp() throws Exception {
 		MockitoAnnotations.initMocks(this);
-		
+
 		when(pipeMock.sink()).thenReturn(writableChannelMock);
 		when(pipeMock.source()).thenReturn(readableChannelMock);
 		when(clientMock.connect(any(JslipcRequest.class))).thenReturn(pipeMock);
-		
+
 		url = new URL("jslipc:///c:temp");
 	}
-	
 
 	@After
 	public void tearDown() {
@@ -69,28 +68,28 @@ public class JslipcPipeURLConnectionTest {
 		writableChannelMock = null;
 	}
 
-
 	@Test
 	public void testJslipcPipeURLConnection() throws Exception {
 		new JslipcPipeURLConnection(url, clientMock);
 	}
 
-	@Test(expected=IllegalArgumentException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void testJslipcPipeURLConnectionWithNullURL() throws Exception {
 		new JslipcPipeURLConnection(null, clientMock);
 	}
 
-	@Test(expected=IllegalArgumentException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void testJslipcPipeURLConnectionWithNullPipe() throws Exception {
 		new JslipcPipeURLConnection(url, null);
 	}
 
 	@Test
 	public void testConnect() throws Exception {
-		JslipcPipeURLConnection connection = new JslipcPipeURLConnection(url, clientMock);
+		JslipcPipeURLConnection connection = new JslipcPipeURLConnection(url,
+				clientMock);
 		assertNull(connection.in);
 		assertNull(connection.out);
-		
+
 		connection.connect();
 		assertNotNull(connection.in);
 		assertNotNull(connection.out);
@@ -99,30 +98,51 @@ public class JslipcPipeURLConnectionTest {
 		verify(clientMock).connect(expectedRequest);
 	}
 
-
 	@SuppressWarnings("unchecked")
 	@Test
-	public void testConnectWithParameter() throws Exception {
+	public void testConnectWithQueryParameter() throws Exception {
 		URL url = new URL(
 				"jslipc:///c:/server/connect?accept-types=ChunkFilePipe,FilePipe&special-guest=spongebob&happy=&x");
-		JslipcPipeURLConnection connection = new JslipcPipeURLConnection(url, clientMock);
+		JslipcPipeURLConnection connection = new JslipcPipeURLConnection(url,
+				clientMock);
 		assertNull(connection.in);
 		assertNull(connection.out);
-		
+
 		connection.connect();
 		assertNotNull(connection.in);
 		assertNotNull(connection.out);
 
 		JslipcRequest expectedRequest = new JslipcRequest(JslipcCommand.CONNECT);
-		expectedRequest.setAcceptTypes(ChunkFilePipe.class,FilePipe.class);
+		expectedRequest.setAcceptTypes(ChunkFilePipe.class, FilePipe.class);
 		expectedRequest.setParameter("special-guest", "spongebob");
 		verify(clientMock).connect(expectedRequest);
 	}
 
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testConnectWithRequestProperty() throws Exception {
+		URL url = new URL("jslipc:///c:/server/connect");
+		JslipcPipeURLConnection connection = new JslipcPipeURLConnection(url,
+				clientMock);
+		connection.setRequestProperty("accept-types", "ChunkFilePipe,FilePipe");
+		connection.setRequestProperty("special-guest", "spongebob");
+		assertNull(connection.in);
+		assertNull(connection.out);
+
+		connection.connect();
+		assertNotNull(connection.in);
+		assertNotNull(connection.out);
+
+		JslipcRequest expectedRequest = new JslipcRequest(JslipcCommand.CONNECT);
+		expectedRequest.setAcceptTypes(ChunkFilePipe.class, FilePipe.class);
+		expectedRequest.setParameter("special-guest", "spongebob");
+		verify(clientMock).connect(expectedRequest);
+	}
 
 	@Test
 	public void testCreateRequest() throws Exception {
-		JslipcPipeURLConnection connection = new JslipcPipeURLConnection(url, clientMock);
+		JslipcPipeURLConnection connection = new JslipcPipeURLConnection(url,
+				clientMock);
 		JslipcRequest request = connection.createRequest();
 		assertNotNull(request);
 		assertEquals(JslipcCommand.CONNECT, request.getCommand());
@@ -131,10 +151,11 @@ public class JslipcPipeURLConnectionTest {
 
 	@SuppressWarnings("unchecked")
 	@Test
-	public void testCreateRequestWithParameter() throws Exception {
+	public void testCreateRequestWithQueryParameter() throws Exception {
 		URL url = new URL(
 				"jslipc:///c:/server/connect?accept-types=ChunkFilePipe,FilePipe&special-guest=spongebob&happy=&x");
-		JslipcPipeURLConnection connection = new JslipcPipeURLConnection(url, clientMock);
+		JslipcPipeURLConnection connection = new JslipcPipeURLConnection(url,
+				clientMock);
 		JslipcRequest request = connection.createRequest();
 		assertNotNull(request);
 		assertEquals(JslipcCommand.CONNECT, request.getCommand());
@@ -148,10 +169,31 @@ public class JslipcPipeURLConnectionTest {
 		assertEquals(null, request.getParameter("y"));
 	}
 
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testCreateRequestWithRequestProperty() throws Exception {
+		URL url = new URL("jslipc:///c:/server/connect");
+		JslipcPipeURLConnection connection = new JslipcPipeURLConnection(url,
+				clientMock);
+		connection.setRequestProperty("accept-types", "ChunkFilePipe,FilePipe");
+		connection.setRequestProperty("special-guest", "spongebob");
+		JslipcRequest request = connection.createRequest();
+		assertNotNull(request);
+		assertEquals(JslipcCommand.CONNECT, request.getCommand());
+		assertEquals(2, request.getParameters().size());
+
+		assertEquals(Arrays.asList(ChunkFilePipe.class, FilePipe.class),
+				request.getAcceptTypes());
+		assertEquals("spongebob", request.getParameter("special-guest"));
+		assertEquals(null, request.getParameter("happy"));
+		assertEquals(null, request.getParameter("x"));
+		assertEquals(null, request.getParameter("y"));
+	}
 
 	@Test
 	public void testSetConnectTimeout() throws Exception {
-		JslipcPipeURLConnection connection = new JslipcPipeURLConnection(url, clientMock);
+		JslipcPipeURLConnection connection = new JslipcPipeURLConnection(url,
+				clientMock);
 		connection.setConnectTimeout(101);
 		connection.connect();
 
@@ -160,7 +202,8 @@ public class JslipcPipeURLConnectionTest {
 
 	@Test
 	public void testSetReadTimeout() throws Exception {
-		JslipcPipeURLConnection connection = new JslipcPipeURLConnection(url, clientMock);
+		JslipcPipeURLConnection connection = new JslipcPipeURLConnection(url,
+				clientMock);
 		connection.setReadTimeout(765);
 		connection.connect();
 
@@ -170,10 +213,11 @@ public class JslipcPipeURLConnectionTest {
 
 	@Test
 	public void testGetInputStream() throws Exception {
-		JslipcPipeURLConnection connection = new JslipcPipeURLConnection(url, clientMock);
+		JslipcPipeURLConnection connection = new JslipcPipeURLConnection(url,
+				clientMock);
 		InputStream in = connection.getInputStream();
 		assertNotNull(in);
-		
+
 		byte[] buf = new byte[10];
 		mockReadBytes(17, 12, 56);
 		assertEquals(3, in.read(buf, 1, 5));
@@ -184,7 +228,8 @@ public class JslipcPipeURLConnectionTest {
 
 	@Test
 	public void testGetOutputStream() throws Exception {
-		JslipcPipeURLConnection connection = new JslipcPipeURLConnection(url, clientMock);
+		JslipcPipeURLConnection connection = new JslipcPipeURLConnection(url,
+				clientMock);
 		OutputStream out = connection.getOutputStream();
 		assertNotNull(out);
 
@@ -197,15 +242,14 @@ public class JslipcPipeURLConnectionTest {
 
 	protected void mockReadBytes(final int... dates) throws IOException {
 		doAnswer(new Answer<Integer>() {
-					public Integer answer(InvocationOnMock invocation) {
-						ByteBuffer buffer = (ByteBuffer) invocation
-								.getArguments()[0];
-						for (int date : dates) {
-							buffer.put((byte) date);
-						}
-						return dates.length;
-					}
-				}).when(readableChannelMock).read(any(ByteBuffer.class));
+			public Integer answer(InvocationOnMock invocation) {
+				ByteBuffer buffer = (ByteBuffer) invocation.getArguments()[0];
+				for (int date : dates) {
+					buffer.put((byte) date);
+				}
+				return dates.length;
+			}
+		}).when(readableChannelMock).read(any(ByteBuffer.class));
 	}
 
 	protected void mockWriteBytes(final int... dates) throws IOException {
@@ -234,15 +278,19 @@ public class JslipcPipeURLConnectionTest {
 		return result;
 	}
 
-	protected JslipcChannelInputStream retrieveJslipcInputStream(JslipcPipeURLConnection connection) throws Exception {
-		FilterInputStream inputStream = (FilterInputStream) connection.getInputStream();
+	protected JslipcChannelInputStream retrieveJslipcInputStream(
+			JslipcPipeURLConnection connection) throws Exception {
+		FilterInputStream inputStream = (FilterInputStream) connection
+				.getInputStream();
 		Field in = FilterInputStream.class.getDeclaredField("in");
 		in.setAccessible(true);
 		return (JslipcChannelInputStream) in.get(inputStream);
 	}
 
-	protected JslipcChannelOutputStream retrieveJslipcOutputStream(JslipcPipeURLConnection connection) throws Exception {
-		FilterOutputStream outputStream = (FilterOutputStream) connection.getOutputStream();
+	protected JslipcChannelOutputStream retrieveJslipcOutputStream(
+			JslipcPipeURLConnection connection) throws Exception {
+		FilterOutputStream outputStream = (FilterOutputStream) connection
+				.getOutputStream();
 		Field out = FilterOutputStream.class.getDeclaredField("out");
 		out.setAccessible(true);
 		return (JslipcChannelOutputStream) out.get(outputStream);
