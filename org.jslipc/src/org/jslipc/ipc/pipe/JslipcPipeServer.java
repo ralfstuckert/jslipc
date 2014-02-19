@@ -281,11 +281,18 @@ public class JslipcPipeServer implements TimeoutAware {
 		}
 	}
 	
+	/**
+	 * @return the {@link #accept()} timeout.
+	 */
 	@Override
 	public int getTimeout() {
 		return timeout;
 	}
 
+	/**
+	 * Sets the {@link #accept()} timeout.
+	 * @param timeout the timeout in ms.
+	 */
 	@Override
 	public void setTimeout(int timeout) {
 		if (timeout < 0) {

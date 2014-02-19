@@ -191,11 +191,18 @@ public class JslipcPipeClient implements TimeoutAware {
 		}
 	}
 
+	/**
+	 * @return the connect timeout in ms.
+	 */
 	@Override
 	public int getTimeout() {
 		return timeout;
 	}
 
+	/**
+	 * Sets the connect-timeout of the client.
+	 * @param timeout the timeout in ms.
+	 */
 	@Override
 	public void setTimeout(int timeout) {
 		if (timeout < 0) {
