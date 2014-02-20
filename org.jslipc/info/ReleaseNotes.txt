@@ -5,6 +5,7 @@
 *Fixes*
  * Issue 14: JslipcPipeURLConnection should support request properties
  * Issue 15: pipe.cleanUpOnClose() works only if source() and sink() has been called
+ * Issue 16: JslipcPipeServer should separate timeouts for accept and connect
  
 
  ----

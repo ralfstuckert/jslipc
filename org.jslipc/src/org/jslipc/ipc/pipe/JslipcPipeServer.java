@@ -15,6 +15,7 @@ import org.jslipc.JslipcRole;
 import org.jslipc.TimeoutAware;
 import org.jslipc.channel.JslipcChannelInputStream;
 import org.jslipc.channel.JslipcChannelOutputStream;
+import org.jslipc.channel.file.ReadableJslipcFileChannel;
 import org.jslipc.ipc.pipe.JslipcResponse.JslipcCode;
 import org.jslipc.ipc.pipe.file.ChunkFilePipe;
 import org.jslipc.ipc.pipe.file.FilePipe;
@@ -31,7 +32,8 @@ public class JslipcPipeServer implements TimeoutAware {
 	private File connectDirectory;
 	private File pipeDirectory;
 	private Class<? extends JslipcPipe>[] supportedTypes;
-	private int timeout = 0;
+	private int connectTimeout = 0;
+	private int acceptTimeout = 0;
 
 	/**
 	 * Creates a JslipcPipeServer supporting all pipe types.
@@ -44,8 +46,8 @@ public class JslipcPipeServer implements TimeoutAware {
 	 * @throws IOException
 	 */
 	@SuppressWarnings("unchecked")
-	public JslipcPipeServer(final File connectDirectory, final File pipeDirectory)
-			throws IOException {
+	public JslipcPipeServer(final File connectDirectory,
+			final File pipeDirectory) throws IOException {
 		this(connectDirectory, pipeDirectory, ChunkFilePipe.class,
 				FilePipe.class, SharedMemoryPipe.class);
 	}
@@ -111,12 +113,11 @@ public class JslipcPipeServer implements TimeoutAware {
 			OutputStream out = new JslipcChannelOutputStream(connectPipe.sink());
 
 			try {
-				request = readRequest(new JslipcChannelInputStream(
-						connectPipe.source()));
+				request = readRequest(connectPipe.source());
 			} catch (IOException e) {
 				sendResponse(
-						new JslipcResponse(JslipcCode.BadRequest, e.getMessage()),
-						out);
+						new JslipcResponse(JslipcCode.BadRequest,
+								e.getMessage()), out);
 				return null;
 			}
 			try {
@@ -124,15 +125,15 @@ public class JslipcPipeServer implements TimeoutAware {
 				pipe = createPipe(request, response);
 			} catch (IOException e) {
 				sendResponse(
-						new JslipcResponse(JslipcCode.InternalError, e.getMessage()),
-						out);
+						new JslipcResponse(JslipcCode.InternalError,
+								e.getMessage()), out);
 				return null;
 			}
 
 			sendResponse(response, out);
 
 			if (pipe instanceof JslipcBinman) {
-				((JslipcBinman)pipe).cleanUpOnClose();
+				((JslipcBinman) pipe).cleanUpOnClose();
 			}
 			return new JslipcConnection(pipe, request.getParameters());
 		} finally {
@@ -195,7 +196,8 @@ public class JslipcPipeServer implements TimeoutAware {
 	 */
 	protected Class<? extends JslipcPipe> getSuitableType(JslipcRequest request)
 			throws IOException {
-		List<Class<? extends JslipcPipe>> acceptTypes = request.getAcceptTypes();
+		List<Class<? extends JslipcPipe>> acceptTypes = request
+				.getAcceptTypes();
 		if (acceptTypes == null || acceptTypes.size() == 0) {
 			return supportedTypes[0];
 		}
@@ -208,6 +210,12 @@ public class JslipcPipeServer implements TimeoutAware {
 				+ "'are not supported: " + Arrays.asList(supportedTypes));
 	}
 
+	private JslipcRequest readRequest(ReadableJslipcFileChannel source) throws IOException {
+		JslipcChannelInputStream in = new JslipcChannelInputStream(source);
+		in.setTimeout(getTimeout());
+		return readRequest(in);
+	}
+
 	/**
 	 * Reads an request from the given stream.
 	 * 
@@ -215,7 +223,8 @@ public class JslipcPipeServer implements TimeoutAware {
 	 * @return the read JslipcRequest.
 	 * @throws IOException
 	 */
-	protected JslipcRequest readRequest(final InputStream in) throws IOException {
+	protected JslipcRequest readRequest(final InputStream in)
+			throws IOException {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		int date = 0;
 		while ((date = in.read()) != -1) {
@@ -254,7 +263,7 @@ public class JslipcPipeServer implements TimeoutAware {
 					dir = file;
 				}
 			}
-			sleep(waitingSince);
+			sleep(waitingSince, getAcceptTimeout());
 		}
 		markServed(dir);
 		return dir;
@@ -270,34 +279,63 @@ public class JslipcPipeServer implements TimeoutAware {
 
 	/**
 	 * Sleeps for the default time and watches for timeouts.
-	 * @param waitingSince the timestamp when the operation started to block.
+	 * 
+	 * @param waitingSince
+	 *            the timestamp when the operation started to block.
 	 * @throws InterruptedIOException
 	 */
-	protected void sleep(long waitingSince) throws InterruptedIOException {
+	protected void sleep(long waitingSince, int timeout)
+			throws InterruptedIOException {
 		try {
-			TimeUtil.sleep(getTimeout(), waitingSince);
+			TimeUtil.sleep(timeout, waitingSince);
 		} catch (InterruptedException e) {
 			throw new InterruptedIOException("interrupted by timeout");
 		}
 	}
-	
+
 	/**
 	 * @return the {@link #accept()} timeout.
 	 */
-	@Override
-	public int getTimeout() {
-		return timeout;
+	public int getAcceptTimeout() {
+		return acceptTimeout;
 	}
 
 	/**
 	 * Sets the {@link #accept()} timeout.
-	 * @param timeout the timeout in ms.
+	 * 
+	 * @param timeout
+	 *            the timeout in ms.
+	 */
+	public void setAcceptTimeout(int timeout) {
+		if (timeout < 0) {
+			throw new IllegalArgumentException(
+					"parameter timeout must be > 0: " + timeout);
+		}
+		this.acceptTimeout = timeout;
+	}
+
+	/**
+	 * Returns the time to wait for the client to fulfill it connect request.
+	 * 
+	 * @return the connect timeout.
+	 */
+	@Override
+	public int getTimeout() {
+		return connectTimeout;
+	}
+
+	/**
+	 * Sets the time to wait for the client to fulfill it connect request.
+	 * 
+	 * @param timeout
+	 *            the timeout in ms.
 	 */
 	@Override
 	public void setTimeout(int timeout) {
 		if (timeout < 0) {
-			throw new IllegalArgumentException("parameter timeout must be > 0: " + timeout);
+			throw new IllegalArgumentException(
+					"parameter timeout must be > 0: " + timeout);
 		}
-		this.timeout = timeout;
+		this.connectTimeout = timeout;
 	}
 }

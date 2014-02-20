@@ -3,12 +3,14 @@ package org.jslipc.ipc.pipe;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InterruptedIOException;
 import java.io.OutputStream;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -17,10 +19,6 @@ import org.jslipc.JslipcRole;
 import org.jslipc.TestUtil;
 import org.jslipc.channel.JslipcChannelInputStream;
 import org.jslipc.channel.JslipcChannelOutputStream;
-import org.jslipc.ipc.pipe.JslipcConnection;
-import org.jslipc.ipc.pipe.JslipcPipeServer;
-import org.jslipc.ipc.pipe.JslipcRequest;
-import org.jslipc.ipc.pipe.JslipcResponse;
 import org.jslipc.ipc.pipe.JslipcRequest.JslipcCommand;
 import org.jslipc.ipc.pipe.JslipcResponse.JslipcCode;
 import org.jslipc.ipc.pipe.file.ChunkFilePipe;
@@ -191,6 +189,68 @@ public class JslipcPipeServerTest {
 		thread.interrupt();
 		thread.join(3000);
 		assertFalse(thread.isAlive());
+	}
+
+	@Test(timeout = 10000)
+	public void testAccessTimeout() throws Exception {
+		final AtomicReference<IOException> exceptionRef = new AtomicReference<IOException>();
+			Thread thread = new Thread() {
+				public void run() {
+					JslipcPipeServer server;
+					try {
+						server = new JslipcPipeServer(serverConnectDir, serverPipeDir);
+						server.setAcceptTimeout(3000);
+						server.accept();
+					} catch (IOException e) {
+						exceptionRef.set(e);
+					}
+				}
+			};
+			thread.start();
+
+			thread.join(2000);
+			assertTrue(thread.isAlive());
+
+			thread.join(2000);
+			assertFalse(thread.isAlive());
+			assertNotNull(exceptionRef.get());
+			assertEquals(InterruptedIOException.class, exceptionRef.get().getClass());
+	}
+
+
+	@Test//(timeout = 10000)
+	public void testConnectTimeout() throws Exception {
+		final AtomicReference<JslipcConnection> pipeRef = new AtomicReference<JslipcConnection>();
+		final AtomicReference<IOException> exceptionRef = new AtomicReference<IOException>();
+		Thread thread = new Thread() {
+			public void run() {
+				JslipcPipeServer server;
+				try {
+					server = new JslipcPipeServer(serverConnectDir, serverPipeDir);
+					server.setTimeout(2000);
+					pipeRef.set(server.accept());
+				} catch (IOException e) {
+					exceptionRef.set(e);
+				}
+			}
+		};
+		thread.start();
+
+		// set up connection, but do not write request
+		File connectDir = FileUtil.createDirectory(serverConnectDir);
+		FilePipe connectPipe = new FilePipe(connectDir, JslipcRole.Yang);
+		connectPipe.cleanUpOnClose();
+
+		thread.join(2000);
+		assertTrue(thread.isAlive());
+
+		thread.join(2000);
+		assertFalse(thread.isAlive());
+		assertNull(exceptionRef.get());
+		// connect timeout leads to response: bad request 
+		JslipcResponse response = readResponse(connectPipe);
+		assertEquals(response.getMessage(), JslipcCode.BadRequest, response.getCode());
+		assertTrue(response.getMessage().contains("timeout"));
 	}
 
 	@SuppressWarnings("unchecked")
