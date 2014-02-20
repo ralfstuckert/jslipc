@@ -131,6 +131,11 @@ public class ChunkFilePipe implements JslipcPipe, JslipcBinman {
 
 	@Override
 	public void close() throws IOException {
+		if (cleanUpOnClose) {
+			// issue 15: force source() and sink() if cleanUpOnClose
+			source();
+			sink();
+		}
 		checkCleanUpOnClose();
 		if (source != null) {
 			source.close();

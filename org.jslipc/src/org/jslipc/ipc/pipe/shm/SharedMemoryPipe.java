@@ -96,6 +96,11 @@ public class SharedMemoryPipe implements JslipcPipe, JslipcBinman {
 	public void close() throws IOException {
 		boolean sourceClosedByPeer = false;
 		boolean sinkClosedByPeer = false;
+		if (cleanUpOnClose) {
+			// issue 15: force source() and sink() if cleanUpOnClose
+			source();
+			sink();
+		}
 		if (source != null) {
 			sourceClosedByPeer = source.getState() == JslipcChannelState.ClosedByPeer;
 			source.close();

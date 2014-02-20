@@ -28,7 +28,7 @@ public class FilePipeTest {
 		source.deleteOnExit();
 		sink = File.createTempFile("out", ".pipe");
 		sink.deleteOnExit();
-		
+
 		directory = TestUtil.createDirectory();
 		directory.deleteOnExit();
 	}
@@ -164,6 +164,25 @@ public class FilePipeTest {
 		assertTrue(sink.exists());
 		pipe.close();
 		assertFalse(source.exists());
+		assertFalse(sink.exists());
+	}
+
+	@Test
+	public void testIssue15() throws Exception {
+		FilePipe pipe = new FilePipe(source, sink);
+
+		pipe.cleanUpOnClose();
+		// neither call source() nor sink()
+		// assertTrue(pipe.source().isOpen());
+		// assertTrue(pipe.sink().isOpen());
+
+		createClosedMarker(source);
+		createClosedMarker(sink);
+
+		assertTrue(source.exists());
+		assertTrue(sink.exists());
+		pipe.close();
+		// assertFalse(source.exists());
 		assertFalse(sink.exists());
 	}
 

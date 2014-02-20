@@ -98,6 +98,29 @@ public class SharedMemoryPipeTest {
 		assertFalse(file.exists());
 	}
 
+	@Test
+	public void testIssue15() throws Exception {
+		File file = createFile();
+		SharedMemoryPipe pipe = new SharedMemoryPipe(file,
+				1789, JslipcRole.Yang);
+		SharedMemoryPipe peer = new SharedMemoryPipe(file,
+				1789, JslipcRole.Yin);
+		assertNotNull(peer.source());
+		assertNotNull(peer.sink());
+		// neither call source() nor sink()
+//		assertNotNull(pipe.source());
+//		assertNotNull(pipe.sink());
+
+		pipe.cleanUpOnClose();
+
+		peer.close();
+		assertFalse(peer.source().isOpen());
+		assertFalse(peer.sink().isOpen());
+
+		pipe.close();
+		assertFalse(file.exists());
+	}
+
 
 
 	private void checkQueueBounds(SharedMemoryPipe pipe, int size, JslipcRole role) {

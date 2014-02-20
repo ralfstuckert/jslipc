@@ -179,6 +179,29 @@ public class ChunkFilePipeTest {
 	}
 
 	@Test
+	public void testIssue15() throws Exception {
+		ChunkFilePipe pipe = new ChunkFilePipe(sourceDir, sinkDir);
+
+		pipe.cleanUpOnClose();
+		// neither call source() nor sink()
+//		assertTrue(pipe.source().isOpen());
+//		assertTrue(pipe.sink().isOpen());
+
+		createClosedMarker(sourceDir);
+		createClosedMarker(sinkDir);
+
+		assertTrue(sourceDir.exists());
+		assertTrue(sinkDir.exists());
+		pipe.close();
+		String[] files = sourceDir.list();
+		assertTrue("not deleted: " + toString(files),
+				files == null || files.length == 0);
+
+		assertFalse(sourceDir.exists());
+		assertFalse(sinkDir.exists());
+	}
+
+	@Test
 	public void testCleanUpOnCloseWithDirAndRole() throws Exception {
 		ChunkFilePipe pipe = new ChunkFilePipe(directory, JslipcRole.Yang);
 
