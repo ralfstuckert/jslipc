@@ -84,7 +84,6 @@ public class JslipcPipeURLConnection extends URLConnection {
 	/**
 	 * Creates the request from the given URL.
 	 * 
-	 * @param url
 	 * @return the created request.
 	 * @throws IOException
 	 */
