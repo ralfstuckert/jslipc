@@ -121,8 +121,8 @@ public class JslipcPipeClient implements TimeoutAware {
 	 * 
 	 * @param out
 	 *            the stream to write to.
-	 * @param acceptedTypes
-	 *            the pipe types accepted by the client.
+	 * @param request
+	 *            the request to write.
 	 * @throws IOException
 	 */
 	protected void sendRequest(final OutputStream out, final JslipcRequest request)
