@@ -4,11 +4,17 @@ import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Some file helper methods.
  */
 public class FileUtil {
 
+	private final static Logger LOGGER = LoggerFactory
+			.getLogger(FileUtil.class);
+	
 	/**
 	 * Deletes a file or directory.
 	 * 
@@ -35,10 +41,7 @@ public class FileUtil {
 		}
 
 		if (!file.delete()) {
-			// TODO use logging
-//			System.err.println("failed to delete " + file
-//					+ ", trying delete on exit");
-			// Thread.dumpStack();
+			LOGGER.warn("failed to delete {}, trying delete on exit", file);
 			file.deleteOnExit();
 		}
 	}

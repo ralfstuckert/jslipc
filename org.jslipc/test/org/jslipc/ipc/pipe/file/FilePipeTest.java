@@ -216,8 +216,8 @@ public class FilePipeTest {
 		producerToConsumer.deleteOnExit();
 
 		Process producer = Runtime.getRuntime().exec(
-				new String[] { System.getProperty("java.home") + "/bin/java",
-						"-cp", System.getProperty("java.class.path"),
+				new String[] { TestUtil.getJvm(),
+						"-cp", TestUtil.getTestClassPath(),
 						FilePipeTestProducer.class.getName(),
 						consumerToProducer.getAbsolutePath(),
 						producerToConsumer.getAbsolutePath() });
@@ -236,8 +236,8 @@ public class FilePipeTest {
 	@Test(timeout = 20000)
 	public void testIpcWithDirectory() throws Exception {
 		Process producer = Runtime.getRuntime().exec(
-				new String[] { System.getProperty("java.home") + "/bin/java",
-						"-cp", System.getProperty("java.class.path"),
+				new String[] { TestUtil.getJvm(),
+						"-cp", TestUtil.getTestClassPath(),
 						FilePipeTestProducer.class.getName(),
 						directory.getAbsolutePath(), "-" + JslipcRole.Yin });
 

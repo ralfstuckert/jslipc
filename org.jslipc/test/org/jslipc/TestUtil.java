@@ -111,4 +111,28 @@ public class TestUtil {
 		return FileUtil.createDirectory(getTempDir());
 	}
 
+	public static String getTestClassPath() {
+		String cp = System.getProperty("java.class.path");
+		String pathSepatator = File.pathSeparator;
+		// filter logging implementation since it log output may block on system console
+		int slfIndex = cp.indexOf("slf4j-simple");
+		if (slfIndex >= 0) {
+			int startIndex = cp.substring(0, slfIndex).lastIndexOf(pathSepatator);
+			if (startIndex < 0) {
+				startIndex = 0;
+			}
+			int endIndex = cp.substring(slfIndex).indexOf(pathSepatator);
+			if (endIndex < 0) {
+				endIndex = cp.length()-1;
+			} else {
+				endIndex += slfIndex;
+			}
+			cp = cp.substring(0, startIndex) + pathSepatator + cp.substring(endIndex);
+		}
+		return cp;
+	}
+	
+	public static String getJvm() {
+		return System.getProperty("java.home") + "/bin/java";
+	}
 }

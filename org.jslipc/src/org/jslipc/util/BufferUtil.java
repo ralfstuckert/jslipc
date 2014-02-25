@@ -3,10 +3,17 @@ package org.jslipc.util;
 import java.lang.reflect.Method;
 import java.nio.MappedByteBuffer;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Utility class for handling buffers.
  */
 public final class BufferUtil {
+	
+	private final static Logger LOGGER = LoggerFactory
+			.getLogger(BufferUtil.class);
+	
 	private BufferUtil() {
 		// utility classes should have private constructor.
 	}
@@ -20,6 +27,8 @@ public final class BufferUtil {
 	 * @throws Exception
 	 */
 	public static void releaseBuffer(MappedByteBuffer buffer) throws Exception {
+		LOGGER.debug("releasing buffer {}", buffer);
+		
 		if (buffer == null) {
 			return;
 		}
@@ -40,8 +49,7 @@ public final class BufferUtil {
 		try {
 			releaseBuffer(buffer);
 		} catch (Exception e) {
-			// TODO log
-			e.printStackTrace();
+			LOGGER.error("failed to release buffer", e);
 		}
 	}
 

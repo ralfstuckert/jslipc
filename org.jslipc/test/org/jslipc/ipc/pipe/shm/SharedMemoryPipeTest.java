@@ -13,6 +13,7 @@ import java.nio.channels.FileChannel;
 
 import org.jslipc.JslipcPipe;
 import org.jslipc.JslipcRole;
+import org.jslipc.TestUtil;
 import org.jslipc.ipc.pipe.AbstractTestProducer;
 import org.jslipc.ipc.pipe.shm.SharedMemoryPipe;
 import org.junit.Before;
@@ -190,8 +191,8 @@ public class SharedMemoryPipeTest {
 	public void testIpc() throws Exception {
 		File file = createFile();
 		Process producer = Runtime.getRuntime().exec(
-				new String[] { System.getProperty("java.home") + "/bin/java",
-						"-cp", System.getProperty("java.class.path"),
+				new String[] { TestUtil.getJvm(),
+						"-cp", TestUtil.getTestClassPath(),
 						SMPipeTestProducer.class.getName(), file.getAbsolutePath() });
 		Thread.sleep(1000);
 		SMPipeTestConsumer consumer = new SMPipeTestConsumer();

@@ -10,6 +10,8 @@ import org.jslipc.channel.file.chunk.ReadableChunkFileChannel;
 import org.jslipc.channel.file.chunk.WritableChunkFileChannel;
 import org.jslipc.ipc.pipe.shm.SharedMemoryPipe;
 import org.jslipc.util.FileUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * In contrast to the {@link FilePipe} this implementation is based on chunk
@@ -28,6 +30,9 @@ import org.jslipc.util.FileUtil;
  * <br/>
  */
 public class ChunkFilePipe implements JslipcPipe, JslipcBinman {
+
+	private final static Logger LOGGER = LoggerFactory
+			.getLogger(ChunkFilePipe.class);
 
 	public final static String YANG_TO_YIN_NAME = "yangToYin";
 	public final static String YIN_TO_YANG_NAME = "yinToYang";
@@ -75,6 +80,9 @@ public class ChunkFilePipe implements JslipcPipe, JslipcBinman {
 			throws IOException {
 		this(getSourceDir(directory, role), getSinkDir(directory, role));
 		pipeDir = directory;
+
+		LOGGER.info("created ChunkFilePipe with directory {} and role {}",
+				directory, role);
 	}
 
 	/**
@@ -95,6 +103,8 @@ public class ChunkFilePipe implements JslipcPipe, JslipcBinman {
 		this.sourceDir = sourceDir;
 		this.sinkDir = sinkDir;
 
+		LOGGER.info("created ChunkFilePipe with source {} and sink {}",
+				sourceDir, sinkDir);
 	}
 
 	private void checkDirectory(File directory, String parameterName) {
@@ -145,8 +155,12 @@ public class ChunkFilePipe implements JslipcPipe, JslipcBinman {
 		}
 		if (cleanUpOnClose && pipeDir != null && !sourceDir.exists()
 				&& !sinkDir.exists()) {
+			LOGGER.debug("deleting pipe directory {}", pipeDir);
 			FileUtil.delete(pipeDir, true);
 		}
+
+		LOGGER.info("closed ChunkFilePipe with source {} and sink {}",
+				sourceDir, sinkDir);
 	}
 
 	@Override

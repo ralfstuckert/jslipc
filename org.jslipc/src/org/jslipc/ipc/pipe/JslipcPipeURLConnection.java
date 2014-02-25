@@ -17,32 +17,44 @@ import org.jslipc.channel.JslipcChannelInputStream;
 import org.jslipc.channel.JslipcChannelOutputStream;
 import org.jslipc.ipc.pipe.JslipcRequest.JslipcCommand;
 import org.jslipc.util.StringUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This is an {@link URLConnection} based on a {@link JslipcPipe}.
  */
 public class JslipcPipeURLConnection extends URLConnection {
 
+	private final static Logger LOGGER = LoggerFactory
+			.getLogger(JslipcPipeURLConnection.class);
+
 	protected JslipcPipeClient client;
 	protected InputStream in;
 	protected OutputStream out;
-	
+
 	/**
 	 * Create an URL connection based on the given pipe.
-	 * @param url the URL passed to the super class.
-	 * @param client the client used to create the streams.
+	 * 
+	 * @param url
+	 *            the URL passed to the super class.
+	 * @param client
+	 *            the client used to create the streams.
 	 */
-	public JslipcPipeURLConnection(final URL url, final JslipcPipeClient client) throws IOException {
+	public JslipcPipeURLConnection(final URL url, final JslipcPipeClient client)
+			throws IOException {
 		super(url);
 		if (url == null) {
-			throw new IllegalArgumentException("parameter 'url' must not be null");
+			throw new IllegalArgumentException(
+					"parameter 'url' must not be null");
 		}
 		if (client == null) {
-			throw new IllegalArgumentException("parameter 'client' must not be null");
+			throw new IllegalArgumentException(
+					"parameter 'client' must not be null");
 		}
 		this.client = client;
-	}
 
+		LOGGER.info("created JslipcPipeURLConnection on URL {}", url);
+	}
 
 	@Override
 	public synchronized void connect() throws IOException {
@@ -52,19 +64,23 @@ public class JslipcPipeURLConnection extends URLConnection {
 
 		JslipcRequest request = createRequest();
 		client.setTimeout(getConnectTimeout());
+		LOGGER.debug("set connect timeout to {}", getConnectTimeout());
 		JslipcPipe pipe = client.connect(request);
-		
-		JslipcChannelInputStream inputStream = new JslipcChannelInputStream(pipe.source());
+
+		JslipcChannelInputStream inputStream = new JslipcChannelInputStream(
+				pipe.source());
 		inputStream.setTimeout(getReadTimeout());
+		LOGGER.debug("set read timeout to {}", getReadTimeout());
 		in = new BufferedInputStream(inputStream);
 
-		JslipcChannelOutputStream outputStream = new JslipcChannelOutputStream(pipe.sink());
+		JslipcChannelOutputStream outputStream = new JslipcChannelOutputStream(
+				pipe.sink());
 		outputStream.setTimeout(getReadTimeout());
 		out = new BufferedOutputStream(outputStream);
-		
+
 		connected = true;
 	}
-	
+
 	@Override
 	public synchronized InputStream getInputStream() throws IOException {
 		if (!connected) {
@@ -72,7 +88,7 @@ public class JslipcPipeURLConnection extends URLConnection {
 		}
 		return in;
 	}
-	
+
 	@Override
 	public synchronized OutputStream getOutputStream() throws IOException {
 		if (!connected) {
@@ -97,12 +113,14 @@ public class JslipcPipeURLConnection extends URLConnection {
 				request.setParameter(entry.getKey(), entry.getValue());
 			}
 		}
-		
+
 		// pass request properties
-		for (Entry<String, List<String>> entry : getRequestProperties().entrySet()) {
-			request.setParameter(entry.getKey(), StringUtil.join(entry.getValue()));
+		for (Entry<String, List<String>> entry : getRequestProperties()
+				.entrySet()) {
+			request.setParameter(entry.getKey(),
+					StringUtil.join(entry.getValue()));
 		}
-		
+
 		return request;
 	}
 

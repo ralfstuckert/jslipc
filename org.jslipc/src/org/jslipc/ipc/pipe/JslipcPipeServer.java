@@ -22,12 +22,17 @@ import org.jslipc.ipc.pipe.file.FilePipe;
 import org.jslipc.ipc.pipe.shm.SharedMemoryPipe;
 import org.jslipc.util.FileUtil;
 import org.jslipc.util.TimeUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This is an analogy to a ServerSocket. The method {@link #accept()} wait for
  * an incoming connection request sent by a {@link JslipcPipeClient}.
  */
 public class JslipcPipeServer implements TimeoutAware {
+
+	private final static Logger LOGGER = LoggerFactory
+			.getLogger(JslipcPipeServer.class);
 
 	private File connectDirectory;
 	private File pipeDirectory;
@@ -78,6 +83,9 @@ public class JslipcPipeServer implements TimeoutAware {
 		this.connectDirectory = connectDirectory;
 		this.pipeDirectory = pipeDirectory;
 		this.supportedTypes = supportedTypes;
+
+		LOGGER.info("created {} with connect dir {} and pipe dir {}", this
+				.getClass().getSimpleName(), connectDirectory, pipeDirectory);
 	}
 
 	public void checkDirectory(File directory, String name) {
@@ -115,6 +123,7 @@ public class JslipcPipeServer implements TimeoutAware {
 			try {
 				request = readRequest(connectPipe.source());
 			} catch (IOException e) {
+				LOGGER.error("failed to read request", e);
 				sendResponse(
 						new JslipcResponse(JslipcCode.BadRequest,
 								e.getMessage()), out);
@@ -123,7 +132,9 @@ public class JslipcPipeServer implements TimeoutAware {
 			try {
 				response = new JslipcResponse(JslipcCode.PipeCreated, "ok");
 				pipe = createPipe(request, response);
+				LOGGER.debug("created pipe {} for request {}", pipe, request);
 			} catch (IOException e) {
+				LOGGER.error("failed to set up pipe", e);
 				sendResponse(
 						new JslipcResponse(JslipcCode.InternalError,
 								e.getMessage()), out);
@@ -210,7 +221,8 @@ public class JslipcPipeServer implements TimeoutAware {
 				+ "'are not supported: " + Arrays.asList(supportedTypes));
 	}
 
-	private JslipcRequest readRequest(ReadableJslipcFileChannel source) throws IOException {
+	private JslipcRequest readRequest(ReadableJslipcFileChannel source)
+			throws IOException {
 		JslipcChannelInputStream in = new JslipcChannelInputStream(source);
 		in.setTimeout(getTimeout());
 		return readRequest(in);
@@ -261,9 +273,12 @@ public class JslipcPipeServer implements TimeoutAware {
 			for (File file : files) {
 				if (file.isDirectory() && !isMarkedServed(file)) {
 					dir = file;
+					break;
 				}
 			}
-			sleep(waitingSince, getAcceptTimeout());
+			if (dir == null) {
+				sleep(waitingSince, getAcceptTimeout());
+			}
 		}
 		markServed(dir);
 		return dir;

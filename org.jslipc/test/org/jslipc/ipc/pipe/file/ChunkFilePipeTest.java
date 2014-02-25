@@ -236,14 +236,14 @@ public class ChunkFilePipeTest {
 		producerToConsumer.deleteOnExit();
 
 		Process producer = Runtime.getRuntime().exec(
-				new String[] { System.getProperty("java.home") + "/bin/java",
-						"-cp", System.getProperty("java.class.path"),
+				new String[] { TestUtil.getJvm(),
+						"-cp", TestUtil.getTestClassPath(),
 						ChunkFilePipeTestProducer.class.getName(),
 						consumerToProducer.getAbsolutePath(),
 						producerToConsumer.getAbsolutePath() });
 
 //		 int date = 0;
-//		 while ((date = producer.getErrorStream().read()) != -1) {
+//		 while ((date = producer.getInputStream().read()) != -1) {
 //		 System.err.write(date);
 //		 }
 		
@@ -261,8 +261,8 @@ public class ChunkFilePipeTest {
 	@Test(timeout = 20000)
 	public void testIpcWithDirectoryAndRole() throws Exception {
 		Process producer = Runtime.getRuntime().exec(
-				new String[] { System.getProperty("java.home") + "/bin/java",
-						"-cp", System.getProperty("java.class.path"),
+				new String[] { TestUtil.getJvm(),
+						"-cp", TestUtil.getTestClassPath(),
 						ChunkFilePipeTestProducer.class.getName(),
 						directory.getAbsolutePath(), "-" + JslipcRole.Yin });
 		
@@ -283,4 +283,5 @@ public class ChunkFilePipeTest {
 	}
 
 
+	
 }

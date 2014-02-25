@@ -18,6 +18,8 @@ import org.jslipc.ipc.pipe.file.ChunkFilePipe;
 import org.jslipc.ipc.pipe.file.FilePipe;
 import org.jslipc.ipc.pipe.shm.SharedMemoryPipe;
 import org.jslipc.util.FileUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This is an analogy to socket which requests a connection pipe from a
@@ -26,6 +28,9 @@ import org.jslipc.util.FileUtil;
  */
 public class JslipcPipeClient implements TimeoutAware {
 
+	private final static Logger LOGGER = LoggerFactory
+			.getLogger(JslipcPipeClient.class);
+	
 	private File serverDirectory;
 	private int timeout = 0;
 
@@ -51,6 +56,8 @@ public class JslipcPipeClient implements TimeoutAware {
 					serverDirectory.getAbsolutePath() + " is not a directory");
 		}
 		this.serverDirectory = serverDirectory;
+		
+		LOGGER.debug("created {} on server directory {}", this.getClass().getSimpleName(), serverDirectory);
 	}
 
 	/**
@@ -85,6 +92,7 @@ public class JslipcPipeClient implements TimeoutAware {
 	 * @throws IOException
 	 */
 	public JslipcPipe connect(final JslipcRequest request) throws IOException {
+		LOGGER.debug("connecting to server {}", serverDirectory);
 		File directory = FileUtil.createDirectory(serverDirectory);
 		FilePipe connectPipe = new FilePipe(directory, JslipcRole.Yang);
 		connectPipe.cleanUpOnClose();
@@ -101,6 +109,7 @@ public class JslipcPipeClient implements TimeoutAware {
 		if (pipe instanceof JslipcBinman) {
 			((JslipcBinman) pipe).cleanUpOnClose();
 		}
+		LOGGER.debug("established pipe {}", pipe);
 
 		connectPipe.close();
 		return pipe;
@@ -117,6 +126,7 @@ public class JslipcPipeClient implements TimeoutAware {
 	 */
 	protected void sendRequest(final OutputStream out, final JslipcRequest request)
 			throws IOException {
+		LOGGER.debug("sending request {} to server {}", request, serverDirectory);
 		byte[] bytes = request.toBytes();
 		out.write(bytes);
 		out.flush();
@@ -154,6 +164,8 @@ public class JslipcPipeClient implements TimeoutAware {
 		in.close();
 
 		JslipcResponse response = new JslipcResponse(baos.toByteArray());
+		LOGGER.debug("read response {} from server {}", response, serverDirectory);
+		
 		if (response.getCode() != JslipcCode.PipeCreated) {
 			throw new IOException("connect failed,  " + response.getCode()
 					+ ", " + response.getMessage());

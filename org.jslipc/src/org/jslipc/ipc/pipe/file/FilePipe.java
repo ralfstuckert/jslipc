@@ -9,6 +9,8 @@ import org.jslipc.JslipcRole;
 import org.jslipc.channel.file.ReadableJslipcFileChannel;
 import org.jslipc.channel.file.WritableJslipcFileChannel;
 import org.jslipc.util.FileUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The FilePipe uses a {@link ReadableJslipcFileChannel} and
@@ -25,6 +27,9 @@ import org.jslipc.util.FileUtil;
  * reads).
  */
 public class FilePipe implements JslipcPipe, JslipcBinman {
+	
+	private final static Logger LOGGER = LoggerFactory
+			.getLogger(FilePipe.class);
 
 	public final static String YANG_TO_YIN_NAME = "yangToYin.channel";
 	public final static String YIN_TO_YANG_NAME = "yinToYang.channel";
@@ -73,6 +78,9 @@ public class FilePipe implements JslipcPipe, JslipcBinman {
 			throws IOException {
 		this(getSourceFile(directory, role), getSinkFile(directory, role));
 		pipeDir = directory;
+
+		LOGGER.info("created FilePipe with directory {} and role {}",
+				directory, role);
 	}
 
 	/**
@@ -95,6 +103,8 @@ public class FilePipe implements JslipcPipe, JslipcBinman {
 		}
 		this.sourceFile = source;
 		this.sinkFile = sink;
+
+		LOGGER.info("created FilePipe with source {} and sink {}", source, sink);
 	}
 
 	@Override
@@ -130,8 +140,12 @@ public class FilePipe implements JslipcPipe, JslipcBinman {
 		}
 		if (cleanUpOnClose && pipeDir != null && !sourceFile.exists()
 				&& !sinkFile.exists()) {
+			LOGGER.debug("deleting pipe directory {}", pipeDir);
 			FileUtil.delete(pipeDir, true);
 		}
+
+		LOGGER.info("closed FilePipe with source {} and sink {}",
+				sourceFile, sinkFile);
 	}
 
 	@Override

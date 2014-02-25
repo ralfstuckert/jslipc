@@ -18,6 +18,8 @@ import org.jslipc.channel.buffer.ReadableBbqChannel;
 import org.jslipc.channel.buffer.WritableBbqChannel;
 import org.jslipc.util.BufferUtil;
 import org.jslipc.util.FileUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This pipe uses shared memory to create in-memory buffers which are used to
@@ -33,6 +35,9 @@ import org.jslipc.util.FileUtil;
  * forced to write back to disk, so the buffer is volatile.
  */
 public class SharedMemoryPipe implements JslipcPipe, JslipcBinman {
+
+	private final static Logger LOGGER = LoggerFactory
+			.getLogger(SharedMemoryPipe.class);
 
 	private static final int DEFAULT_SIZE = 4096;
 	private File file;
@@ -50,11 +55,12 @@ public class SharedMemoryPipe implements JslipcPipe, JslipcBinman {
 	 * is mapped into memory (to create shared memory), where a default size of
 	 * 4k of shared memory is allocated. The role itself does not have any
 	 * special semantics, means: it makes no difference whether you are
-	 * {@link JslipcRole#Yin server} or {@link JslipcRole#Yang yang}. It is
-	 * just needed to distinguish the endpoints of the pipe, so one end should
-	 * have the role yin, the other yang.
+	 * {@link JslipcRole#Yin server} or {@link JslipcRole#Yang yang}. It is just
+	 * needed to distinguish the endpoints of the pipe, so one end should have
+	 * the role yin, the other yang.
 	 */
-	public SharedMemoryPipe(final File file, JslipcRole role) throws IOException {
+	public SharedMemoryPipe(final File file, JslipcRole role)
+			throws IOException {
 		this(file, DEFAULT_SIZE, role);
 	}
 
@@ -63,9 +69,9 @@ public class SharedMemoryPipe implements JslipcPipe, JslipcBinman {
 	 * is mapped into memory (to create shared memory), where the size indicates
 	 * the amount of shared memory to allocate. The role itself does not have
 	 * any special semantics, means: it makes no difference whether you are
-	 * {@link JslipcRole#Yin server} or {@link JslipcRole#Yang yang}. It is
-	 * just needed to distinguish the endpoints of the pipe, so one end should
-	 * have the role yin, the other yang.
+	 * {@link JslipcRole#Yin server} or {@link JslipcRole#Yang yang}. It is just
+	 * needed to distinguish the endpoints of the pipe, so one end should have
+	 * the role yin, the other yang.
 	 * 
 	 * @param file
 	 * @param size
@@ -85,6 +91,10 @@ public class SharedMemoryPipe implements JslipcPipe, JslipcBinman {
 		buffer = fileChannel.map(MapMode.READ_WRITE, 0, size);
 		inQueue = createQueue(buffer, size, role, true);
 		outQueue = createQueue(buffer, size, role, false);
+
+		LOGGER.info(
+				"created SharedMemoryPipe on file {} with role {} and size {}",
+				file, role, size);
 	}
 
 	@Override
@@ -120,7 +130,10 @@ public class SharedMemoryPipe implements JslipcPipe, JslipcBinman {
 
 		if (cleanUpOnClose && sourceClosedByPeer && sinkClosedByPeer) {
 			FileUtil.delete(file);
+			LOGGER.debug("deleting pipe file {}", file);
 		}
+
+		LOGGER.info("closed SharedMemoryPipe on file {}", file);
 	}
 
 	protected ByteBufferQueue createQueue(final MappedByteBuffer buffer,
