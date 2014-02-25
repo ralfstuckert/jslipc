@@ -21,6 +21,7 @@ import org.jslipc.ipc.pipe.file.ChunkFilePipe;
 import org.jslipc.ipc.pipe.file.FilePipe;
 import org.jslipc.ipc.pipe.shm.SharedMemoryPipe;
 import org.jslipc.util.FileUtil;
+import org.jslipc.util.StringUtil;
 import org.jslipc.util.TimeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -353,4 +354,13 @@ public class JslipcPipeServer implements TimeoutAware {
 		}
 		this.connectTimeout = timeout;
 	}
+
+	@Override
+	public String toString() {
+		return StringUtil.build(this).add("connectDirectory", connectDirectory)
+				.add("pipeDirectory", pipeDirectory)
+				.add("acceptTimeout", acceptTimeout)
+				.add("connectTimeout", connectTimeout).toString();
+	}
+
 }

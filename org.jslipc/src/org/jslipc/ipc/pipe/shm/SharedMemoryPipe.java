@@ -18,6 +18,7 @@ import org.jslipc.channel.buffer.ReadableBbqChannel;
 import org.jslipc.channel.buffer.WritableBbqChannel;
 import org.jslipc.util.BufferUtil;
 import org.jslipc.util.FileUtil;
+import org.jslipc.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -181,4 +182,10 @@ public class SharedMemoryPipe implements JslipcPipe, JslipcBinman {
 		}
 		return sink;
 	}
+	
+	@Override
+	public String toString() {
+		return StringUtil.build(this).add("file", file).toString();
+	}
+
 }

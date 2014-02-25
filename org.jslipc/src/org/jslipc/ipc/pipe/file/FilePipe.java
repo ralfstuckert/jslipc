@@ -9,6 +9,7 @@ import org.jslipc.JslipcRole;
 import org.jslipc.channel.file.ReadableJslipcFileChannel;
 import org.jslipc.channel.file.WritableJslipcFileChannel;
 import org.jslipc.util.FileUtil;
+import org.jslipc.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -202,5 +203,10 @@ public class FilePipe implements JslipcPipe, JslipcBinman {
 		File file = new File(directory, name);
 		file.createNewFile();
 		return file;
+	}
+	
+	@Override
+	public String toString() {
+		return StringUtil.build(this).add("source", sourceFile).add("sink", sinkFile).toString();
 	}
 }

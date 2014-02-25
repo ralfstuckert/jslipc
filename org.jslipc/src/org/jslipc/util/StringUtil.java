@@ -87,5 +87,40 @@ public class StringUtil {
 		return bob.toString();
 	}
 
+	public static ToStringBuilder build(final Object instance) {
+		return new ToStringBuilder(instance);
+	}
 
+	
+	public static class ToStringBuilder {
+		private final StringBuilder bob;
+		private boolean argsAdded;
+		
+		public ToStringBuilder(final Object instance) {
+			bob = new StringBuilder(instance.getClass().getSimpleName());
+			bob.append('[');
+		}
+		
+		public ToStringBuilder add(final String name, final Object value) {
+			if (argsAdded) {
+				bob.append(',');
+			}
+			
+			bob.append(name);
+			bob.append('=');
+			if (value == null) {
+				bob.append("null");
+			} else {
+				bob.append(value);
+			}
+			argsAdded = true;
+			return this;
+		}
+		
+		public String toString() {
+			bob.append(']');
+			return bob.toString();
+		}
+		
+	}
 }

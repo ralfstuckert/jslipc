@@ -10,6 +10,7 @@ import org.jslipc.channel.file.chunk.ReadableChunkFileChannel;
 import org.jslipc.channel.file.chunk.WritableChunkFileChannel;
 import org.jslipc.ipc.pipe.shm.SharedMemoryPipe;
 import org.jslipc.util.FileUtil;
+import org.jslipc.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -229,4 +230,8 @@ public class ChunkFilePipe implements JslipcPipe, JslipcBinman {
 		return directory;
 	}
 
+	@Override
+	public String toString() {
+		return StringUtil.build(this).add("source", sourceDir).add("sink", sinkDir).toString();
+	}
 }

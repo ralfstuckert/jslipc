@@ -18,6 +18,7 @@ import org.jslipc.ipc.pipe.file.ChunkFilePipe;
 import org.jslipc.ipc.pipe.file.FilePipe;
 import org.jslipc.ipc.pipe.shm.SharedMemoryPipe;
 import org.jslipc.util.FileUtil;
+import org.jslipc.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -221,6 +222,12 @@ public class JslipcPipeClient implements TimeoutAware {
 			throw new IllegalArgumentException("parameter timeout must be > 0: " + timeout);
 		}
 		this.timeout = timeout;
+	}
+
+	
+	@Override
+	public String toString() {
+		return StringUtil.build(this).add("server", serverDirectory).add("timeout", timeout).toString();
 	}
 
 }
