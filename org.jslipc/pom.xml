@@ -20,7 +20,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.jslipc</groupId>
 	<artifactId>jslipc</artifactId>
-	<version>0.2.1</version>
+	<version>0.2.2-SNAPSHOT</version>
 	<description>Java Socket-Less Inter-Process Communication API</description>
 	<url>http://www.jslipc.org/</url>
 	<licenses>
