@@ -1,14 +1,18 @@
 package org.jslipc.ipc.pipe;
 
-import static org.junit.Assert.assertArrayEquals;
+import static org.hamcrest.CoreMatchers.startsWith;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
 
 import org.jslipc.ipc.pipe.file.ChunkFilePipe;
 import org.jslipc.ipc.pipe.file.FilePipe;
@@ -123,20 +127,24 @@ public abstract class AbstractJslipcMessageTest {
 	public void testToString() throws Exception {
 		AbstractJslipcMessage req = createMessageWithParameter();
 		String expected = req.getHeader() + "\n" + parameter;
-		String string = req.toString();
-		assertNotNull(string);
-		assertEquals(expected, string);
+		String actual = req.toString();
+		assertNotNull(actual);
+		assertThat(actual, startsWith(req.getHeader()));
+		assertEquals(toLines(expected), toLines(actual));
+	}
+	
+	private Collection<String> toLines(final String text) {
+		return new HashSet<String>(Arrays.asList(text.split("\n")));
 	}
 
 	@Test
 	public void testToBytes() throws Exception {
 		AbstractJslipcMessage req = createMessageWithParameter();
-		byte[] expected = new String(req.getHeader() + "\n" + parameter)
-				.getBytes(StringUtil.CHARSET_UTF_8);
-		byte[] actual = req.toBytes();
-
-		assertArrayEquals(expected, actual);
+		String expected = req.getHeader() + "\n" + parameter;
+		String actual = new String(req.toBytes(), StringUtil.CHARSET_UTF_8);
+		assertEquals(toLines(expected), toLines(actual));
 	}
+
 
 	@Test
 	public void testAddParameter() throws Exception {
