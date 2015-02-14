@@ -1,6 +1,14 @@
 = Jslipc - Java Socket-Less Inter-Process Communication API =
 
-= Version 0.2.1 =
+= Version 0.2.2 =
+
+*Fixes*
+ * Issue 17: Server directory utility
+ 
+
+ ----
+ 
+== Version 0.2.1 ==
 
 *Fixes*
  * Issue  4: Add logging
@@ -8,7 +16,6 @@
  * Issue 15: pipe.cleanUpOnClose() works only if source() and sink() has been called
  * Issue 16: JslipcPipeServer should separate timeouts for accept and connect
  
-
  ----
 
 == Version 0.2.0 ==
