@@ -18,6 +18,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+/** 
+ * Tests for class {@link ServerDir}.
+ */
 public class ServerDirTest {
 
 	private File dir;
