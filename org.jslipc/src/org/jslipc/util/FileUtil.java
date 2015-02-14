@@ -1,5 +1,6 @@
 package org.jslipc.util;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
@@ -76,4 +77,18 @@ public class FileUtil {
 		return file;
 	}
 
+	/**
+	 * Closes the given closeable ignoring all exception but logging them.
+	 * @param closeable
+	 */
+	public static void closeSilent(final Closeable closeable) {
+		if (closeable == null) {
+			return;
+		}
+		try {
+			closeable.close();
+		} catch (IOException e) {
+			LOGGER.info("failed to close {}", closeable);
+		}
+	}
 }
