@@ -19,14 +19,14 @@ import org.junit.Before;
 import org.junit.Test;
 
 /** 
- * Tests for class {@link ServerDir}.
+ * Tests for class {@link HostDir}.
  */
-public class ServerDirTest {
+public class HostDirTest {
 
 	private File dir;
 	private RandomAccessFile raf;
 	private FileLock lock;
-	private ServerDir serverDir;
+	private HostDir hostDir;
 
 	@Before
 	public void setUp() {
@@ -39,35 +39,35 @@ public class ServerDirTest {
 			lock.release();
 		}
 		FileUtil.closeSilent(raf);
-		FileUtil.closeSilent(serverDir);
+		FileUtil.closeSilent(hostDir);
 		FileUtil.delete(dir);
 	}
 	
 	private void setupLock() throws Exception {
-		File lockFile = new File(dir, ServerDir.SERVER_LOCK_FILE);
+		File lockFile = new File(dir, HostDir.HOST_LOCK_FILE);
 		raf = new RandomAccessFile(lockFile, "rw");
-		lock = ServerDir.lock(raf);
+		lock = HostDir.lock(raf);
 	}
 
 	@Test
-	public void testServerDir() throws Exception {
+	public void testHostDir() throws Exception {
 		setupLock();
-		serverDir = new ServerDir(dir, raf, lock);
+		hostDir = new HostDir(dir, raf, lock);
 
 		try {
-			new ServerDir(null, raf, lock);
+			new HostDir(null, raf, lock);
 			fail("expected IllegalArgumentExcception since directory is null");
 		} catch (IllegalArgumentException e) {
 			// expected
 		}
 		try {
-			new ServerDir(dir, null, lock);
+			new HostDir(dir, null, lock);
 			fail("expected IllegalArgumentExcception since lock file is null");
 		} catch (IllegalArgumentException e) {
 			// expected
 		}
 		try {
-			new ServerDir(dir, raf, null);
+			new HostDir(dir, raf, null);
 			fail("expected IllegalArgumentExcception since lock is null");
 		} catch (IllegalArgumentException e) {
 			// expected
@@ -77,27 +77,27 @@ public class ServerDirTest {
 	@Test
 	public void testGetDirectory() throws Exception {
 		setupLock();
-		serverDir = new ServerDir(dir, raf, lock);
-		assertSame(dir, serverDir.getDirectory());
+		hostDir = new HostDir(dir, raf, lock);
+		assertSame(dir, hostDir.getDirectory());
 	}
 
 	@Test
 	public void testIsActive() throws Exception {
 		setupLock();
-		serverDir = new ServerDir(dir, raf, lock);
-		assertTrue(serverDir.isActive());
+		hostDir = new HostDir(dir, raf, lock);
+		assertTrue(hostDir.isActive());
 
 		lock.release();
-		assertFalse(serverDir.isActive());
+		assertFalse(hostDir.isActive());
 	}
 
 	@Test
 	public void testClose() throws Exception {
 		setupLock();
-		serverDir = new ServerDir(dir, raf, lock);
+		hostDir = new HostDir(dir, raf, lock);
 		assertTrue(lock.isValid());
 
-		serverDir.close();
+		hostDir.close();
 		assertFalse(lock.isValid());
 	}
 
@@ -105,54 +105,54 @@ public class ServerDirTest {
 	
 	@Test
 	public void testCreate() throws IOException {
-		serverDir = ServerDir.create(dir);
-		assertNotNull(serverDir);
+		hostDir = HostDir.create(dir);
+		assertNotNull(hostDir);
 
-		File serverDirectory = serverDir.getDirectory();
-		assertNotNull(serverDirectory);
-		assertTrue(serverDirectory.exists());
+		File hostDirectory = hostDir.getDirectory();
+		assertNotNull(hostDirectory);
+		assertTrue(hostDirectory.exists());
 
-		File lockFile = new File(dir, ServerDir.SERVER_LOCK_FILE);
+		File lockFile = new File(dir, HostDir.HOST_LOCK_FILE);
 		assertTrue(lockFile.exists());
 		raf = new RandomAccessFile(lockFile, "rw");
 		String dirName = raf.readUTF();
-		assertEquals(dirName, serverDirectory.getName());
+		assertEquals(dirName, hostDirectory.getName());
 	}
 
 	@Test
 	public void testCreateTwice() throws IOException {
-		serverDir = ServerDir.create(dir);
-		assertNotNull(serverDir);
+		hostDir = HostDir.create(dir);
+		assertNotNull(hostDir);
 
 		try {
-			ServerDir secondServerDir = ServerDir.create(dir);
-			FileUtil.closeSilent(secondServerDir);
-			fail("expected exception since server is still active");
-		} catch (ServerActiveException e) {
-			assertEquals(serverDir.getDirectory(), e.getActiveServerDirectory());
+			HostDir secondHostDir = HostDir.create(dir);
+			FileUtil.closeSilent(secondHostDir);
+			fail("expected exception since host is still active");
+		} catch (ActiveHostException e) {
+			assertEquals(hostDir.getDirectory(), e.getActiveHostDirectory());
 		}
 	}
 
 	@Test
 	public void testCreateWithExistingLockFile()
 			throws IOException {
-		File oldServerDirectory = FileUtil.createDirectory(dir);
-		File lockFile = new File(dir, ServerDir.SERVER_LOCK_FILE);
+		File oldHostDirectory = FileUtil.createDirectory(dir);
+		File lockFile = new File(dir, HostDir.HOST_LOCK_FILE);
 		raf = new RandomAccessFile(lockFile, "rwd");
-		raf.writeUTF(oldServerDirectory.getName());
+		raf.writeUTF(oldHostDirectory.getName());
 		raf.close();
 
-		serverDir = ServerDir.create(dir);
-		assertNotNull(serverDir);
+		hostDir = HostDir.create(dir);
+		assertNotNull(hostDir);
 
-		File serverDirectory = serverDir.getDirectory();
-		assertNotNull(serverDirectory);
-		assertTrue(serverDirectory.exists());
+		File hostDirectory = hostDir.getDirectory();
+		assertNotNull(hostDirectory);
+		assertTrue(hostDirectory.exists());
 
 		assertTrue(lockFile.exists());
 		raf = new RandomAccessFile(lockFile, "rw");
 		String dirName = raf.readUTF();
-		assertEquals(dirName, serverDirectory.getName());
+		assertEquals(dirName, hostDirectory.getName());
 	}
 
 	@Test
@@ -161,16 +161,16 @@ public class ServerDirTest {
 		File oldDir2 = createDirWithFiles(dir);
 		File oldDir3 = createDirWithFiles(dir);
 
-		File lockFile = new File(dir, ServerDir.SERVER_LOCK_FILE);
+		File lockFile = new File(dir, HostDir.HOST_LOCK_FILE);
 		raf = new RandomAccessFile(lockFile, "rw");
 		raf.writeUTF(oldDir3.getName());
 
-		serverDir = ServerDir.create(dir);
-		assertNotNull(serverDir);
+		hostDir = HostDir.create(dir);
+		assertNotNull(hostDir);
 
-		File serverDirectory = serverDir.getDirectory();
-		assertNotNull(serverDirectory);
-		assertTrue(serverDirectory.exists());
+		File hostDirectory = hostDir.getDirectory();
+		assertNotNull(hostDirectory);
+		assertTrue(hostDirectory.exists());
 
 		assertFalse(oldDir1.exists());
 		assertFalse(oldDir2.exists());
@@ -179,17 +179,17 @@ public class ServerDirTest {
 
 	@Test
 	public void testCreateFails() throws IOException {
-		File serverDirectory = FileUtil.createDirectory(dir);
-		File lockFile = new File(dir, ServerDir.SERVER_LOCK_FILE);
+		File hostDirectory = FileUtil.createDirectory(dir);
+		File lockFile = new File(dir, HostDir.HOST_LOCK_FILE);
 		raf = new RandomAccessFile(lockFile, "rw");
-		raf.writeUTF(serverDirectory.getName());
-		lock = ServerDir.lock(raf);
+		raf.writeUTF(hostDirectory.getName());
+		lock = HostDir.lock(raf);
 
 		try {
-			serverDir = ServerDir.create(dir);
-			fail("expected ServerActiveException");
-		} catch (ServerActiveException e) {
-			assertEquals(serverDirectory, e.getActiveServerDirectory());
+			hostDir = HostDir.create(dir);
+			fail("expected ActiveHostException");
+		} catch (ActiveHostException e) {
+			assertEquals(hostDirectory, e.getActiveHostDirectory());
 		}
 	}
 
@@ -200,49 +200,49 @@ public class ServerDirTest {
 						TestUtil.getTestClassPath(),
 						TestServer.class.getName(), dir.getAbsolutePath() });
 		try {
-			while (ServerDir.getActive(dir) == null) {
+			while (HostDir.getActive(dir) == null) {
 				Thread.sleep(500);
 			}
 
-			serverDir = ServerDir.create(dir);
-			fail("expected ServerActiveException");
-		} catch (ServerActiveException e) {
-			assertEquals(dir, e.getActiveServerDirectory().getParentFile());
+			hostDir = HostDir.create(dir);
+			fail("expected ActiveHostException");
+		} catch (ActiveHostException e) {
+			assertEquals(dir, e.getActiveHostDirectory().getParentFile());
 		} finally {
 			server.destroy();
 		}
 	}
 
 	@Test
-	public void testGetActiveServerDirectory() throws IOException {
-		File serverDirectory = FileUtil.createDirectory(dir);
-		File lockFile = new File(dir, ServerDir.SERVER_LOCK_FILE);
+	public void testGetActiveHostDirectory() throws IOException {
+		File hostDirectory = FileUtil.createDirectory(dir);
+		File lockFile = new File(dir, HostDir.HOST_LOCK_FILE);
 
-		assertNull(ServerDir.getActive(dir));
+		assertNull(HostDir.getActive(dir));
 
 		assertTrue(lockFile.createNewFile());
-		assertNull(ServerDir.getActive(dir));
+		assertNull(HostDir.getActive(dir));
 
 		raf = new RandomAccessFile(lockFile, "rw");
-		raf.writeUTF(serverDirectory.getName());
-		assertNull(ServerDir.getActive(dir));
+		raf.writeUTF(hostDirectory.getName());
+		assertNull(HostDir.getActive(dir));
 
-		lock = ServerDir.lock(raf);
+		lock = HostDir.lock(raf);
 		assertNotNull(lock);
-		assertEquals(serverDirectory, ServerDir.getActive(dir));
+		assertEquals(hostDirectory, HostDir.getActive(dir));
 
 		lock.release();
-		assertNull(ServerDir.getActive(dir));
+		assertNull(HostDir.getActive(dir));
 	}
 
 	@Test(timeout = 10000)
-	public void testGetActiveServerDirectorySecondJVM() throws Exception {
+	public void testGetActiveHostDirectorySecondJVM() throws Exception {
 		Process server = Runtime.getRuntime().exec(
 				new String[] { TestUtil.getJvm(), "-cp",
 						TestUtil.getTestClassPath(),
 						TestServer.class.getName(), dir.getAbsolutePath() });
 		try {
-			while (ServerDir.getActive(dir) == null) {
+			while (HostDir.getActive(dir) == null) {
 				Thread.sleep(500);
 			}
 		} finally {
@@ -251,15 +251,15 @@ public class ServerDirTest {
 	}
 
 	@Test
-	public void testCreateAndGetActiveServerDirectory() throws IOException {
-		assertNull(ServerDir.getActive(dir));
+	public void testCreateAndGetActiveHostDirectory() throws IOException {
+		assertNull(HostDir.getActive(dir));
 
-		serverDir = ServerDir.create(dir);
-		assertEquals(serverDir.getDirectory(),
-				ServerDir.getActive(dir));
+		hostDir = HostDir.create(dir);
+		assertEquals(hostDir.getDirectory(),
+				HostDir.getActive(dir));
 
-		serverDir.close();
-		assertNull(ServerDir.getActive(dir));
+		hostDir.close();
+		assertNull(HostDir.getActive(dir));
 	}
 
 	private File createDirWithFiles(final File parentDir) throws IOException {

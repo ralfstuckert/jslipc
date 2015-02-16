@@ -17,15 +17,15 @@ public class TestServer {
 	}
 
 	private static void createServerDirectory(String[] args) {
-		ServerDir serverDir = null;
+		HostDir hostDir = null;
 		try {
 			File parentDirectory = new File(args[0]);
-			serverDir = ServerDir.create(parentDirectory);
+			hostDir = HostDir.create(parentDirectory);
 			Thread.sleep(20000);
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-			FileUtil.closeSilent(serverDir);
+			FileUtil.closeSilent(hostDir);
 		}
 	}
 }

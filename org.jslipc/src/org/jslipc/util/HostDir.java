@@ -12,18 +12,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Utility class for dealing with server directories, see <a
+ * Utility class for dealing with host directories, see <a
  * href="https://code.google.com/p/jslipc/issues/detail?id=17">issue 17</a>.
  * This utility allows client and server to use ONE directory as the shared
  * information needed to set up a client server pipeline.
  * <p>Method {@link #create(File)} tries to create a new (sub-) directory. The name
- * of this directory is hold in a special file called <code>server.lock</code>, which is
- * locked by the server. The created directory will be the {@link #getActive(File) active}
- * server directory as long as the server process lives (holds the file lock), or the ServerDir is 
+ * of this directory is hold in a special file called <code>host.lock</code>, which is
+ * locked by the host. The created directory will be the {@link #getActive(File) active}
+ * host directory as long as the host process lives (holds the file lock), or the HostDir is 
  * {@link #close() closed}.</p>
- * <p>If you try to {@link #create(File) create} a new ServerDir while there is alredy an active one,
- * you will receive a {@link ServerActiveException}. This exception provides you the 
- * {@link ServerActiveException#getActiveServerDirectory() directory} of the currently active server.
+ * <p>If you try to {@link #create(File) create} a new HostDir while there is already an active one,
+ * you will receive a {@link ActiveHostException}. This exception provides you the 
+ * {@link ActiveHostException#getActiveHostDirectory() directory} of the currently active host.
  * Using that mechanism, you can also set up multi-process scenarios where the every process tries
  * {@link #create(File) to be the server}. If it gets an exception, it will know that there is already 
  * an active server and act as a client.</p>
@@ -31,18 +31,18 @@ import org.slf4j.LoggerFactory;
  * @author Ralf
  * 
  */
-public class ServerDir implements Closeable {
+public class HostDir implements Closeable {
 
-	public final static String SERVER_LOCK_FILE = "server.lock";
+	public final static String HOST_LOCK_FILE = "host.lock";
 
 	private final static Logger LOGGER = LoggerFactory
-			.getLogger(ServerDir.class);
+			.getLogger(HostDir.class);
 
 	private final File directory;
 	private final RandomAccessFile lockFile;
 	private final FileLock lock;
 
-	protected ServerDir(File directory, RandomAccessFile lockFile, FileLock lock) {
+	protected HostDir(File directory, RandomAccessFile lockFile, FileLock lock) {
 		if (directory == null) {
 			throw new IllegalArgumentException(
 					"parameter directory must not be null");
@@ -61,21 +61,21 @@ public class ServerDir implements Closeable {
 	}
 
 	/**
-	 * @return the active server directory.
+	 * @return the active host directory.
 	 */
 	public File getDirectory() {
 		return directory;
 	}
 
 	/**
-	 * @return <code>true</code> if the directory represented by this {@link ServerDir} is currently active.
+	 * @return <code>true</code> if the directory represented by this {@link HostDir} is currently active.
 	 */
 	public boolean isActive() {
 		return lock.isValid();
 	}
 
 	/**
-	 * Closes this ServerDir and releases the file lock hold on <code>server.lock</code>.
+	 * Closes this HostDir and releases the file lock hold on <code>host.lock</code>.
 	 */
 	@Override
 	public void close() throws IOException {
@@ -90,21 +90,21 @@ public class ServerDir implements Closeable {
 
 	@Override
 	public String toString() {
-		return "ServerDir [directory=" + directory + "]";
+		return "HostDir [directory=" + directory + "]";
 	}
 
 	/**
-	 * Creates a new ServerDir.
+	 * Creates a new HostDir.
 	 * @param parentDirectory the parent directory used as the shared information between the server and clients.
-	 * @return the created ServerDir.
-	 * @throws ServerActiveException if there is already active server in the given parent directory.
+	 * @return the created HostDir.
+	 * @throws ActiveHostException if there is already active server in the given parent directory.
 	 * @throws IOException on any I/O problem.
 	 */
-	public static ServerDir create(final File parentDirectory)
+	public static HostDir create(final File parentDirectory)
 			throws IOException {
 		deleteOldDirectories(parentDirectory);
 
-		File lockFile = new File(parentDirectory, SERVER_LOCK_FILE);
+		File lockFile = new File(parentDirectory, HOST_LOCK_FILE);
 		if (!lockFile.exists()) {
 			lockFile.createNewFile();
 		}
@@ -114,30 +114,30 @@ public class ServerDir implements Closeable {
 			FileLock lock = lock(raf);
 			if (lock == null) {
 				FileUtil.closeSilent(raf);
-				throw new ServerActiveException(getActive(parentDirectory));
+				throw new ActiveHostException(getActive(parentDirectory));
 			}
-			File serverDirectory = FileUtil.createDirectory(parentDirectory);
-			raf.writeUTF(serverDirectory.getName());
+			File hostDirectory = FileUtil.createDirectory(parentDirectory);
+			raf.writeUTF(hostDirectory.getName());
 
-			ServerDir ServerDir = new ServerDir(serverDirectory, raf, lock);
-			return ServerDir;
+			HostDir hostDir = new HostDir(hostDirectory, raf, lock);
+			return hostDir;
 		} catch (IOException e) {
 			FileUtil.closeSilent(raf);
-			throw new ServerActiveException(getActive(parentDirectory));
+			throw new ActiveHostException(getActive(parentDirectory));
 		} catch (OverlappingFileLockException e) {
 			FileUtil.closeSilent(raf);
-			throw new ServerActiveException(getActive(parentDirectory));
+			throw new ActiveHostException(getActive(parentDirectory));
 		}
 	}
 
 	/**
-	 * The active directory represented by this ServerDir. If there is none,
+	 * The active directory represented by this HostDir. If there is none,
 	 * <code>null</code> is returned.
 	 * @param parentDirectory
-	 * @return the active directory represented by this ServerDir.
+	 * @return the active directory represented by this HostDir.
 	 */
 	public static File getActive(final File parentDirectory) {
-		File lockFile = new File(parentDirectory, SERVER_LOCK_FILE);
+		File lockFile = new File(parentDirectory, HOST_LOCK_FILE);
 		if (!lockFile.exists()) {
 			return null;
 		}
@@ -151,8 +151,8 @@ public class ServerDir implements Closeable {
 			if (dirName == null || dirName.isEmpty()) {
 				return null;
 			}
-			File serverDirectory = new File(parentDirectory, dirName);
-			return serverDirectory;
+			File hostDirectory = new File(parentDirectory, dirName);
+			return hostDirectory;
 		} catch (IOException e) {
 			LOGGER.warn("IOException occurred", e);
 			return null;
@@ -186,10 +186,10 @@ public class ServerDir implements Closeable {
 		if (parentDirectory == null || !parentDirectory.isDirectory()) {
 			return;
 		}
-		File activeServerDirectory = getActive(parentDirectory);
+		File activeHostDirectory = getActive(parentDirectory);
 		File[] oldDirectories = parentDirectory.listFiles(DIRECTORY_FILTER);
 		for (File oldDirectory : oldDirectories) {
-			if (!oldDirectory.equals(activeServerDirectory)) {
+			if (!oldDirectory.equals(activeHostDirectory)) {
 				FileUtil.delete(oldDirectory);
 			}
 		}
