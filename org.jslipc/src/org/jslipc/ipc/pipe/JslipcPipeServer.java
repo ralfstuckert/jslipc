@@ -21,6 +21,7 @@ import org.jslipc.ipc.pipe.file.ChunkFilePipe;
 import org.jslipc.ipc.pipe.file.FilePipe;
 import org.jslipc.ipc.pipe.shm.SharedMemoryPipe;
 import org.jslipc.util.FileUtil;
+import org.jslipc.util.HostDir;
 import org.jslipc.util.StringUtil;
 import org.jslipc.util.TimeUtil;
 import org.slf4j.Logger;
@@ -32,14 +33,90 @@ import org.slf4j.LoggerFactory;
  */
 public class JslipcPipeServer implements TimeoutAware {
 
+	public static final String PIPES_DIR_NAME = "pipes";
+
+	public static final String CONNECT_DIR_NAME = "connect";
+
 	private final static Logger LOGGER = LoggerFactory
 			.getLogger(JslipcPipeServer.class);
 
 	private File connectDirectory;
-	private File pipeDirectory;
+	private File pipesDirectory;
 	private Class<? extends JslipcPipe>[] supportedTypes;
 	private int connectTimeout = 0;
 	private int acceptTimeout = 0;
+
+	/**
+	 * Creates a directory named <code>connect</code> in the given host
+	 * directory.
+	 * 
+	 * @param hostDir
+	 *            the directory hosting the connect and pipes dir.
+	 * @return the created connect directory.
+	 * @throws IOException
+	 *             if creating the directory failed.
+	 */
+	public static File getConnectDir(final HostDir hostDir)
+			throws IOException {
+		if (!hostDir.isActive()) {
+			throw new IOException("HostDir is already closed");
+		}
+		File connectDir = new File(hostDir.getDirectory(), CONNECT_DIR_NAME);
+		if (!connectDir.mkdir()) {
+			throw new IOException("Failed to create connect dir "
+					+ connectDir.getAbsolutePath());
+		}
+		return connectDir;
+	}
+
+	/**
+	 * Creates a directory named <code>pipes</code> in the given host directory.
+	 * 
+	 * @param hostDir
+	 *            the directory hosting the connect and pipes dir.
+	 * @return the created pipes directory.
+	 * @throws IOException
+	 *             if creating the directory failed.
+	 */
+	public static File getPipesDir(final HostDir hostDir) throws IOException {
+		if (!hostDir.isActive()) {
+			throw new IOException("HostDir is already closed");
+		}
+		File pipeDir = new File(hostDir.getDirectory(), PIPES_DIR_NAME);
+		if (!pipeDir.mkdir()) {
+			throw new IOException("Failed to create pipes dir "
+					+ pipeDir.getAbsolutePath());
+		}
+		return pipeDir;
+	}
+
+	/**
+	 * Creates a JslipcPipeServer supporting all pipe types.
+	 * 
+	 * @param hostDir
+	 *            the directory hosting the connect and pipes dir.
+	 * @throws IOException
+	 */
+	@SuppressWarnings("unchecked")
+	public JslipcPipeServer(final HostDir hostDir) throws IOException {
+		this(getConnectDir(hostDir), getPipesDir(hostDir), ChunkFilePipe.class,
+				FilePipe.class, SharedMemoryPipe.class);
+	}
+
+	/**
+	 * Creates a JslipcPipeServer with given host directory.
+	 * 
+	 * @param hostDir
+	 *            the directory hosting the connect and pipes dir.
+	 * @param supportedTypes
+	 *            the pipe types supported by the server, the first one is
+	 *            preferred.
+	 * @throws IOException
+	 */
+	public JslipcPipeServer(final HostDir hostDir,
+			Class<? extends JslipcPipe>... supportedTypes) throws IOException {
+		this(getConnectDir(hostDir), getPipesDir(hostDir), supportedTypes);
+	}
 
 	/**
 	 * Creates a JslipcPipeServer supporting all pipe types.
@@ -47,14 +124,14 @@ public class JslipcPipeServer implements TimeoutAware {
 	 * @param connectDirectory
 	 *            the directory the server searches for incoming connection
 	 *            request.
-	 * @param pipeDirectory
+	 * @param pipesDirectory
 	 *            the directory used to set up pipes.
 	 * @throws IOException
 	 */
 	@SuppressWarnings("unchecked")
 	public JslipcPipeServer(final File connectDirectory,
-			final File pipeDirectory) throws IOException {
-		this(connectDirectory, pipeDirectory, ChunkFilePipe.class,
+			final File pipesDirectory) throws IOException {
+		this(connectDirectory, pipesDirectory, ChunkFilePipe.class,
 				FilePipe.class, SharedMemoryPipe.class);
 	}
 
@@ -64,7 +141,7 @@ public class JslipcPipeServer implements TimeoutAware {
 	 * @param connectDirectory
 	 *            the directory the server searches for incoming connection
 	 *            request.
-	 * @param pipeDirectory
+	 * @param pipesDirectory
 	 *            the directory used to set up pipes.
 	 * @param supportedTypes
 	 *            the pipe types supported by the server, the first one is
@@ -72,21 +149,29 @@ public class JslipcPipeServer implements TimeoutAware {
 	 * @throws IOException
 	 */
 	public JslipcPipeServer(final File connectDirectory,
-			final File pipeDirectory,
+			final File pipesDirectory,
 			Class<? extends JslipcPipe>... supportedTypes) throws IOException {
 		checkDirectory(connectDirectory, "connectDirectory");
-		checkDirectory(pipeDirectory, "pipeDirectory");
-		if (connectDirectory.equals(pipeDirectory)) {
+		checkDirectory(pipesDirectory, "pipesDirectory");
+		if (connectDirectory.equals(pipesDirectory)) {
 			throw new IllegalArgumentException(
 					"connect- and pipe-directory must not be the same: "
 							+ connectDirectory.getAbsolutePath());
 		}
 		this.connectDirectory = connectDirectory;
-		this.pipeDirectory = pipeDirectory;
+		this.pipesDirectory = pipesDirectory;
 		this.supportedTypes = supportedTypes;
 
-		LOGGER.info("created {} with connect dir {} and pipe dir {}", this
-				.getClass().getSimpleName(), connectDirectory, pipeDirectory);
+		LOGGER.info("created {} with connect dir {} and pipes dir {}", this
+				.getClass().getSimpleName(), connectDirectory, pipesDirectory);
+	}
+	
+	protected File getConnectDir() {
+		return connectDirectory;
+	}
+
+	protected File getPipesDir() {
+		return pipesDirectory;
 	}
 
 	public void checkDirectory(File directory, String name) {
@@ -166,7 +251,7 @@ public class JslipcPipeServer implements TimeoutAware {
 		Class<? extends JslipcPipe> type = getSuitableType(request);
 
 		if (FilePipe.class.equals(type)) {
-			File dir = FileUtil.createDirectory(pipeDirectory);
+			File dir = FileUtil.createDirectory(getPipesDir());
 			response.setTypeParameter(type);
 			response.setFileParameter(JslipcResponse.PARAM_DIRECTORY, dir);
 			response.setParameter(JslipcResponse.PARAM_ROLE,
@@ -174,7 +259,7 @@ public class JslipcPipeServer implements TimeoutAware {
 			return new FilePipe(dir, JslipcRole.Yin);
 		}
 		if (ChunkFilePipe.class.equals(type)) {
-			File dir = FileUtil.createDirectory(pipeDirectory);
+			File dir = FileUtil.createDirectory(getPipesDir());
 			response.setTypeParameter(type);
 			response.setFileParameter(JslipcResponse.PARAM_DIRECTORY, dir);
 			response.setParameter(JslipcResponse.PARAM_ROLE,
@@ -182,7 +267,7 @@ public class JslipcPipeServer implements TimeoutAware {
 			return new ChunkFilePipe(dir, JslipcRole.Yin);
 		}
 		if (SharedMemoryPipe.class.equals(type)) {
-			File file = FileUtil.createFile(pipeDirectory);
+			File file = FileUtil.createFile(getPipesDir());
 			Integer size = request.getIntParameter(JslipcResponse.PARAM_SIZE);
 			response.setTypeParameter(type);
 			response.setFileParameter(JslipcResponse.PARAM_FILE, file);
@@ -270,7 +355,7 @@ public class JslipcPipeServer implements TimeoutAware {
 		File dir = null;
 		long waitingSince = System.currentTimeMillis();
 		while (dir == null) {
-			File[] files = connectDirectory.listFiles();
+			File[] files = getConnectDir().listFiles();
 			for (File file : files) {
 				if (file.isDirectory() && !isMarkedServed(file)) {
 					dir = file;
@@ -357,8 +442,8 @@ public class JslipcPipeServer implements TimeoutAware {
 
 	@Override
 	public String toString() {
-		return StringUtil.build(this).add("connectDirectory", connectDirectory)
-				.add("pipeDirectory", pipeDirectory)
+		return StringUtil.build(this).add("connectDirectory", getConnectDir())
+				.add("pipesDirectory", getPipesDir())
 				.add("acceptTimeout", acceptTimeout)
 				.add("connectTimeout", connectTimeout).toString();
 	}

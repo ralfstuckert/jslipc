@@ -22,16 +22,13 @@ import org.jslipc.JslipcRole;
 import org.jslipc.TestUtil;
 import org.jslipc.channel.JslipcChannelInputStream;
 import org.jslipc.channel.JslipcChannelOutputStream;
-import org.jslipc.ipc.pipe.AbstractJslipcMessage;
-import org.jslipc.ipc.pipe.JslipcPipeClient;
-import org.jslipc.ipc.pipe.JslipcRequest;
-import org.jslipc.ipc.pipe.JslipcResponse;
 import org.jslipc.ipc.pipe.JslipcRequest.JslipcCommand;
 import org.jslipc.ipc.pipe.JslipcResponse.JslipcCode;
 import org.jslipc.ipc.pipe.file.ChunkFilePipe;
 import org.jslipc.ipc.pipe.file.FilePipe;
 import org.jslipc.ipc.pipe.shm.SharedMemoryPipe;
 import org.jslipc.util.FileUtil;
+import org.jslipc.util.HostDir;
 import org.jslipc.util.UrlUtil;
 import org.junit.After;
 import org.junit.Before;
@@ -43,36 +40,55 @@ import org.junit.Test;
 public class JslipcPipeClientTest {
 
 	private File directory;
+	private HostDir hostDir;
 
 	@Before
 	public void setUp() throws Exception {
 		directory = TestUtil.createDirectory();
+		hostDir = HostDir.create(TestUtil.createDirectory());
 	}
 
 	@After
 	public void tearDown() throws Exception {
 		FileUtil.delete(directory, true);
+		hostDir.close();
+		FileUtil.delete(hostDir.getDirectory(), true);
 	}
 
-	public void testJsiplePipeClient() throws Exception {
+	public void testJslipcPipeClient() throws Exception {
 		new JslipcPipeClient(directory);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void testJsiplePipeClientWithNull() throws Exception {
-		new JslipcPipeClient(null);
+	public void testJslipcPipeClientWithNullFile() throws Exception {
+		new JslipcPipeClient((File)null);
 	}
 
 	@Test(expected = IOException.class)
-	public void testJsiplePipeClientWithNonExistingDir() throws Exception {
+	public void testJslipcPipeClientWithNonExistingDir() throws Exception {
 		new JslipcPipeClient(new File("herbert"));
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void testJsiplePipeClientWithFile() throws Exception {
+	public void testJslipcPipeClientWithFile() throws Exception {
 		File file = File.createTempFile("xxx", ".tmp");
 		file.deleteOnExit();
 		new JslipcPipeClient(file);
+	}
+
+	public void testJslipcPipeClientWithHostDir() throws Exception {
+		JslipcPipeClient client = new JslipcPipeClient(hostDir);
+		File serverDir = client.getServerDirectory();
+		assertTrue("file exists", serverDir.exists());
+		assertTrue("is directory", serverDir.isDirectory());
+		assertEquals("connect", serverDir.getName());
+		assertEquals(hostDir.getDirectory(), serverDir.getParentFile());
+	}
+
+	@Test(expected=IOException.class)
+	public void testJslipcPipeClientWithInactiveHostDir() throws Exception {
+		hostDir.close();
+		new JslipcPipeClient(hostDir);
 	}
 
 	@Test

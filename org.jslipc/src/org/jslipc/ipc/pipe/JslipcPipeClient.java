@@ -18,6 +18,7 @@ import org.jslipc.ipc.pipe.file.ChunkFilePipe;
 import org.jslipc.ipc.pipe.file.FilePipe;
 import org.jslipc.ipc.pipe.shm.SharedMemoryPipe;
 import org.jslipc.util.FileUtil;
+import org.jslipc.util.HostDir;
 import org.jslipc.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +36,20 @@ public class JslipcPipeClient implements TimeoutAware {
 	private File serverDirectory;
 	private int timeout = 0;
 
+
+	
+	/**
+	 * Creates a client talking to the {@link JslipcPipeServer} on the host
+	 * directory. See {@link JslipcPipeServer#getConnectDir(HostDir)}.
+	 * 
+	 * @param hostDir
+	 *            the directory hosting the connect and pipes dir.
+	 * @throws IOException
+	 */
+	public JslipcPipeClient(final HostDir hostDir) throws IOException {
+		this(JslipcPipeServer.getConnectDir(hostDir));
+	}
+	
 	/**
 	 * Creates a client talking to the {@link JslipcPipeServer} on the given
 	 * directory.

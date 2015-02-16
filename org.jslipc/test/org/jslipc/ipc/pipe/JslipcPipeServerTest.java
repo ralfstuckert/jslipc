@@ -25,6 +25,7 @@ import org.jslipc.ipc.pipe.file.ChunkFilePipe;
 import org.jslipc.ipc.pipe.file.FilePipe;
 import org.jslipc.ipc.pipe.shm.SharedMemoryPipe;
 import org.jslipc.util.FileUtil;
+import org.jslipc.util.HostDir;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,17 +37,21 @@ public class JslipcPipeServerTest {
 
 	private File serverConnectDir;
 	private File serverPipeDir;
+	private HostDir hostDir;
 
 	@Before
 	public void setUp() throws Exception {
 		serverConnectDir = TestUtil.createDirectory();
 		serverPipeDir = TestUtil.createDirectory();
+		hostDir = HostDir.create(TestUtil.createDirectory());
 	}
 
 	@After
 	public void tearDown() throws Exception {
 		FileUtil.delete(serverConnectDir, true);
 		FileUtil.delete(serverPipeDir, true);
+		hostDir.close();
+		FileUtil.delete(hostDir.getDirectory(), true);
 	}
 
 	@Test
@@ -91,6 +96,51 @@ public class JslipcPipeServerTest {
 		File file = File.createTempFile("xxx", ".tmp");
 		file.deleteOnExit();
 		new JslipcPipeServer(serverConnectDir, file);
+	}
+
+	@Test
+	public void testJslipcPipeServerWithHostDir() throws Exception {
+		JslipcPipeServer server = new JslipcPipeServer(hostDir);
+		assertEquals(new File(hostDir.getDirectory(), "connect"), server.getConnectDir());
+		assertEquals(new File(hostDir.getDirectory(), "pipes"), server.getPipesDir());
+	}
+
+	@Test(expected=IOException.class)
+	public void testJslipcPipeServerWithClosedHostDir() throws Exception {
+		hostDir.close();
+		new JslipcPipeServer(hostDir);
+	}
+
+	@Test
+	public void testGetConnectDir() throws Exception {
+		File connectDir = JslipcPipeServer.getConnectDir(hostDir);
+		assertNotNull(connectDir);
+		assertTrue("file exists", connectDir.exists());
+		assertTrue("is directory", connectDir.isDirectory());
+		assertEquals("connect", connectDir.getName());
+		assertEquals(hostDir.getDirectory(), connectDir.getParentFile());
+	}
+
+	@Test(expected=IOException.class)
+	public void testGetConnectDirWithInactiveHostDir() throws Exception {
+		hostDir.close();
+		JslipcPipeServer.getConnectDir(hostDir);
+	}
+
+	@Test
+	public void testGetPipesDir() throws Exception {
+		File pipesDir = JslipcPipeServer.getPipesDir(hostDir);
+		assertNotNull(pipesDir);
+		assertTrue("file exists", pipesDir.exists());
+		assertTrue("is directory", pipesDir.isDirectory());
+		assertEquals("pipes", pipesDir.getName());
+		assertEquals(hostDir.getDirectory(), pipesDir.getParentFile());
+	}
+
+	@Test(expected=IOException.class)
+	public void testGetPipesDirWithInactiveHostDir() throws Exception {
+		hostDir.close();
+		JslipcPipeServer.getPipesDir(hostDir);
 	}
 
 	@SuppressWarnings("unchecked")
