@@ -1,8 +1,9 @@
-package org.jslipc.ipc.pipe;
+package org.jslipc.ipc.pipe.server;
 
 import java.io.File;
 
 import org.jslipc.JslipcPipe;
+import org.jslipc.ipc.pipe.Ernie;
 import org.jslipc.ipc.pipe.JslipcPipeClient;
 
 public class ErnieWithPipeClient {

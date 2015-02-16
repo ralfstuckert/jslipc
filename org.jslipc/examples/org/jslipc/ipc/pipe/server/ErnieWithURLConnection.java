@@ -1,8 +1,10 @@
-package org.jslipc.ipc.pipe;
+package org.jslipc.ipc.pipe.server;
 
 import java.io.File;
 import java.net.URL;
 import java.net.URLConnection;
+
+import org.jslipc.ipc.pipe.Ernie;
 
 public class ErnieWithURLConnection {
 	

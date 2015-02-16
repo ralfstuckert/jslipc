@@ -1,8 +1,9 @@
-package org.jslipc.ipc.pipe;
+package org.jslipc.ipc.pipe.server;
 
 import java.io.File;
 
 import org.jslipc.JslipcPipe;
+import org.jslipc.ipc.pipe.Bert;
 import org.jslipc.ipc.pipe.JslipcConnection;
 import org.jslipc.ipc.pipe.JslipcPipeServer;
 
