@@ -28,7 +28,6 @@ import org.jslipc.ipc.pipe.file.ChunkFilePipe;
 import org.jslipc.ipc.pipe.file.FilePipe;
 import org.jslipc.ipc.pipe.shm.SharedMemoryPipe;
 import org.jslipc.util.FileUtil;
-import org.jslipc.util.HostDir;
 import org.jslipc.util.UrlUtil;
 import org.junit.After;
 import org.junit.Before;
@@ -40,19 +39,15 @@ import org.junit.Test;
 public class JslipcPipeClientTest {
 
 	private File directory;
-	private HostDir hostDir;
 
 	@Before
 	public void setUp() throws Exception {
 		directory = TestUtil.createDirectory();
-		hostDir = HostDir.create(TestUtil.createDirectory());
 	}
 
 	@After
 	public void tearDown() throws Exception {
 		FileUtil.delete(directory, true);
-		hostDir.close();
-		FileUtil.delete(hostDir.getDirectory(), true);
 	}
 
 	public void testJslipcPipeClient() throws Exception {
@@ -76,25 +71,10 @@ public class JslipcPipeClientTest {
 		new JslipcPipeClient(file);
 	}
 
-	public void testJslipcPipeClientWithHostDir() throws Exception {
-		JslipcPipeClient client = new JslipcPipeClient(hostDir);
-		File serverDir = client.getServerDirectory();
-		assertTrue("file exists", serverDir.exists());
-		assertTrue("is directory", serverDir.isDirectory());
-		assertEquals("connect", serverDir.getName());
-		assertEquals(hostDir.getDirectory(), serverDir.getParentFile());
-	}
-
-	@Test(expected=IOException.class)
-	public void testJslipcPipeClientWithInactiveHostDir() throws Exception {
-		hostDir.close();
-		new JslipcPipeClient(hostDir);
-	}
-
 	@Test
 	public void testGetServerDirectory() throws Exception {
 		JslipcPipeClient client = new JslipcPipeClient(directory);
-		assertEquals(directory, client.getServerDirectory());
+		assertEquals(directory, client.getServerConnectDirectory());
 	}
 
 	@Test(timeout = 600000)
