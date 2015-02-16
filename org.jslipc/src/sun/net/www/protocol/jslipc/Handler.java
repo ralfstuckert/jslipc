@@ -53,7 +53,7 @@ public class Handler extends URLStreamHandler {
 	protected URLConnection openConnection(final URL url) throws IOException {
 		File connectDir;
 		if (isHostDir) {
-			connectDir = PipeUtil.getActiveConnectDir(directory);
+			connectDir = PipeUtil.getActiveHostConnectDir(directory);
 		} else {
 			connectDir = directory;
 		}

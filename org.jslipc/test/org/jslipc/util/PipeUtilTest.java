@@ -65,20 +65,20 @@ public class PipeUtilTest {
 	}
 
 	@Test
-	public void testGetActiveConnectDir() throws Exception {
+	public void testGetActiveHostConnectDir() throws Exception {
 		File connectDir = PipeUtil.createConnectDir(hostDir);
-		assertEquals(connectDir, PipeUtil.getActiveConnectDir(hostParentDir));
+		assertEquals(connectDir, PipeUtil.getActiveHostConnectDir(hostParentDir));
 	}
 	
 	@Test(expected=IOException.class)
-	public void testGetActiveConnectDirHostClosed() throws Exception {
+	public void testGetActiveHostConnectDirHostClosed() throws Exception {
 		hostDir.close();
-		PipeUtil.getActiveConnectDir(hostParentDir);
+		PipeUtil.getActiveHostConnectDir(hostParentDir);
 	}
 	
 	@Test(expected=IOException.class)
-	public void testGetActiveConnectDirNotExists() throws Exception {
-		PipeUtil.getActiveConnectDir(hostParentDir);
+	public void testGetActiveHostConnectDirNotExists() throws Exception {
+		PipeUtil.getActiveHostConnectDir(hostParentDir);
 	}
 	
 }

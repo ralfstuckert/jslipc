@@ -61,10 +61,10 @@ public class PipeUtil {
 	 * @return the connect directory of the active host if there is one.
 	 * @throws IOException if there is no active host or connect directory.
 	 */
-	public static File getActiveConnectDir(final File hostParentDir) throws IOException {
+	public static File getActiveHostConnectDir(final File hostParentDir) throws IOException {
 		File activeHostDir = HostDir.getActive(hostParentDir);
 		if (activeHostDir == null) {
-			throw new IOException("no active host dir found");
+			throw new IOException("no active host dir found in " + hostParentDir);
 		}
 		File connectDir = new File(activeHostDir, CONNECT_DIR_NAME);
 		if (!connectDir.isDirectory()) {
