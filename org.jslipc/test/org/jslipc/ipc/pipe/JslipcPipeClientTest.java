@@ -22,12 +22,15 @@ import org.jslipc.JslipcRole;
 import org.jslipc.TestUtil;
 import org.jslipc.channel.JslipcChannelInputStream;
 import org.jslipc.channel.JslipcChannelOutputStream;
+import org.jslipc.ipc.pipe.JslipcPipeClient.DirectoryType;
 import org.jslipc.ipc.pipe.JslipcRequest.JslipcCommand;
 import org.jslipc.ipc.pipe.JslipcResponse.JslipcCode;
 import org.jslipc.ipc.pipe.file.ChunkFilePipe;
 import org.jslipc.ipc.pipe.file.FilePipe;
 import org.jslipc.ipc.pipe.shm.SharedMemoryPipe;
 import org.jslipc.util.FileUtil;
+import org.jslipc.util.HostDir;
+import org.jslipc.util.PipeUtil;
 import org.jslipc.util.UrlUtil;
 import org.junit.After;
 import org.junit.Before;
@@ -39,15 +42,21 @@ import org.junit.Test;
 public class JslipcPipeClientTest {
 
 	private File directory;
+	private File hostDirParent;
+	private HostDir hostDir;
 
 	@Before
 	public void setUp() throws Exception {
 		directory = TestUtil.createDirectory();
+		hostDirParent = TestUtil.createDirectory();
+		hostDir = HostDir.create(hostDirParent);
 	}
 
 	@After
 	public void tearDown() throws Exception {
 		FileUtil.delete(directory, true);
+		hostDir.close();
+		FileUtil.delete(hostDirParent, true);
 	}
 
 	public void testJslipcPipeClient() throws Exception {
@@ -56,7 +65,7 @@ public class JslipcPipeClientTest {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testJslipcPipeClientWithNullFile() throws Exception {
-		new JslipcPipeClient((File)null);
+		new JslipcPipeClient((File) null);
 	}
 
 	@Test(expected = IOException.class)
@@ -69,6 +78,27 @@ public class JslipcPipeClientTest {
 		File file = File.createTempFile("xxx", ".tmp");
 		file.deleteOnExit();
 		new JslipcPipeClient(file);
+	}
+
+	@Test
+	public void testJslipcPipeClientWithTypeConnect() throws Exception {
+		JslipcPipeClient client = new JslipcPipeClient(directory,
+				DirectoryType.Connect);
+		assertEquals(directory, client.getServerConnectDirectory());
+	}
+
+	@Test
+	public void testJslipcPipeClientWithTypeHost() throws Exception {
+		File expectedConnectDir = PipeUtil.createConnectDir(hostDir);
+		JslipcPipeClient client = new JslipcPipeClient(hostDirParent,
+				DirectoryType.Host);
+		assertEquals(expectedConnectDir, client.getServerConnectDirectory());
+	}
+
+	@Test(expected=IOException.class)
+	public void testJslipcPipeClientWithTypeHostNoActiveServer() throws Exception {
+		new JslipcPipeClient(directory, // this is no HostDir
+				DirectoryType.Host);
 	}
 
 	@Test
@@ -104,9 +134,11 @@ public class JslipcPipeClientTest {
 				request.getParameter(JslipcRequest.PARAM_ACCEPT_TYPES));
 
 		File pipeDir = FileUtil.createDirectory(directory);
-		JslipcResponse response = new JslipcResponse(JslipcCode.PipeCreated, "ok");
+		JslipcResponse response = new JslipcResponse(JslipcCode.PipeCreated,
+				"ok");
 		response.setFileParameter(JslipcResponse.PARAM_DIRECTORY, pipeDir);
-		response.setParameter(JslipcResponse.PARAM_ROLE, JslipcRole.Yang.toString());
+		response.setParameter(JslipcResponse.PARAM_ROLE,
+				JslipcRole.Yang.toString());
 		response.setTypeParameter(ChunkFilePipe.class);
 		writeResponse(connectPipe, response);
 		connectPipe.close();
@@ -168,9 +200,8 @@ public class JslipcPipeClientTest {
 
 		assertTrue(requestLines.toString(), requestLines.size() > 0);
 		assertEquals("CONNECT JSLIPC/1.0", requestLines.get(0));
-		assertThat(
-				requestLines,
-				hasItem(AbstractJslipcMessage.PARAM_ACCEPT_TYPES+": "
+		assertThat(requestLines,
+				hasItem(AbstractJslipcMessage.PARAM_ACCEPT_TYPES + ": "
 						+ UrlUtil.urlEncode("FilePipe,ChunkFilePipe")));
 	}
 
@@ -197,9 +228,11 @@ public class JslipcPipeClientTest {
 			throws UnsupportedEncodingException, IOException {
 
 		File dir = TestUtil.createDirectory();
-		JslipcResponse response = new JslipcResponse(JslipcCode.PipeCreated, "ok");
+		JslipcResponse response = new JslipcResponse(JslipcCode.PipeCreated,
+				"ok");
 		response.setTypeParameter(FilePipe.class);
-		response.setParameter(JslipcResponse.PARAM_ROLE, JslipcRole.Yang.toString());
+		response.setParameter(JslipcResponse.PARAM_ROLE,
+				JslipcRole.Yang.toString());
 		response.setFileParameter(JslipcResponse.PARAM_DIRECTORY, dir);
 
 		JslipcPipe pipe = readResponse(client, response);
@@ -215,9 +248,11 @@ public class JslipcPipeClientTest {
 			throws UnsupportedEncodingException, IOException {
 
 		File dir = TestUtil.createDirectory();
-		JslipcResponse response = new JslipcResponse(JslipcCode.PipeCreated, "ok");
+		JslipcResponse response = new JslipcResponse(JslipcCode.PipeCreated,
+				"ok");
 		response.setTypeParameter(ChunkFilePipe.class);
-		response.setParameter(JslipcResponse.PARAM_ROLE, JslipcRole.Yang.toString());
+		response.setParameter(JslipcResponse.PARAM_ROLE,
+				JslipcRole.Yang.toString());
 		response.setFileParameter(JslipcResponse.PARAM_DIRECTORY, dir);
 
 		JslipcPipe pipe = readResponse(client, response);
@@ -236,9 +271,11 @@ public class JslipcPipeClientTest {
 
 		File file = File.createTempFile("xxx", ".tmp");
 		file.deleteOnExit();
-		JslipcResponse response = new JslipcResponse(JslipcCode.PipeCreated, "ok");
+		JslipcResponse response = new JslipcResponse(JslipcCode.PipeCreated,
+				"ok");
 		response.setTypeParameter(SharedMemoryPipe.class);
-		response.setParameter(JslipcResponse.PARAM_ROLE, JslipcRole.Yang.toString());
+		response.setParameter(JslipcResponse.PARAM_ROLE,
+				JslipcRole.Yang.toString());
 		response.setFileParameter(JslipcResponse.PARAM_FILE, file);
 		response.setIntParameter(JslipcResponse.PARAM_SIZE, 8292);
 

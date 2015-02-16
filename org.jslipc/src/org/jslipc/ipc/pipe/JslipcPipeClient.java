@@ -18,6 +18,8 @@ import org.jslipc.ipc.pipe.file.ChunkFilePipe;
 import org.jslipc.ipc.pipe.file.FilePipe;
 import org.jslipc.ipc.pipe.shm.SharedMemoryPipe;
 import org.jslipc.util.FileUtil;
+import org.jslipc.util.HostDir;
+import org.jslipc.util.PipeUtil;
 import org.jslipc.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,12 +31,57 @@ import org.slf4j.LoggerFactory;
  */
 public class JslipcPipeClient implements TimeoutAware {
 
+	/**
+	 * The type of directory used to create the client.
+	 */
+	public enum DirectoryType {
+		/**
+		 * The given directory is a {@link HostDir}.
+		 */
+		Host,
+		/**
+		 * The given directory is a {@link JslipcPipeServer} connect directory.
+		 */
+		Connect;
+	}
+
 	private final static Logger LOGGER = LoggerFactory
 			.getLogger(JslipcPipeClient.class);
-	
+
 	private File serverConnectDirectory;
 	private int timeout = 0;
 
+	/**
+	 * Returns the connect directory depending on the given type.
+	 * @param directory
+	 * @param type
+	 * @return the connect directory depending on the given type.
+	 * @throws IOException
+	 */
+	protected static File getConnectDirectory(final File directory,
+			final DirectoryType type) throws IOException {
+		if (type == DirectoryType.Connect) {
+			return directory;
+		}
+		return PipeUtil.getActiveHostConnectDir(directory);
+	}
+
+	/**
+	 * Creates a client talking to the {@link JslipcPipeServer} on the given
+	 * directory. The directory may be either the server connect directory, or
+	 * the {@link HostDir} parent directory.
+	 * 
+	 * @param directory
+	 *            the directory used to set up the connection.
+	 * @param type
+	 *            the type of the directory.
+	 * 
+	 * @throws IOException
+	 */
+	public JslipcPipeClient(final File directory, final DirectoryType type)
+			throws IOException {
+		this(getConnectDirectory(directory, type));
+	}
 
 	/**
 	 * Creates a client talking to the {@link JslipcPipeServer} on the given
@@ -44,7 +91,8 @@ public class JslipcPipeClient implements TimeoutAware {
 	 *            the JslipcPipeServer directory.
 	 * @throws IOException
 	 */
-	public JslipcPipeClient(final File serverConnectDirectory) throws IOException {
+	public JslipcPipeClient(final File serverConnectDirectory)
+			throws IOException {
 		if (serverConnectDirectory == null) {
 			throw new IllegalArgumentException(
 					"parameter 'serverConnectDirectory' must not be null");
@@ -55,11 +103,13 @@ public class JslipcPipeClient implements TimeoutAware {
 		}
 		if (!serverConnectDirectory.isDirectory()) {
 			throw new IllegalArgumentException(
-					serverConnectDirectory.getAbsolutePath() + " is not a directory");
+					serverConnectDirectory.getAbsolutePath()
+							+ " is not a directory");
 		}
 		this.serverConnectDirectory = serverConnectDirectory;
-		
-		LOGGER.debug("created {} on server connect directory {}", this.getClass().getSimpleName(), serverConnectDirectory);
+
+		LOGGER.debug("created {} on server connect directory {}", this
+				.getClass().getSimpleName(), serverConnectDirectory);
 	}
 
 	/**
@@ -68,7 +118,7 @@ public class JslipcPipeClient implements TimeoutAware {
 	public File getServerConnectDirectory() {
 		return serverConnectDirectory;
 	}
-	
+
 	/**
 	 * Requests and waits for a pipe created by the corresponding
 	 * {@link JslipcPipeServer}
@@ -126,9 +176,10 @@ public class JslipcPipeClient implements TimeoutAware {
 	 *            the request to write.
 	 * @throws IOException
 	 */
-	protected void sendRequest(final OutputStream out, final JslipcRequest request)
-			throws IOException {
-		LOGGER.debug("sending request {} to server {}", request, serverConnectDirectory);
+	protected void sendRequest(final OutputStream out,
+			final JslipcRequest request) throws IOException {
+		LOGGER.debug("sending request {} to server {}", request,
+				serverConnectDirectory);
 		byte[] bytes = request.toBytes();
 		out.write(bytes);
 		out.flush();
@@ -166,20 +217,23 @@ public class JslipcPipeClient implements TimeoutAware {
 		in.close();
 
 		JslipcResponse response = new JslipcResponse(baos.toByteArray());
-		LOGGER.debug("read response {} from server {}", response, serverConnectDirectory);
-		
+		LOGGER.debug("read response {} from server {}", response,
+				serverConnectDirectory);
+
 		if (response.getCode() != JslipcCode.PipeCreated) {
 			throw new IOException("connect failed,  " + response.getCode()
 					+ ", " + response.getMessage());
 		}
 		Class<? extends JslipcPipe> type = response.getTypeParameter();
 		if (FilePipe.class.equals(type)) {
-			File dir = response.getFileParameter(JslipcResponse.PARAM_DIRECTORY);
+			File dir = response
+					.getFileParameter(JslipcResponse.PARAM_DIRECTORY);
 			JslipcRole role = getRole(response);
 			return new FilePipe(dir, role);
 		}
 		if (ChunkFilePipe.class.equals(type)) {
-			File dir = response.getFileParameter(JslipcResponse.PARAM_DIRECTORY);
+			File dir = response
+					.getFileParameter(JslipcResponse.PARAM_DIRECTORY);
 			JslipcRole role = getRole(response);
 			return new ChunkFilePipe(dir, role);
 		}
@@ -215,20 +269,23 @@ public class JslipcPipeClient implements TimeoutAware {
 
 	/**
 	 * Sets the connect-timeout of the client.
-	 * @param timeout the timeout in ms.
+	 * 
+	 * @param timeout
+	 *            the timeout in ms.
 	 */
 	@Override
 	public void setTimeout(int timeout) {
 		if (timeout < 0) {
-			throw new IllegalArgumentException("parameter timeout must be > 0: " + timeout);
+			throw new IllegalArgumentException(
+					"parameter timeout must be > 0: " + timeout);
 		}
 		this.timeout = timeout;
 	}
 
-	
 	@Override
 	public String toString() {
-		return StringUtil.build(this).add("server", serverConnectDirectory).add("timeout", timeout).toString();
+		return StringUtil.build(this).add("server", serverConnectDirectory)
+				.add("timeout", timeout).toString();
 	}
 
 }

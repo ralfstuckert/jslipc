@@ -37,13 +37,15 @@ public class JslipcPipeServerTest {
 
 	private File serverConnectDir;
 	private File serverPipeDir;
+	private File hostDirParent;
 	private HostDir hostDir;
 
 	@Before
 	public void setUp() throws Exception {
 		serverConnectDir = TestUtil.createDirectory();
 		serverPipeDir = TestUtil.createDirectory();
-		hostDir = HostDir.create(TestUtil.createDirectory());
+		hostDirParent = TestUtil.createDirectory();
+		hostDir = HostDir.create(hostDirParent);
 	}
 
 	@After
@@ -51,7 +53,7 @@ public class JslipcPipeServerTest {
 		FileUtil.delete(serverConnectDir, true);
 		FileUtil.delete(serverPipeDir, true);
 		hostDir.close();
-		FileUtil.delete(hostDir.getDirectory(), true);
+		FileUtil.delete(hostDirParent, true);
 	}
 
 	@Test
