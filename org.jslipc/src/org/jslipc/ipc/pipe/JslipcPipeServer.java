@@ -22,6 +22,7 @@ import org.jslipc.ipc.pipe.file.FilePipe;
 import org.jslipc.ipc.pipe.shm.SharedMemoryPipe;
 import org.jslipc.util.FileUtil;
 import org.jslipc.util.HostDir;
+import org.jslipc.util.PipeUtil;
 import org.jslipc.util.StringUtil;
 import org.jslipc.util.TimeUtil;
 import org.slf4j.Logger;
@@ -33,10 +34,6 @@ import org.slf4j.LoggerFactory;
  */
 public class JslipcPipeServer implements TimeoutAware {
 
-	public static final String PIPES_DIR_NAME = "pipes";
-
-	public static final String CONNECT_DIR_NAME = "connect";
-
 	private final static Logger LOGGER = LoggerFactory
 			.getLogger(JslipcPipeServer.class);
 
@@ -47,50 +44,6 @@ public class JslipcPipeServer implements TimeoutAware {
 	private int acceptTimeout = 0;
 
 	/**
-	 * Creates a directory named <code>connect</code> in the given host
-	 * directory.
-	 * 
-	 * @param hostDir
-	 *            the directory hosting the connect and pipes dir.
-	 * @return the created connect directory.
-	 * @throws IOException
-	 *             if creating the directory failed.
-	 */
-	public static File getConnectDir(final HostDir hostDir)
-			throws IOException {
-		if (!hostDir.isActive()) {
-			throw new IOException("HostDir is already closed");
-		}
-		File connectDir = new File(hostDir.getDirectory(), CONNECT_DIR_NAME);
-		if (!connectDir.mkdir()) {
-			throw new IOException("Failed to create connect dir "
-					+ connectDir.getAbsolutePath());
-		}
-		return connectDir;
-	}
-
-	/**
-	 * Creates a directory named <code>pipes</code> in the given host directory.
-	 * 
-	 * @param hostDir
-	 *            the directory hosting the connect and pipes dir.
-	 * @return the created pipes directory.
-	 * @throws IOException
-	 *             if creating the directory failed.
-	 */
-	public static File getPipesDir(final HostDir hostDir) throws IOException {
-		if (!hostDir.isActive()) {
-			throw new IOException("HostDir is already closed");
-		}
-		File pipeDir = new File(hostDir.getDirectory(), PIPES_DIR_NAME);
-		if (!pipeDir.mkdir()) {
-			throw new IOException("Failed to create pipes dir "
-					+ pipeDir.getAbsolutePath());
-		}
-		return pipeDir;
-	}
-
-	/**
 	 * Creates a JslipcPipeServer supporting all pipe types.
 	 * 
 	 * @param hostDir
@@ -99,7 +52,7 @@ public class JslipcPipeServer implements TimeoutAware {
 	 */
 	@SuppressWarnings("unchecked")
 	public JslipcPipeServer(final HostDir hostDir) throws IOException {
-		this(getConnectDir(hostDir), getPipesDir(hostDir), ChunkFilePipe.class,
+		this(PipeUtil.createConnectDir(hostDir), PipeUtil.createPipesDir(hostDir), ChunkFilePipe.class,
 				FilePipe.class, SharedMemoryPipe.class);
 	}
 
@@ -115,7 +68,7 @@ public class JslipcPipeServer implements TimeoutAware {
 	 */
 	public JslipcPipeServer(final HostDir hostDir,
 			Class<? extends JslipcPipe>... supportedTypes) throws IOException {
-		this(getConnectDir(hostDir), getPipesDir(hostDir), supportedTypes);
+		this(PipeUtil.createConnectDir(hostDir), PipeUtil.createPipesDir(hostDir), supportedTypes);
 	}
 
 	/**

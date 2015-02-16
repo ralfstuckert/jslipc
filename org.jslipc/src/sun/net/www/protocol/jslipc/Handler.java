@@ -8,6 +8,7 @@ import java.net.URLStreamHandler;
 
 import org.jslipc.ipc.pipe.JslipcPipeClient;
 import org.jslipc.ipc.pipe.JslipcPipeURLConnection;
+import org.jslipc.util.PipeUtil;
 
 /**
  * Handles <code>jslipc</code> protocol URLs. The syntax is
@@ -27,10 +28,13 @@ import org.jslipc.ipc.pipe.JslipcPipeURLConnection;
  */
 public class Handler extends URLStreamHandler {
 
-	protected File serverConnectDirectory;
+	protected File directory;
+	protected boolean isHostDir;
 	
 	@Override
 	protected void parseURL(URL url, String spec, int start, int limit) {
+		
+		isHostDir = spec.startsWith("jslipc:hostdir");
 		
 		int startIndex = spec.indexOf("://") + 3;
 		if (startIndex < start) {
@@ -40,14 +44,20 @@ public class Handler extends URLStreamHandler {
 		if (endIndex == -1) {
 			endIndex = spec.length();
 		}
-		serverConnectDirectory = new File(spec.substring(startIndex, endIndex));
+		directory = new File(spec.substring(startIndex, endIndex));
 		super.parseURL(url, spec, start, limit);
 		
 	}
 	
 	@Override
 	protected URLConnection openConnection(final URL url) throws IOException {
-		JslipcPipeClient client = new JslipcPipeClient(serverConnectDirectory);
+		File connectDir;
+		if (isHostDir) {
+			connectDir = PipeUtil.getActiveConnectDir(directory);
+		} else {
+			connectDir = directory;
+		}
+		JslipcPipeClient client = new JslipcPipeClient(connectDir);
 		return new JslipcPipeURLConnection(url, client);
 	}
 

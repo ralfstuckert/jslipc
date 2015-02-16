@@ -26,6 +26,8 @@ import org.jslipc.ipc.pipe.JslipcConnection;
 import org.jslipc.ipc.pipe.JslipcPipeServer;
 import org.jslipc.ipc.pipe.JslipcPipeURLConnection;
 import org.jslipc.util.FileUtil;
+import org.jslipc.util.HostDir;
+import org.jslipc.util.PipeUtil;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,11 +37,15 @@ public class HandlerTest {
 	private File connectDir;
 	private File pipeDir;
 	private File dir;
+	private HostDir hostDir;
+	private File hostParentDir;
 
 	@Before
 	public void setUp() throws Exception {
 		connectDir = TestUtil.createDirectory();
 		pipeDir = TestUtil.createDirectory();
+		hostParentDir = TestUtil.createDirectory();
+		hostDir = HostDir.create(hostParentDir);
 	}
 
 	@After
@@ -49,6 +55,8 @@ public class HandlerTest {
 		if (dir != null) {
 			FileUtil.delete(dir, true);
 		}
+		hostDir.close();
+		FileUtil.delete(hostParentDir, true);
 	}
 
 	@Test(expected = IOException.class)
@@ -68,8 +76,20 @@ public class HandlerTest {
 		checkOpenConnection(dir.getPath());
 	}
 
+	@Test(timeout = 60000)
+	public void testOpenConnectionWithHostDir() throws Exception {
+		File hostConnectDir = PipeUtil.createConnectDir(hostDir);
+		checkOpenConnection(hostConnectDir.getAbsolutePath(),
+				"jslipc:hostdir://" + hostParentDir);
+	}
+
 	public void checkOpenConnection(final String connectDirPath)
 			throws IOException, InterruptedException {
+		checkOpenConnection(connectDirPath, "jslipc://" + connectDirPath);
+	}
+
+	public void checkOpenConnection(final String connectDirPath,
+			final String urlString) throws IOException, InterruptedException {
 		final AtomicReference<JslipcConnection> connectRef = new AtomicReference<JslipcConnection>();
 		Thread thread = new Thread() {
 			public void run() {
@@ -85,7 +105,7 @@ public class HandlerTest {
 		};
 		thread.start();
 
-		URL url = new URL("jslipc://" + connectDirPath);
+		URL url = new URL(urlString);
 		URLConnection urlConnection = url.openConnection();
 		assertNotNull(urlConnection);
 		assertEquals(JslipcPipeURLConnection.class, urlConnection.getClass());
@@ -162,10 +182,11 @@ public class HandlerTest {
 
 		// server responded, check pipe
 		JslipcConnection jslipcConnection = connectRef.get();
-		Map<String, String> requestParameters = jslipcConnection.getRequestParameters();
+		Map<String, String> requestParameters = jslipcConnection
+				.getRequestParameters();
 		assertEquals("value1", requestParameters.get("key1"));
 		assertEquals("value2", requestParameters.get("key2"));
 
-		((JslipcBinman)jslipcConnection.getPipe()).close();
+		((JslipcBinman) jslipcConnection.getPipe()).close();
 	}
 }

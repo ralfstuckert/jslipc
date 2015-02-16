@@ -111,38 +111,6 @@ public class JslipcPipeServerTest {
 		new JslipcPipeServer(hostDir);
 	}
 
-	@Test
-	public void testGetConnectDir() throws Exception {
-		File connectDir = JslipcPipeServer.getConnectDir(hostDir);
-		assertNotNull(connectDir);
-		assertTrue("file exists", connectDir.exists());
-		assertTrue("is directory", connectDir.isDirectory());
-		assertEquals("connect", connectDir.getName());
-		assertEquals(hostDir.getDirectory(), connectDir.getParentFile());
-	}
-
-	@Test(expected=IOException.class)
-	public void testGetConnectDirWithInactiveHostDir() throws Exception {
-		hostDir.close();
-		JslipcPipeServer.getConnectDir(hostDir);
-	}
-
-	@Test
-	public void testGetPipesDir() throws Exception {
-		File pipesDir = JslipcPipeServer.getPipesDir(hostDir);
-		assertNotNull(pipesDir);
-		assertTrue("file exists", pipesDir.exists());
-		assertTrue("is directory", pipesDir.isDirectory());
-		assertEquals("pipes", pipesDir.getName());
-		assertEquals(hostDir.getDirectory(), pipesDir.getParentFile());
-	}
-
-	@Test(expected=IOException.class)
-	public void testGetPipesDirWithInactiveHostDir() throws Exception {
-		hostDir.close();
-		JslipcPipeServer.getPipesDir(hostDir);
-	}
-
 	@SuppressWarnings("unchecked")
 	@Test(timeout = 600000)
 	public void testAcceptWithNoAcceptType() throws Exception {
