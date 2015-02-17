@@ -11,6 +11,9 @@ public class ErnieWithURLConnection {
 		// set up pipe
 		URL url = new URL("jslipc:hostdir://./server?accept-types=ChunkFilePipe");
 		URLConnection connection = url.openConnection();
+		// setup timeouts
+		connection.setConnectTimeout(10000);
+		connection.setReadTimeout(10000);
 
 		Ernie ernie = new Ernie();
 		ernie.talkToBert(connection.getOutputStream(), connection.getInputStream());

@@ -13,6 +13,8 @@ public class ErnieWithPipeClient {
 		File directory = new File("./server/connect");
 		directory.mkdirs();
 		JslipcPipeClient client = new JslipcPipeClient(directory);
+		// setup timeouts
+		client.setTimeout(10000);
 		// request connection
 		@SuppressWarnings("unchecked")
 		JslipcPipe pipe = client.connect();

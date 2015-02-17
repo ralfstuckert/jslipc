@@ -20,8 +20,12 @@ public class Bert {
 			((JslipcBinman)pipe).cleanUpOnClose();
 		}
 		// set up streams
-		OutputStream out = new JslipcChannelOutputStream(pipe.sink());
-		InputStream in = new JslipcChannelInputStream(pipe.source());
+		JslipcChannelOutputStream out = new JslipcChannelOutputStream(pipe.sink());
+		JslipcChannelInputStream in = new JslipcChannelInputStream(pipe.source());
+
+		// setup timeouts
+		out.setTimeout(10000); // 10 seconds
+		in.setTimeout(10000); // 10 seconds
 
 		talkToErnie(out, in);
 

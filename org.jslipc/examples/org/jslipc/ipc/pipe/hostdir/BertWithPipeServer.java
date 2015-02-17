@@ -16,6 +16,9 @@ public class BertWithPipeServer {
 		serverDir.mkdir();
 		HostDir hostDir = HostDir.create(serverDir);
 		JslipcPipeServer server = new JslipcPipeServer(hostDir);
+		// setup timeouts
+		server.setAcceptTimeout(10000);
+		server.setTimeout(10000);
 
 		// accept connection
 		JslipcConnection connection = server.accept();
