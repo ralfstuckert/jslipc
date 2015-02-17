@@ -1,11 +1,20 @@
 = Jslipc - Java Socket-Less Inter-Process Communication API =
 
-= Version 0.2.2 =
+= Version 0.2.3 =
+
+*Fixes*
+ * Issue 18: Rename ServerDir to a less misleading name
+ * Issue 19: Support for ServerDir in JSlipPipeServer and -Client
+ * Issue 20: Add examples for using timeouts
+ 
+
+ ----
+ 
+== Version 0.2.2 ==
 
 *Fixes*
  * Issue 17: Server directory utility
  
-
  ----
  
 == Version 0.2.1 ==
