@@ -15,7 +15,7 @@ public class ErnieWithPipeClient {
 		JslipcPipeClient client = new JslipcPipeClient(hostDir,
 				DirectoryType.Host);
 		// setup timeouts
-		client.setTimeout(10000);
+		client.setTimeout(10000); // connect-timeout
 		// request connection
 		@SuppressWarnings("unchecked")
 		JslipcPipe pipe = client.connect();
