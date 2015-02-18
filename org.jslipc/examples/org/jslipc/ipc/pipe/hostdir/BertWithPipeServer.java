@@ -12,9 +12,9 @@ public class BertWithPipeServer {
 	
 	public static void main(String[] args) throws Exception {
 		// set up pipe
-		File serverDir = new File("./server");
-		serverDir.mkdir();
-		HostDir hostDir = HostDir.create(serverDir);
+		File sharedDir = new File("./server");
+		sharedDir.mkdir();
+		HostDir hostDir = HostDir.create(sharedDir);
 		JslipcPipeServer server = new JslipcPipeServer(hostDir);
 		// setup timeouts
 		server.setAcceptTimeout(10000); // timeout for accepting new connections

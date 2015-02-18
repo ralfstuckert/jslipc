@@ -11,8 +11,8 @@ public class ErnieWithPipeClient {
 
 	public static void main(String[] args) throws Exception {
 		// set up pipe
-		File hostDir = new File("./server");
-		JslipcPipeClient client = new JslipcPipeClient(hostDir,
+		File sharedDir = new File("./server");
+		JslipcPipeClient client = new JslipcPipeClient(sharedDir,
 				DirectoryType.Host);
 		// setup timeouts
 		client.setTimeout(10000); // connect-timeout
