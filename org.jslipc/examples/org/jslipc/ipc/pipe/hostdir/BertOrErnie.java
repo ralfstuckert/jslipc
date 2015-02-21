@@ -16,7 +16,6 @@ import org.jslipc.util.HostDir;
 public class BertOrErnie {
 
 	public static void main(String[] args) throws Exception {
-		// set up pipe
 		File sharedDir = new File("./server");
 		sharedDir.mkdir();
 		try {
