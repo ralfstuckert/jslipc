@@ -20,13 +20,13 @@ public class BertOrErnie {
 		File sharedDir = new File("./server");
 		sharedDir.mkdir();
 		try {
-			beBert(sharedDir);
+			actAsBert(sharedDir);
 		} catch (ActiveHostException e) {
-			beErnie(sharedDir);
+			actAsErnie(sharedDir);
 		}
 	}
 
-	private static void beBert(File sharedDir) throws IOException {
+	private static void actAsBert(File sharedDir) throws IOException {
 		HostDir hostDir = HostDir.create(sharedDir);
 		JslipcPipeServer server = new JslipcPipeServer(hostDir);
 		// setup timeouts
@@ -43,7 +43,7 @@ public class BertOrErnie {
 		bert.talkToErnie(pipe);
 	}
 
-	private static void beErnie(File sharedDir) throws IOException {
+	private static void actAsErnie(File sharedDir) throws IOException {
 		JslipcPipeClient client = new JslipcPipeClient(sharedDir,
 				DirectoryType.Host);
 		// setup timeouts
