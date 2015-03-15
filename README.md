@@ -9,7 +9,7 @@ So what's wrong with sockets? Nowadays most clients (at least on windows) are ru
 
 There are alternatives to sockets, e.g. using shared memory or files. This is, where jslipc is heading to. There are already many Java IPC libraries out there , but these are either thin wrappers around sockets (why would I need that?) or orphans, started as a couple of lines of code, left alone in the dark. Let's see if we can do better...
 
-For more information on how to use Jslipc see the [wiki](https://github.com/ralfstuckert/jslipc/wki) and the [API javadoc](https://googledrive.com/host/0B9zm4ZrRkrAiU2czdVE3NmNvU28/).
+For more information on how to use Jslipc see the [wiki](https://github.com/ralfstuckert/jslipc/wiki) and the [API javadoc](https://googledrive.com/host/0B9zm4ZrRkrAiU2czdVE3NmNvU28/).
 
 __Jslipc is available in the [Maven Central Repository](http://search.maven.org/#search%7Cga%7C1%7Cjslipc)__
 
