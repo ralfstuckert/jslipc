@@ -1,4 +1,7 @@
 <h1>Java Socket-Less Inter-Process Communication API</h1>
+
+<em>currently moving from <a href="https://code.google.com/p/jslipc/">googlecode</a> to github, not yet complete...</em>
+
 The goal of the jslipc project is to provide Java APIs for inter-process communication (IPC) as an alternative to sockets. 
 
 So what's wrong with sockets? Nowadays most clients (at least on windows) are running anti-virus software, local firewalls and all other kinds of security stuff. But usually they prevent opening sockets :-\ 
