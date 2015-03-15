@@ -9,7 +9,9 @@ So what's wrong with sockets? Nowadays most clients (at least on windows) are ru
 
 There are alternatives to sockets, e.g. using shared memory or files. This is, where jslipc is heading to. There are already many Java IPC libraries out there , but these are either thin wrappers around sockets (why would I need that?) or orphans, started as a couple of lines of code, left alone in the dark. Let's see if we can do better...
 
-__Jslipc is now available in the [Maven Central Repository](http://search.maven.org/#search%7Cga%7C1%7Cjslipc)__
+For more information on how to use Jslipc see the [wiki](https://github.com/ralfstuckert/jslipc/wki) and the [API javadoc](https://googledrive.com/host/0B9zm4ZrRkrAiU2czdVE3NmNvU28/).
+
+__Jslipc is available in the [Maven Central Repository](http://search.maven.org/#search%7Cga%7C1%7Cjslipc)__
 
 ##<a href="https://github.com/ralfstuckert/jslipc/releases/tag/jslipc-0.2.3">Version 0.2.3</a>##
 
@@ -18,4 +20,3 @@ __Jslipc is now available in the [Maven Central Repository](http://search.maven.
 - [Issue #19](https://github.com/ralfstuckert/jslipc/issues/19): Support for ServerDir in JSlipPipeServer and -Client
 - [Issue #20](https://github.com/ralfstuckert/jslipc/issues/20): Add examples for using timeouts
 
- 
