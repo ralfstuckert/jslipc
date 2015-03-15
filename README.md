@@ -14,8 +14,8 @@ __Jslipc is now available in the [Maven Central Repository](http://search.maven.
 ##<a href="https://github.com/ralfstuckert/jslipc/releases/tag/jslipc-0.2.3">Version 0.2.3</a>##
 
 **Fixes**
-- Issue 18: Rename ServerDir to a less misleading name
-- Issue 19: Support for ServerDir in JSlipPipeServer and -Client
-- Issue 20: Add examples for using timeouts
+- [Issue #18](https://github.com/ralfstuckert/jslipc/issues/18): Rename ServerDir to a less misleading name
+- [Issue #19](https://github.com/ralfstuckert/jslipc/issues/19): Support for ServerDir in JSlipPipeServer and -Client
+- [Issue #20](https://github.com/ralfstuckert/jslipc/issues/20): Add examples for using timeouts
 
  
