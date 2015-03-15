@@ -11,11 +11,11 @@ There are alternatives to sockets, e.g. using shared memory or files. This is, w
 
 __Jslipc is now available in the [Maven Central Repository](http://search.maven.org/#search%7Cga%7C1%7Cjslipc)__
 
-##<a href="https://code.google.com/p/jslipc/wiki/Downloads#Version_0.2.3"><img href="https://ssl.gstatic.com/codesite/ph/images/dl_arrow.gif" /> Version 0.2.3</a>##
+##<a href="https://github.com/ralfstuckert/jslipc/releases/tag/jslipc-0.2.3">Version 0.2.3</a>##
 
 **Fixes**
-- Issue 18: Rename !ServerDir to a less misleading name
-- Issue 19: Support for !ServerDir in JSlipPipeServer and -Client
+- Issue 18: Rename ServerDir to a less misleading name
+- Issue 19: Support for ServerDir in JSlipPipeServer and -Client
 - Issue 20: Add examples for using timeouts
 
  
