@@ -1,0 +1,10 @@
+org.jslipc
+org.jslipc.channel
+org.jslipc.channel.buffer
+org.jslipc.channel.file
+org.jslipc.channel.file.chunk
+org.jslipc.ipc.pipe
+org.jslipc.ipc.pipe.file
+org.jslipc.ipc.pipe.shm
+org.jslipc.util
+sun.net.www.protocol.jslipc
