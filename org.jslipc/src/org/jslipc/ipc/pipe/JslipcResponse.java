@@ -64,7 +64,7 @@ public class JslipcResponse extends AbstractJslipcMessage {
 	
 	@Override
 	protected String getMessageName() {
-		return "responest";
+		return "response";
 	}
 
 	@Override
