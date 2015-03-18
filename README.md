@@ -1,11 +1,11 @@
-<img src="https://github.com/ralfstuckert/jslipc/blob/master/org.jslipc/javadoc/resources/jslipcLogo.png" alt="Logo" style="height: 80px;"/>
-#Java Socket-Less Inter-Process Communication API#
+<img src="https://github.com/ralfstuckert/jslipc/blob/master/org.jslipc/javadoc/resources/jslipcLogo.png" alt="Logo" height="150" />
+##Java Socket-Less Inter-Process Communication API##
 
 *currently moving from [googlecode](https://code.google.com/p/jslipc/) to github, not yet complete...*
 
 The goal of the jslipc project is to provide Java APIs for inter-process communication (IPC) as an alternative to sockets. 
 
-So what's wrong with sockets? Nowadays most clients (at least on windows) are running anti-virus software, local firewalls and all other kinds of security stuff. But usually they prevent opening sockets :-\ 
+So what's wrong with sockets? Nowadays most clients (at least on windows) are running anti-virus software, local firewalls and all other kinds of security stuff. But usually they prevent opening sockets :grimacing:
 
 There are alternatives to sockets, e.g. using shared memory or files. This is, where jslipc is heading to. There are already many Java IPC libraries out there , but these are either thin wrappers around sockets (why would I need that?) or orphans, started as a couple of lines of code, left alone in the dark. Let's see if we can do better...
 
