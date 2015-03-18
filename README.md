@@ -1,4 +1,6 @@
-<img src="https://github.com/ralfstuckert/jslipc/blob/master/org.jslipc/javadoc/resources/jslipcLogo.png" alt="Logo" height="150" />
+<img src="https://github.com/ralfstuckert/jslipc/blob/master/org.jslipc/javadoc/resources/jslipcLogo.png" alt="Logo" height="150" align="middle"/>
+
+
 ##Java Socket-Less Inter-Process Communication API##
 
 *currently moving from [googlecode](https://code.google.com/p/jslipc/) to github, not yet complete...*
